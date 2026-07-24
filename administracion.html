@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Maestro - Chulas Burgers</title>
+<style>
+    body { background-color: #121216; color: #f5f5f7; font-family: monospace; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #ffb74d; border-bottom: 2px solid #333; padding-bottom: 10px; margin-top:0; }
+    
+    /* Controles Superiores Divididos */
+    .controles-top { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .btn-top { background: #2a2a35; color: #fff; padding: 10px 20px; border: 1px solid #444; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    .btn-top.registro { background: #8e24aa; border-color: #7b1fa2; }
+    .btn-top.corte { background: #ff5722; border-color: #e64a19; }
+    .btn-top:hover { filter: brightness(1.2); }
+
+    .contenedor-principal { max-width: 800px; margin: 0 auto; background: #1e1e24; padding: 20px; border-radius: 12px; border: 1px solid #2a2a35; }
+    .tarjeta-pedido { background: #222; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #ffb74d; }
+    .lista-items { background: #1a1a24; padding: 10px; border-radius: 5px; color: #ccc; margin: 10px 0; }
+    .caja-botones { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-completar { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1; }
+    .btn-efectivo { background-color: #8bc34a; color: #111; }
+    .btn-tarjeta { background-color: #03a9f4; color: #fff; }
+    
+    /* MODALES */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; overflow-y: auto; }
+    .modal-contenido { background: #1e1e24; max-width: 600px; margin: 40px auto; padding: 20px; border-radius: 8px; border: 1px solid #444; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
+    .btn-cerrar-modal { background: #ff5252; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    
+    /* Elementos de Ventas */
+    .item-cobrado { display: flex; justify-content: space-between; background: #222; padding: 12px; margin-bottom: 8px; border-radius: 4px; border-left: 4px solid #8e24aa; font-size: 1.1rem; }
+    .item-cobrado .total-venta { font-weight: bold; color: #ffb74d; }
+
+    /* Elementos de Corte */
+    .resumen-caja { display: flex; flex-direction: column; gap: 15px; background: #2a2a35; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+    .resumen-item { display: flex; justify-content: space-between; font-size: 1.2rem; border-bottom: 1px dashed #444; padding-bottom: 10px; }
+    .resumen-item.gran-total { border-bottom: none; font-size: 1.5rem; font-weight: bold; margin-top: 10px; }
+    .txt-efectivo { color: #8bc34a; }
+    .txt-tarjeta { color: #03a9f4; }
+    .txt-total { color: #ffb74d; }
+    .btn-corte-caja { background-color: #ff5722; color: white; width: 100%; padding: 15px; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+</style>
+</head>
+<body>
+    <h1>📊 Administración - Chulas Burgers</h1>
+    <div class="controles-top">
+        <button class="btn-top" onclick="window.location.href='almacen.html'">📦 Ver Almacén</button>
+        <button class="btn-top registro" onclick="abrirRegistro()">🗃️ Ver Registro Cobradas</button>
+        <button class="btn-top corte" onclick="abrirCorte()">✂️ Ver Corte de Caja</button>
+    </div>
+
+    <div class="contenedor-principal" id="bandeja-entrada">
+        <p style="text-align:center;">Cargando comandas...</p>
+    </div>
+
+    <!-- Modal Registro Cobradas -->
+    <div id="modal-registro" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h2>Cuentas Cobradas</h2>
+                <button class="btn-cerrar-modal" onclick="cerrarModal('modal-registro')">X</button>
+            </div>
+            <div id="lista-cobranzas-contenido" style="max-height: 400px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Corte de Caja -->
+    <div id="modal-corte" class="modal">
+        <div class="modal-contenido">
+            <div class="modal-header">
+                <h2>Corte de Caja (Z)</h2>
+                <button class="btn-cerrar-modal" onclick="cerrarModal('modal-corte')">X</button>
+            </div>
+            <div class="resumen-caja">
+                <div class="resumen-item"><span>Efectivo Físico 💵:</span> <strong class="txt-efectivo" id="sum-efectivo">$0.00</strong></div>
+                <div class="resumen-item"><span>Transferencia/Tarjeta 💳:</span> <strong class="txt-tarjeta" id="sum-tarjeta">$0.00</strong></div>
+                <div class="resumen-item gran-total"><span>VENTA TOTAL 💰:</span> <strong class="txt-total" id="sum-total">$0.00</strong></div>
+            </div>
+            <button class="btn-corte-caja" onclick="realizarCierreCaja()">🖨️ Realizar Cierre y Vaciar Caja</button>
+        </div>
+    </div>
+
+<script>
+    function renderAdmin() {
+        fetch('/api/pedidos').then(r => r.json()).then(pedidos => {
+            const bandeja = document.getElementById('bandeja-entrada');
+            let htmlContent = "";
+            pedidos.slice().reverse().forEach(p => {
+                let productosTexto = p.items ? p.items.map(item => `<div>${item.cantidad}x ${item.nombre}</div>`).join('') : '';
+                htmlContent += `
+                <div class="tarjeta-pedido">
+                    <div style="font-size:1.1rem; color:white;"><strong>${p.cliente || 'Mesa/Cliente'}</strong></div>
+                    <div class="lista-items">${productosTexto}</div>
+                    <div style="text-align:right; color:#8bc34a; font-weight:bold; font-size:1.2rem;">Total: $${p.total}</div>
+                    <div class="caja-botones">
+                        <button class="btn-completar btn-efectivo" onclick="cerrarPedido('${p.id}', 'efectivo')">💵 Efectivo</button>
+                        <button class="btn-completar btn-tarjeta" onclick="cerrarPedido('${p.id}', 'tarjeta')">💳 Tarjeta</button>
+                    </div>
+                </div>`;
+            });
+            bandeja.innerHTML = htmlContent || '<p style="text-align:center;">No hay pedidos activos.</p>';
+        });
+    }
+
+    window.cerrarPedido = function(id, metodo) {
+        fetch('/api/pedidos/cobrar', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, metodo: metodo })
+        }).then(() => renderAdmin());
+    };
+
+    function obtenerDatosVentas(callback) {
+        fetch('/api/ventas_cerradas').then(res => res.json()).then(ventas => callback(ventas));
+    }
+
+    window.abrirRegistro = function() {
+        document.getElementById('modal-registro').style.display = 'block';
+        obtenerDatosVentas(ventas => {
+            let htmlVentas = '';
+            ventas.forEach(v => {
+                const icono = v.metodo_pago === 'tarjeta' ? '💳' : '💵';
+                htmlVentas += `
+                    <div class="item-cobrado">
+                        <span>${icono} #${v.id} - ${v.cliente}</span>
+                        <span class="total-venta">$${parseFloat(v.total).toFixed(2)}</span>
+                    </div>`;
+            });
+            document.getElementById('lista-cobranzas-contenido').innerHTML = htmlVentas || '<p>No hay cuentas cobradas hoy.</p>';
+        });
+    };
+
+    window.abrirCorte = function() {
+        document.getElementById('modal-corte').style.display = 'block';
+        obtenerDatosVentas(ventas => {
+            let tEfectivo = 0, tTarjeta = 0;
+            ventas.forEach(v => {
+                if(v.metodo_pago === 'tarjeta') tTarjeta += parseFloat(v.total);
+                else tEfectivo += parseFloat(v.total);
+            });
+            document.getElementById('sum-efectivo').innerText = `$${tEfectivo.toFixed(2)}`;
+            document.getElementById('sum-tarjeta').innerText = `$${tTarjeta.toFixed(2)}`;
+            document.getElementById('sum-total').innerText = `$${(tEfectivo + tTarjeta).toFixed(2)}`;
+        });
+    };
+
+    window.cerrarModal = (id) => document.getElementById(id).style.display = 'none';
+
+    window.realizarCierreCaja = function() {
+        if(confirm("¿Seguro que deseas hacer el Cierre? Esto reiniciará la caja a $0.00.")) {
+            fetch('/api/cierre_caja', { method: 'POST' }).then(() => {
+                alert("Corte realizado.");
+                cerrarModal('modal-corte');
+            });
+        }
+    }
+
+    setInterval(renderAdmin, 3000);
+    renderAdmin();
+</script>
+</body>
+</html>

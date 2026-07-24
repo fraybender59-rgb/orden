@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital - Chulas Burgers</title>
+    <style>
+        body { background-color: #121216; color: #f5f5f7; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1, h2 { text-align: center; color: #ffb74d; }
+        
+        /* Grid estilo Catálogo con Imágenes */
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .producto-card { background: #1a1a20; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        
+        .producto-img { width: 100%; height: 180px; object-fit: cover; background-color: #2a2a35; }
+        .producto-info { padding: 15px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .producto-info h3 { color: #fff; margin: 0 0 10px 0; font-size: 1.3rem; }
+        .precio { font-size: 1.2rem; color: #ffb74d; font-weight: bold; margin-bottom: 15px; }
+        
+        .controles-pedido { display: flex; gap: 10px; margin-bottom: 15px; }
+        .input-cant { width: 50px; background: #111; color: white; border: 1px solid #444; border-radius: 5px; padding: 8px; text-align: center; font-size: 1rem; }
+        .input-nota { flex-grow: 1; background: #111; color: white; border: 1px solid #444; border-radius: 5px; padding: 8px; font-size: 0.9rem; }
+        
+        .btn-add { background: #8bc34a; color: #111; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1rem; transition: background 0.3s; }
+        .btn-add:hover { background: #7cb342; }
+        
+        /* Botón flotante del carrito */
+        .btn-flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #03a9f4; color: #111; border: none; padding: 15px 25px; border-radius: 30px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 1000; }
+        
+        /* Modales */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-contenido { background: #2a2a35; padding: 25px; border-radius: 10px; max-width: 500px; width: 90%; text-align: left; border: 1px solid #555; max-height: 90vh; overflow-y: auto; }
+        
+        .lista-carrito { list-style: none; padding: 0; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .lista-carrito li { display: flex; flex-direction: column; border-bottom: 1px dashed #444; padding: 10px 0; }
+        .item-carrito-header { display: flex; justify-content: space-between; font-weight: bold; }
+        .item-nota-carrito { font-size: 0.85rem; color: #aaa; margin-top: 5px; font-style: italic; }
+        
+        .caja-transferencia { background: #1e1e24; border: 2px dashed #ffb74d; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; }
+        .caja-transferencia p { margin: 5px 0; font-size: 0.95rem; }
+        .cuenta-banco { font-size: 1.3rem; color: #8bc34a; font-weight: bold; letter-spacing: 2px; }
+
+        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background: #111; color: white; box-sizing: border-box; }
+        .btn-enviar { background: #8bc34a; color: #111; width: 100%; border: none; padding: 15px; font-size: 1.2rem; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-cerrar { background: #e53935; color: white; width: 100%; border: none; padding: 10px; font-size: 1rem; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        /* Botón WhatsApp */
+        .btn-whatsapp { display: block; background: #25D366; color: white; text-align: center; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <h1>🍔 Menú Chulas Burgers</h1>
+    
+    <div class="menu-grid" id="menu-grid">
+        <!-- Los productos se cargan con JS -->
+    </div>
+
+    <button class="btn-flotante-carrito" onclick="abrirCarrito()">🛒 Ver Pedido (<span id="contador-carrito">0</span>)</button>
+
+    <!-- Modal del Carrito (Paso 1) -->
+    <div id="modal-carrito" class="modal">
+        <div class="modal-contenido">
+            <h2>🛒 Tu Pedido</h2>
+            <ul class="lista-carrito" id="lista-carrito"></ul>
+            <h3 style="text-align: right; color: #8bc34a;">Total: $<span id="total-carrito">0.00</span></h3>
+
+            <div class="caja-transferencia">
+                <p style="color: #ffb74d; font-weight: bold;">💳 Pagos por Transferencia / Depósito</p>
+                <p>Banco: <strong>BBVA</strong></p>
+                <p>Nombre: <strong>Tu Nombre Aquí</strong></p>
+                <div class="cuenta-banco">las tarjeta 5678 9012 3456</div>
+            </div>
+
+            <label for="nombre-cliente">Ingresa tu Nombre o Número de Mesa:</label>
+            <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez o Mesa 4">
+            
+            <button class="btn-enviar" onclick="enviarPedido()">🚀 Confirmar y Finalizar Pedido</button>
+            <button class="btn-cerrar" onclick="cerrarCarrito()">Regresar al Menú</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación WhatsApp (Paso 2) -->
+    <div id="modal-whatsapp" class="modal">
+
+<div class="modal-exito" style="background-color: #1e1e24; color: #fff; padding: 20px; border-radius: 10px; max-width: 500px; text-align: left;">
+    <h2 style="color: #4CAF50; text-align: center;">¡Pedido Generado con Éxito! 🎉</h2>
+    <p style="text-align: center;">Tu orden ya está en nuestro sistema. Para que cocina comience a prepararlo, <strong>necesitamos confirmar tu pago</strong>.</p>
+    
+    <div style="background-color: #2a2a35; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>Paso 1:</strong> Realiza la transferencia por el total a la cuenta indicada.</p>
+        <p><strong>Paso 2:</strong> Guarda tu comprobante o captura de pantalla.</p>
+        <p><strong>Paso 3:</strong> Es requerible enviar su comprobante de pago vía whats para realizar el pedido, agradecemos su preferencia.</p>
+    </div>
+
+    <!-- EL ENLACE YA TIENE TU NÚMERO Y UN MENSAJE PREESTABLECIDO -->
+    <a href="https://wa.me/5530440397?text=Hola,%20adjunto%20mi%20comprobante%20de%20pago%20para%20mi%20pedido." target="_blank" style="display: block; background-color: #25D366; color: white; text-align: center; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">
+        📱 Enviar Comprobante por WhatsApp
+    </a>
+    
+    <button style="display: block; width: 100%; background-color: #555; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar esta ventana</button>
+</div>  
+  </div>
+
+    <script>
+        // Catálogo de Productos con rutas para las imágenes que tú meterás
+        const productos = [
+            { id: 1, nombre: 'Hamburguesa', precio: 70, imagen: 'imagenes/hamburguesa.jpg' },
+            { id: 2, nombre: 'Hot Dog', precio: 25, imagen: 'imagenes/hotdog.jpg' },
+            { id: 3, nombre: 'Orden de Hot Dogs', precio: 65, imagen: 'imagenes/orden_hotdogs.jpg' },
+            { id: 4, nombre: 'Sincronizadas Mexa', precio: 85, imagen: 'imagenes/sincronizadas.jpg' },
+            { id: 5, nombre: 'Variantes de Enchiladas', precio: 90, imagen: 'imagenes/enchiladas.jpg' },
+            { id: 6, nombre: 'Chimichangas', precio: 30, imagen: 'imagenes/chimichangas.jpg' },
+            { id: 7, nombre: 'Refresco Varios', precio: 25, imagen: 'imagenes/refresco.jpeg' }
+        ];
+
+        let carrito = [];
+
+        window.onload = function() {
+            renderizarMenu();
+        };
+
+        function renderizarMenu() {
+            const grid = document.getElementById('menu-grid');
+            let html = '';
+            productos.forEach(p => {
+                html += `
+                    <div class="producto-card">
+                        <!-- DEJA ESTAS LÍNEAS. Solo asegúrate de que las fotos existan en la carpeta -->
+                        <img src="${p.imagen}" alt="${p.nombre}" class="producto-img" onerror="this.src='https://via.placeholder.com/300x180/2a2a35/ffffff?text=Sin+Imagen'">
+                        <div class="producto-info">
+                            <div>
+                                <h3>${p.nombre}</h3>
+                                <div class="precio">$${p.precio.toFixed(2)}</div>
+                            </div>
+                            <div>
+                                <div class="controles-pedido">
+                                    <input type="number" id="cant-${p.id}" class="input-cant" value="1" min="1">
+                                    <input type="text" id="nota-${p.id}" class="input-nota" placeholder="Notas (Ej. Sin cebolla)">
+                                </div>
+                                <button class="btn-add" onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio})">Agregar a la orden</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function agregarAlCarrito(id, nombre, precio) {
+            const cantidad = parseInt(document.getElementById(`cant-${id}`).value) || 1;
+            const notas = document.getElementById(`nota-${id}`).value.trim();
+
+            carrito.push({ nombre: nombre, precio: precio, cantidad: cantidad, notas: notas });
+            
+            // Limpiar inputs
+            document.getElementById(`cant-${id}`).value = 1;
+            document.getElementById(`nota-${id}`).value = '';
+            
+            actualizarContador();
+            alert(`✅ Se agregaron ${cantidad}x ${nombre} al pedido.`);
+        }
+
+        function actualizarContador() {
+            let totalItems = 0;
+            carrito.forEach(i => totalItems += i.cantidad);
+            document.getElementById('contador-carrito').innerText = totalItems;
+        }
+
+        function abrirCarrito() {
+            const lista = document.getElementById('lista-carrito');
+            let html = '';
+            let total = 0;
+
+            carrito.forEach((item, index) => {
+                let subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                let notaTexto = item.notas ? `<div class="item-nota-carrito">Nota: ${item.notas}</div>` : '';
+                
+                html += `
+                    <li>
+                        <div class="item-carrito-header">
+                            <span>${item.cantidad}x ${item.nombre}</span>
+                            <span>$${subtotal.toFixed(2)} <button onclick="eliminarDelCarrito(${index})" style="background:red; color:white; border:none; border-radius:3px; cursor:pointer; margin-left:10px;">X</button></span>
+                        </div>
+                        ${notaTexto}
+                    </li>
+                `;
+            });
+
+            lista.innerHTML = html || '<li>El carrito está vacío.</li>';
+            document.getElementById('total-carrito').innerText = total.toFixed(2);
+            document.getElementById('modal-carrito').style.display = 'flex';
+        }
+
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            actualizarContador();
+            abrirCarrito();
+        }
+
+        function cerrarCarrito() {
+            document.getElementById('modal-carrito').style.display = 'none';
+        }
+
+        function enviarPedido() {
+            if (carrito.length === 0) {
+                alert("Tu carrito está vacío.");
+                return;
+            }
+
+            const nombreCliente = document.getElementById('nombre-cliente').value.trim();
+            if (!nombreCliente) {
+                alert("Por favor ingresa tu nombre o número de mesa.");
+                return;
+            }
+
+            let total = 0;
+            carrito.forEach(i => total += (i.precio * i.cantidad));
+
+            const nuevoPedido = {
+                id: Math.random().toString(36).substr(2, 6),
+                tipo: 'online', 
+                cliente: nombreCliente,
+                hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                items: carrito,
+                total: total
+            };
+
+            // Enviar a la base de datos local
+            let pedidosActivos = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+            pedidosActivos.push(nuevoPedido);
+            localStorage.setItem('pedidos_activos', JSON.stringify(pedidosActivos));
+
+            // Configurar Modal Final de WhatsApp
+            document.getElementById('total-whatsapp').innerText = total.toFixed(2);
+            
+            // Limpiar carrito y cerrar modal 1
+            carrito = [];
+            actualizarContador();
+            document.getElementById('nombre-cliente').value = '';
+            cerrarCarrito();
+
+            // Abrir modal 2 (WhatsApp)
+            document.getElementById('modal-whatsapp').style.display = 'flex';
+        }
+
+        function cerrarWhatsApp() {
+            document.getElementById('modal-whatsapp').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punto Staff - Chulas Burgers</title>
+    <style>
+        body { 
+            background-color: #121216; 
+            color: #f5f5f7; 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            transition: background-image 0.5s ease;
+        }
+        
+        .contenedor-cristal {
+            background: rgba(18, 18, 22, 0.85);
+            backdrop-filter: blur(5px);
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3 { text-align: center; margin-top: 5px; color: #fff; text-shadow: 2px 2px 4px #000; }
+        
+        /* LOGIN */
+        #pantalla-login { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
+        .grid-meseros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; width: 100%; max-width: 600px; margin-top: 20px; }
+        .btn-mesero { background: #2a2a35; color: white; border: 2px solid #03a9f4; padding: 20px; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-mesero:hover { background: #03a9f4; color: #111; }
+
+        /* MESAS */
+        #pantalla-mesas { display: none; max-width: 800px; margin: 0 auto; }
+        .grid-mesas { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-top: 20px;}
+        .btn-mesa { background: #1e1e24; color: white; border: 2px solid #555; padding: 20px 10px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-align: center; }
+        .btn-mesa.ocupada { border-color: #8bc34a; background: rgba(139, 195, 74, 0.2); }
+        .btn-salir { background: #e53935; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 30px; display: block; margin-left: auto; margin-right: auto; }
+
+        /* PLATILLOS */
+        #pantalla-platillos { display: none; max-width: 800px; margin: 0 auto; }
+        .header-mesa { display: flex; justify-content: space-between; align-items: center; background: #2a2a35; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #444; }
+        
+        .grid-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .btn-platillo { background: rgba(30, 30, 36, 0.9); border: 1px solid #ffb74d; color: white; padding: 15px 10px; border-radius: 8px; cursor: pointer; font-weight: bold; text-align: center; transition: 0.2s; }
+        .btn-platillo:hover { background: #ffb74d; color: #111; }
+        
+        .lista-pedido { background: rgba(30, 30, 36, 0.9); border: 1px solid #555; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+        .item-pedido { display: flex; flex-direction: column; border-bottom: 1px dashed #555; padding: 8px 0; }
+        .item-fila-principal { display: flex; justify-content: space-between; align-items: center; }
+        .item-comentario { font-size: 0.85rem; color: #ffb74d; font-style: italic; margin-top: 4px; }
+        
+        .btn-eliminar-item { background: #e53935; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px; font-weight: bold;}
+        .icono-bloqueado { color: #8bc34a; margin-left: 10px; font-size: 1.2rem; cursor: not-allowed; }
+        
+        .acciones-mesa { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-enviar-cocina { background: #03a9f4; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; flex: 1; }
+        .btn-pedir-cuenta { background: #ffb74d; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; flex: 1; }
+        .btn-volver { background: #555; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+
+    </style>
+</head>
+<body>
+    <div class="contenedor-cristal">
+        
+        <div id="pantalla-login">
+            <h1>🍔 Selecciona tu Perfil</h1>
+            <div class="grid-meseros">
+                <button class="btn-mesero" onclick="iniciarSesion('Mesero 1', '1Itachi')">Mesero 1</button>
+                <button class="btn-mesero" onclick="iniciarSesion('Mesero 2', '2kakashi')">Mesero 2</button>
+                <button class="btn-mesero" onclick="iniciarSesion('Mesero 3', '3Pain')">Mesero 3</button>
+                <button class="btn-mesero" onclick="iniciarSesion('Mesero 4', '4shikamaru')">Mesero 4</button>
+                <button class="btn-mesero" onclick="iniciarSesion('Mesero 5', '5sasori')">Mesero 5</button>
+            </div>
+        </div>
+
+        <div id="pantalla-mesas">
+            <h1 id="titulo-mesero">Hola, Mesero</h1>
+            <div class="grid-mesas" id="contenedor-mesas"></div>
+            <button class="btn-salir" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+        <div id="pantalla-platillos">
+            <div class="header-mesa">
+                <h2 id="titulo-mesa-actual" style="margin:0;">Mesa X</h2>
+                <button class="btn-volver" onclick="volverAMesas()">Volver a Mesas</button>
+            </div>
+
+            <div class="grid-menu">
+                <button class="btn-platillo" onclick="agregarPlatillo('Hamburguesa Sencilla', 50)">🍔 H. Sencilla</button>
+                <button class="btn-platillo" onclick="agregarPlatillo('Hamburguesa Doble', 75)">🍔 H. Doble</button>
+                <button class="btn-platillo" onclick="agregarPlatillo('Hot Dog', 25)">🌭 Hot Dog</button>
+                <button class="btn-platillo" onclick="agregarPlatillo('Orden de Hot Dogs', 65)">🌭 Orden Hot Dogs</button>
+                <button class="btn-platillo" onclick="agregarPlatillo('Sincronizadas Mexa', 85)">🌮 Sincronizadas</button>
+                <button class="btn-platillo" onclick="agregarPlatillo('Papas Fritas', 35)">🍟 Papas</button>
+                <button class="btn-platillo" onclick="agregarPlatillo('Refresco', 20)">🥤 Refresco</button>
+            </div>
+
+            <div class="lista-pedido">
+                <h3>Comanda Actual</h3>
+                <div id="lista-items-comanda"></div>
+                <h2 style="text-align: right; color: #8bc34a; margin-top: 15px;">Total: $<span id="total-comanda">0.00</span></h2>
+            </div>
+
+            <div class="acciones-mesa">
+                <button class="btn-enviar-cocina" onclick="enviarACocina()">🔥 Enviar a Cocina</button>
+                <button class="btn-pedir-cuenta" onclick="pedirCuenta()">🛎️ Pedir Cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let meseroActual = '';
+        let mesaActual = '';
+        let comandaTemporal = [];
+
+        // ATENCIÓN: RUTAS ACTUALIZADAS A LA CARPETA "imagenes"
+        function aplicarFondo(pantalla) {
+            if (pantalla === 'platillos') {
+                document.body.style.backgroundImage = "url('imagenes/kirby3.webp')";
+            } else {
+                document.body.style.backgroundImage = "url('imagenes/Kirby1.jpg')";
+            }
+        }
+
+        window.onload = () => { aplicarFondo('login'); }
+
+        function iniciarSesion(nombre, passCorrecta) {
+            let passIngresada = prompt(`Ingresa la contraseña para ${nombre}:`);
+            if (passIngresada === passCorrecta) {
+                meseroActual = nombre;
+                document.getElementById('titulo-mesero').innerText = `Hola, ${nombre}`;
+                document.getElementById('pantalla-login').style.display = 'none';
+                document.getElementById('pantalla-mesas').style.display = 'block';
+                aplicarFondo('mesas');
+                renderizarMesas();
+            } else {
+                alert("❌ Contraseña incorrecta");
+            }
+        }
+
+        function cerrarSesion() {
+            meseroActual = '';
+            document.getElementById('pantalla-mesas').style.display = 'none';
+            document.getElementById('pantalla-login').style.display = 'flex';
+            aplicarFondo('login');
+        }
+
+        function renderizarMesas() {
+            const contenedor = document.getElementById('contenedor-mesas');
+            let mesasActivas = JSON.parse(localStorage.getItem('mesas_activas')) || {};
+            let html = '';
+
+            for (let i = 1; i <= 15; i++) {
+                let idMesa = `Mesa ${i}`;
+                let ocupada = mesasActivas[idMesa] ? true : false;
+                let clase = ocupada ? 'btn-mesa ocupada' : 'btn-mesa';
+                let subtexto = ocupada ? `(${mesasActivas[idMesa].mesero})` : 'Libre';
+                
+                html += `<button class="${clase}" onclick="abrirMesa('${idMesa}')">
+                            ${idMesa}<br><span style="font-size:0.8rem; font-weight:normal;">${subtexto}</span>
+                         </button>`;
+            }
+            contenedor.innerHTML = html;
+        }
+
+        function abrirMesa(idMesa) {
+            mesaActual = idMesa;
+            document.getElementById('pantalla-mesas').style.display = 'none';
+            document.getElementById('pantalla-platillos').style.display = 'block';
+            aplicarFondo('platillos');
+            
+            document.getElementById('titulo-mesa-actual').innerText = idMesa;
+
+            let mesasActivas = JSON.parse(localStorage.getItem('mesas_activas')) || {};
+            comandaTemporal = mesasActivas[idMesa] ? mesasActivas[idMesa].items || [] : [];
+            actualizarVistaComanda();
+        }
+
+        function volverAMesas() {
+            guardarComandaEnMemoria();
+            document.getElementById('pantalla-platillos').style.display = 'none';
+            document.getElementById('pantalla-mesas').style.display = 'block';
+            aplicarFondo('mesas');
+            renderizarMesas();
+        }
+
+        function agregarPlatillo(nombre, precio) {
+            let comentario = prompt(`¿Algún comentario para ${nombre}? (Opcional)`);
+            if (comentario === null) return; // Canceló el prompt
+            
+            // Si hay un platillo identico y NO ha sido enviado a cocina, sumamos cantidad
+            let itemExistente = comandaTemporal.find(i => i.nombre === nombre && i.estado === 'nuevo' && i.comentario === comentario.trim());
+            
+            if (itemExistente) {
+                itemExistente.cantidad += 1;
+            } else {
+                comandaTemporal.push({ 
+                    nombre: nombre, 
+                    precio: precio, 
+                    cantidad: 1, 
+                    comentario: comentario.trim(),
+                    estado: 'nuevo' // 'nuevo' = puede borrarse. 'enviado' = bloqueado.
+                });
+            }
+            actualizarVistaComanda();
+            guardarComandaEnMemoria();
+        }
+
+        function eliminarPlatillo(index) {
+            if (comandaTemporal[index].estado === 'nuevo') {
+                comandaTemporal.splice(index, 1);
+                actualizarVistaComanda();
+                guardarComandaEnMemoria();
+            }
+        }
+
+        function enviarACocina() {
+            if (comandaTemporal.length === 0) { alert("Agrega platillos primero."); return; }
+            let huboCambios = false;
+            
+            comandaTemporal.forEach(item => {
+                if (item.estado === 'nuevo') {
+                    item.estado = 'enviado';
+                    huboCambios = true;
+                }
+            });
+
+            if (huboCambios) {
+                actualizarVistaComanda();
+                guardarComandaEnMemoria();
+                alert("👨‍🍳 ¡Orden enviada a cocina! Ya no puedes cancelar estos platillos desde aquí.");
+            } else {
+                alert("Todo lo de esta mesa ya está en cocina.");
+            }
+        }
+
+        function actualizarVistaComanda() {
+            const contenedor = document.getElementById('lista-items-comanda');
+            let total = 0;
+            let html = '';
+
+            comandaTemporal.forEach((item, index) => {
+                let subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                
+                // Lógica de bloqueo
+                let botonAccion = item.estado === 'nuevo' 
+                    ? `<button class="btn-eliminar-item" onclick="eliminarPlatillo(${index})">❌</button>`
+                    : `<span class="icono-bloqueado" title="Enviado a Cocina">🔒</span>`;
+
+                let textoComentario = item.comentario ? `<div class="item-comentario">Nota: ${item.comentario}</div>` : '';
+
+                html += `
+                    <div class="item-pedido">
+                        <div class="item-fila-principal">
+                            <span><strong>${item.cantidad}x</strong> ${item.nombre}</span>
+                            <span>$${subtotal.toFixed(2)} ${botonAccion}</span>
+                        </div>
+                        ${textoComentario}
+                    </div>
+                `;
+            });
+
+            contenedor.innerHTML = html || '<p style="color:#aaa; text-align:center;">Mesa sin pedidos.</p>';
+            document.getElementById('total-comanda').innerText = total.toFixed(2);
+        }
+
+        function guardarComandaEnMemoria() {
+            let mesasActivas = JSON.parse(localStorage.getItem('mesas_activas')) || {};
+            if (comandaTemporal.length > 0) {
+                let total = comandaTemporal.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+                mesasActivas[mesaActual] = { mesa: mesaActual, mesero: meseroActual, items: comandaTemporal, total: total };
+            } else {
+                delete mesasActivas[mesaActual];
+            }
+            localStorage.setItem('mesas_activas', JSON.stringify(mesasActivas));
+        }
+
+        function pedirCuenta() {
+            if (comandaTemporal.length === 0) return;
+            guardarComandaEnMemoria(); 
+            alert(`🛎️ ¡Cuenta solicitada! Avísale a Caja.`);
+            volverAMesas();
+        }
+    </script>
+</body>
+</html>

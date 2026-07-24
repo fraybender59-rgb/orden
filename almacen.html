@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Almacén e Inventario - Chulas Burgers</title>
+    <style>
+        body { 
+            background-color: #121216; color: #f5f5f7; font-family: Arial, sans-serif; 
+            margin: 0; padding: 0;
+            background-image: url('imagenes/Kirby1.jpg'); /* RUTA ACTUALIZADA */
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+        
+        .contenedor-cristal {
+            background: rgba(18, 18, 22, 0.90); backdrop-filter: blur(8px);
+            min-height: 100vh; padding: 20px; box-sizing: border-box;
+        }
+
+        h1, h2 { text-align: center; color: #fff; text-shadow: 2px 2px 4px #000; }
+        .caja-principal { max-width: 900px; margin: 0 auto; }
+        
+        .tabla-inventario { width: 100%; border-collapse: collapse; margin-top: 20px; background: rgba(30, 30, 36, 0.9); border-radius: 8px; overflow: hidden; }
+        .tabla-inventario th, .tabla-inventario td { border: 1px solid #444; padding: 12px; text-align: center; font-size: 1.1rem; }
+        .tabla-inventario th { background: #1e1e24; color: #ffb74d; }
+        .estado-ok { color: #8bc34a; font-weight: bold; }
+        .estado-bajo { color: #ffeb3b; font-weight: bold; }
+        .estado-critico { color: #e53935; font-weight: bold; }
+
+        .btn-accion { background: #03a9f4; color: #111; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .btn-accion:hover { background: #0288d1; }
+        .btn-actualizar { background: #8bc34a; width: 100%; margin-bottom: 20px; padding: 15px; font-size: 1.2rem; }
+        
+        .caja-edicion { display: flex; gap: 10px; justify-content: center; margin-top: 20px; background: rgba(30,30,36,0.9); padding: 15px; border-radius: 8px; }
+        .input-inv { padding: 10px; border-radius: 5px; border: 1px solid #555; background: #111; color: white; }
+        .input-mini { width: 70px; padding: 6px; border-radius: 4px; border: 1px solid #555; background: #222; color: #fff; text-align: center; }
+        .contenedor-suma { display: flex; align-items: center; justify-content: center; gap: 5px; }
+    </style>
+</head>
+<body>
+    <div class="contenedor-cristal">
+        <div class="caja-principal">
+            <h1>📦 Almacén Central (Inventario)</h1>
+            <p style="text-align: center; color: #aaa;">Las cantidades se descuentan automáticamente cuando el Jefe cobra una cuenta (solo si están en la misma PC).</p>
+            
+            <button class="btn-accion btn-actualizar" onclick="cargarInventario()">🔄 Refrescar Inventario</button>
+
+            <table class="tabla-inventario">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Existencias</th>
+                        <th>Estado</th>
+                        <th>Agregar Stock</th>
+                        <th>Borrar</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-inventario"></tbody>
+            </table>
+
+            <div class="caja-edicion">
+                <input type="text" id="nuevo-nombre" class="input-inv" placeholder="Nombre del platillo..." style="flex:2;">
+                <input type="number" id="nuevo-stock" class="input-inv" placeholder="Cant." style="flex:1;">
+                <button class="btn-accion" onclick="agregarProducto()">➕ Crear Producto</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inventarioBase = [
+            { nombre: "Hamburguesa Sencilla", cantidad: 50 },
+            { nombre: "Hamburguesa Doble", cantidad: 50 },
+            { nombre: "Hot Dog", cantidad: 50 },
+            { nombre: "Orden de Hot Dogs", cantidad: 50 },
+            { nombre: "Sincronizadas Mexa", cantidad: 50 },
+            { nombre: "Papas Fritas", cantidad: 50 },
+            { nombre: "Refresco", cantidad: 50 }
+        ];
+
+        function inicializarInventario() {
+            let inv = JSON.parse(localStorage.getItem('inventario'));
+            if (!inv || inv.length === 0) { localStorage.setItem('inventario', JSON.stringify(inventarioBase)); }
+        }
+
+        function cargarInventario() {
+            inicializarInventario();
+            let inv = JSON.parse(localStorage.getItem('inventario')) || [];
+            let html = '';
+
+            inv.forEach((prod, index) => {
+                let estado = '<span class="estado-ok">Disponible</span>';
+                if (prod.cantidad <= 10 && prod.cantidad > 0) estado = '<span class="estado-bajo">Poco Stock</span>';
+                if (prod.cantidad <= 0) estado = '<span class="estado-critico">AGOTADO</span>';
+
+                html += `
+                    <tr>
+                        <td><strong>${prod.nombre}</strong></td>
+                        <td>${prod.cantidad} pz</td>
+                        <td>${estado}</td>
+                        <td>
+                            <div class="contenedor-suma">
+                                <input type="number" id="input-suma-${index}" class="input-mini" placeholder="Ej: 5">
+                                <button class="btn-accion" style="padding: 6px 10px; background:#ffb74d;" onclick="sumarStockManual(${index})">Añadir</button>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn-accion" style="padding: 5px 10px; background:#e53935; color:white;" onclick="eliminarProducto(${index})">X</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('lista-inventario').innerHTML = html;
+        }
+
+        // NUEVA FUNCIÓN PARA AÑADIR CANTIDAD MANUAL
+        function sumarStockManual(index) {
+            let inputId = `input-suma-${index}`;
+            let cantidadAAgregar = parseInt(document.getElementById(inputId).value);
+
+            if (!isNaN(cantidadAAgregar) && cantidadAAgregar > 0) {
+                let inv = JSON.parse(localStorage.getItem('inventario')) || [];
+                inv[index].cantidad += cantidadAAgregar;
+                localStorage.setItem('inventario', JSON.stringify(inv));
+                cargarInventario();
+            } else {
+                alert("Por favor, ingresa un número válido mayor a 0.");
+            }
+        }
+
+        function agregarProducto() {
+            let nombre = document.getElementById('nuevo-nombre').value.trim();
+            let cantidad = parseInt(document.getElementById('nuevo-stock').value);
+            if (nombre !== '' && !isNaN(cantidad)) {
+                let inv = JSON.parse(localStorage.getItem('inventario')) || [];
+                let existe = inv.findIndex(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+                if (existe !== -1) { inv[existe].cantidad += cantidad; } else { inv.push({ nombre, cantidad }); }
+                localStorage.setItem('inventario', JSON.stringify(inv));
+                document.getElementById('nuevo-nombre').value = '';
+                document.getElementById('nuevo-stock').value = '';
+                cargarInventario();
+            }
+        }
+
+        function eliminarProducto(index) {
+            if (confirm("¿Seguro que deseas eliminar este producto?")) {
+                let inv = JSON.parse(localStorage.getItem('inventario')) || [];
+                inv.splice(index, 1);
+                localStorage.setItem('inventario', JSON.stringify(inv));
+                cargarInventario();
+            }
+        }
+
+        window.onload = cargarInventario;
+    </script>
+</body>
+</html>
