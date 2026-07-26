@@ -64,21 +64,31 @@
             <h2>🛒 Tu Pedido</h2>
             <ul class="lista-carrito" id="lista-carrito"></ul>
             <h3 style="text-align: right; color: #8bc34a;">Total: $<span id="total-carrito">0.00</span></h3>
-
-            <div class="caja-transferencia">
+ 
+               <div class="caja-transferencia">
                 <p style="color: #ffb74d; font-weight: bold;">💳 Pagos por Transferencia / Depósito</p>
                 <p>Banco: <strong>BBVA</strong></p>
                 <p>Nombre: <strong>Tu Nombre Aquí</strong></p>
                 <div class="cuenta-banco">las tarjeta 5678 9012 3456</div>
+                
+                <!-- NUEVO CAMPO PARA COMPROBANTE -->
+                <label for="comprobante" style="display:block; margin-top:10px; font-size:0.9rem;">Sube tu comprobante (Obligatorio para procesar):</label>
+                <input type="file" id="comprobante" accept="image/*" style="margin-top: 5px;">
             </div>
 
             <label for="nombre-cliente">Ingresa tu Nombre o Número de Mesa:</label>
             <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez o Mesa 4">
             
             <button class="btn-enviar" onclick="enviarPedido()">🚀 Confirmar y Finalizar Pedido</button>
-            <button class="btn-cerrar" onclick="cerrarCarrito()">Regresar al Menú</button>
-        </div>
+            <button class="btn-cerrar" onclick="cerrarCarrito()">Regresar al Menú</button>        </div>
+        
+      <a id="btn-wa-link" href="#" target="_blank" onclick="finalizarYResetear()" style="display: block; background-color: #25D366; color: white; text-align: center; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">
+        📱 Abrir WhatsApp y Enviar
+    </a>
+    
+    <button onclick="finalizarYResetear()" style="display: block; width: 100%; background-color: #555; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar y Nueva Orden</button>
     </div>
+
 
     <!-- Modal de Confirmación WhatsApp (Paso 2) -->
     <div id="modal-whatsapp" class="modal">
@@ -202,8 +212,7 @@
         function cerrarCarrito() {
             document.getElementById('modal-carrito').style.display = 'none';
         }
-
-        function enviarPedido() {
+         function enviarPedido() {
             if (carrito.length === 0) {
                 alert("Tu carrito está vacío.");
                 return;
@@ -214,10 +223,26 @@
                 alert("Por favor ingresa tu nombre o número de mesa.");
                 return;
             }
+            
+            // Validar que subió imagen (Opcional, puedes quitar este if si no quieres forzarlo)
+            const comprobante = document.getElementById('comprobante').value;
+            if(!comprobante) {
+                alert("Por favor, selecciona tu comprobante de pago antes de continuar.");
+                return;
+            }
 
             let total = 0;
-            carrito.forEach(i => total += (i.precio * i.cantidad));
+            let textoWA = `Hola, soy *${nombreCliente}*. Aquí está mi pedido y mi comprobante de pago:\n\n`;
+            
+            carrito.forEach(i => {
+                total += (i.precio * i.cantidad);
+                textoWA += `▪️ ${i.cantidad}x ${i.nombre} - $${(i.precio * i.cantidad).toFixed(2)}\n`;
+                if(i.notas) textoWA += `   _Nota: ${i.notas}_\n`;
+            });
+            
+            textoWA += `\n*Total a pagar: $${total.toFixed(2)}*\n\n(Adjunto la imagen de mi transferencia)`;
 
+            // Guardar en localStorage
             const nuevoPedido = {
                 id: Math.random().toString(36).substr(2, 6),
                 tipo: 'online', 
@@ -227,26 +252,35 @@
                 total: total
             };
 
-            // Enviar a la base de datos local
             let pedidosActivos = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
             pedidosActivos.push(nuevoPedido);
             localStorage.setItem('pedidos_activos', JSON.stringify(pedidosActivos));
 
-            // Configurar Modal Final de WhatsApp
-            document.getElementById('total-whatsapp').innerText = total.toFixed(2);
-            
-            // Limpiar carrito y cerrar modal 1
-            carrito = [];
-            actualizarContador();
-            document.getElementById('nombre-cliente').value = '';
-            cerrarCarrito();
+            // Generar enlace dinámico de WhatsApp
+            document.getElementById('btn-wa-link').href = `https://wa.me/5530440397?text=${encodeURIComponent(textoWA)}`;
 
-            // Abrir modal 2 (WhatsApp)
+            // Ocultar modal 1 y abrir modal 2
+            document.getElementById('modal-carrito').style.display = 'none';
             document.getElementById('modal-whatsapp').style.display = 'flex';
         }
 
-        function cerrarWhatsApp() {
+        // NUEVA FUNCIÓN: Limpia todo y deja listo para otra orden
+        function finalizarYResetear() {
             document.getElementById('modal-whatsapp').style.display = 'none';
+            
+            // Vaciar carrito
+            carrito = [];
+            actualizarContador();
+            
+            // Limpiar inputs
+            document.getElementById('nombre-cliente').value = '';
+            document.getElementById('comprobante').value = '';
+            
+            // Re-renderizar el menú para limpiar las cantidades de los inputs
+            renderizarMenu();
+            
+            // Subir al inicio de la página
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         }
     </script>
 </body>

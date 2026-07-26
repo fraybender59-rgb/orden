@@ -187,23 +187,30 @@
             aplicarFondo('mesas');
             renderizarMesas();
         }
-
         function agregarPlatillo(nombre, precio) {
-            let comentario = prompt(`¿Algún comentario para ${nombre}? (Opcional)`);
-            if (comentario === null) return; // Canceló el prompt
+            // 1. Pedir primero la cantidad
+            let cantidad = prompt(`¿Cuántas órdenes de "${nombre}" deseas agregar?`, "1");
             
-            // Si hay un platillo identico y NO ha sido enviado a cocina, sumamos cantidad
+            // Si el mesero cancela o pone un número inválido, abortar
+            if (cantidad === null || isNaN(cantidad) || cantidad <= 0) return; 
+            cantidad = parseInt(cantidad);
+
+            // 2. Pedir el comentario
+            let comentario = prompt(`¿Algún comentario para ${nombre}? (Opcional)`);
+            if (comentario === null) return; // Si cancela el comentario, abortar
+            
+            // Buscar si ya existe el mismo platillo con el mismo comentario y no ha sido enviado
             let itemExistente = comandaTemporal.find(i => i.nombre === nombre && i.estado === 'nuevo' && i.comentario === comentario.trim());
             
             if (itemExistente) {
-                itemExistente.cantidad += 1;
+                itemExistente.cantidad += cantidad; // Sumar la cantidad ingresada
             } else {
                 comandaTemporal.push({ 
                     nombre: nombre, 
                     precio: precio, 
-                    cantidad: 1, 
+                    cantidad: cantidad, // Guardar la cantidad ingresada
                     comentario: comentario.trim(),
-                    estado: 'nuevo' // 'nuevo' = puede borrarse. 'enviado' = bloqueado.
+                    estado: 'nuevo' 
                 });
             }
             actualizarVistaComanda();
