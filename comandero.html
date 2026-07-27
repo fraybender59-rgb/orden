@@ -1,287 +1,203 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Digital - Chulas Burgers</title>
-    <style>
-        body { background-color: #121216; color: #f5f5f7; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        h1, h2 { text-align: center; color: #ffb74d; }
-        
-        /* Grid estilo Catálogo con Imágenes */
-        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .producto-card { background: #1a1a20; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-        
-        .producto-img { width: 100%; height: 180px; object-fit: cover; background-color: #2a2a35; }
-        .producto-info { padding: 15px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .producto-info h3 { color: #fff; margin: 0 0 10px 0; font-size: 1.3rem; }
-        .precio { font-size: 1.2rem; color: #ffb74d; font-weight: bold; margin-bottom: 15px; }
-        
-        .controles-pedido { display: flex; gap: 10px; margin-bottom: 15px; }
-        .input-cant { width: 50px; background: #111; color: white; border: 1px solid #444; border-radius: 5px; padding: 8px; text-align: center; font-size: 1rem; }
-        .input-nota { flex-grow: 1; background: #111; color: white; border: 1px solid #444; border-radius: 5px; padding: 8px; font-size: 0.9rem; }
-        
-        .btn-add { background: #8bc34a; color: #111; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; font-size: 1.1rem; transition: background 0.3s; }
-        .btn-add:hover { background: #7cb342; }
-        
-        /* Botón flotante del carrito */
-        .btn-flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #03a9f4; color: #111; border: none; padding: 15px 25px; border-radius: 30px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 1000; }
-        
-        /* Modales */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-contenido { background: #2a2a35; padding: 25px; border-radius: 10px; max-width: 500px; width: 90%; text-align: left; border: 1px solid #555; max-height: 90vh; overflow-y: auto; }
-        
-        .lista-carrito { list-style: none; padding: 0; margin-bottom: 20px; border-bottom: 1px solid #444; padding-bottom: 10px; }
-        .lista-carrito li { display: flex; flex-direction: column; border-bottom: 1px dashed #444; padding: 10px 0; }
-        .item-carrito-header { display: flex; justify-content: space-between; font-weight: bold; }
-        .item-nota-carrito { font-size: 0.85rem; color: #aaa; margin-top: 5px; font-style: italic; }
-        
-        .caja-transferencia { background: #1e1e24; border: 2px dashed #ffb74d; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; }
-        .caja-transferencia p { margin: 5px 0; font-size: 0.95rem; }
-        .cuenta-banco { font-size: 1.3rem; color: #8bc34a; font-weight: bold; letter-spacing: 2px; }
-
-        input[type="text"] { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #555; background: #111; color: white; box-sizing: border-box; }
-        .btn-enviar { background: #8bc34a; color: #111; width: 100%; border: none; padding: 15px; font-size: 1.2rem; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .btn-cerrar { background: #e53935; color: white; width: 100%; border: none; padding: 10px; font-size: 1rem; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* Botón WhatsApp */
-        .btn-whatsapp { display: block; background: #25D366; color: white; text-align: center; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; margin-top: 15px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menú Digital - Chulas Burgers</title>
+<style>
+  body { background-color: #121216; color: #f5f5f7; font-family: sans-serif; margin: 0; padding: 15px; }
+  h1 { text-align: center; color: #ffb74d; }
+  .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 80px; }
+  .card-prod { background: #1e1e24; border-radius: 8px; padding-bottom: 15px; text-align: center; border: 1px solid #333; }
+  
+  /* ESTANDARIZACIÓN DE IMÁGENES: PREVIENE PARPADEO Y TAMAÑOS DESIGUALES */
+  .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; }
+  
+  .precio { color: #ff9800; font-size: 1.2rem; font-weight: bold; margin: 10px 0; }
+  .controles { display: flex; gap: 5px; padding: 0 10px; margin-bottom: 10px; }
+  .input-cant { width: 50px; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; text-align: center; }
+  .input-nota { flex-grow: 1; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; }
+  .btn-add { background: #8bc34a; color: #111; border: none; padding: 10px; width: 90%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+  
+  .flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #03a9f4; color: #fff; padding: 15px 20px; border-radius: 30px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+  
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
+  .modal-content { background: #2a2a35; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid #ff9800; max-height: 90vh; overflow-y: auto; text-align: center;}
+  
+  .btn-modal { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 1rem; }
+  .btn-confirm { background: #8bc34a; color: #111; }
+  .btn-close { background: #f44336; color: #fff; }
+  .btn-wa { background: #25D366; color: #fff; }
+  
+  .img-kirby { width: 100px; height: 100px; object-fit: contain; margin: 0 auto 10px; display: block; }
+  .transfer-box { border: 2px dashed #ff9800; padding: 10px; margin: 15px 0; border-radius: 8px; background: #111; }
+  .input-file { margin-top: 10px; color: #fff; }
+</style>
 </head>
 <body>
 
-    <h1>🍔 Menú Chulas Burgers</h1>
+<h1>🍔 Menú Chulas Burgers</h1>
+<div class="grid-menu" id="contenedor-menu">Cargando menú...</div>
+
+<button class="flotante-carrito" onclick="abrirCarrito()">🛒 Ver Pedido (<span id="contador-items">0</span>)</button>
+
+<!-- Modal Carrito (Al ingresar el pedido) -->
+<div id="modal-carrito" class="modal-overlay">
+  <div class="modal-content">
+    <!-- IMAGEN KIRBY 1 AQUÍ -->
+    <img src="imagenes/Kirby1.jpg" alt="Kirby" class="img-kirby">
+    <h2 style="margin-top:0;">🛒 Tu Pedido</h2>
+    <div id="lista-carrito" style="text-align: left; margin-bottom: 15px;"></div>
+    <h3 style="color:#8bc34a; text-align:right;">Total: $<span id="total-carrito">0.00</span></h3>
     
-    <div class="menu-grid" id="menu-grid">
-        <!-- Los productos se cargan con JS -->
+    <div class="transfer-box">
+      <p style="margin:5px 0; color:#ffb74d;">💳 <b>Pagos por Transferencia</b></p>
+      <p style="margin:5px 0; font-size:0.9rem;">Banco: BBVA<br>Tarjeta: <b>5678 9012 3456</b></p>
+      <input type="file" id="comprobante" class="input-file" accept="image/*">
     </div>
 
-    <button class="btn-flotante-carrito" onclick="abrirCarrito()">🛒 Ver Pedido (<span id="contador-carrito">0</span>)</button>
-
-    <!-- Modal del Carrito (Paso 1) -->
-    <div id="modal-carrito" class="modal">
-        <div class="modal-contenido">
-            <h2>🛒 Tu Pedido</h2>
-            <ul class="lista-carrito" id="lista-carrito"></ul>
-            <h3 style="text-align: right; color: #8bc34a;">Total: $<span id="total-carrito">0.00</span></h3>
- 
-               <div class="caja-transferencia">
-                <p style="color: #ffb74d; font-weight: bold;">💳 Pagos por Transferencia / Depósito</p>
-                <p>Banco: <strong>BBVA</strong></p>
-                <p>Nombre: <strong>Tu Nombre Aquí</strong></p>
-                <div class="cuenta-banco">las tarjeta 5678 9012 3456</div>
-                
-                <!-- NUEVO CAMPO PARA COMPROBANTE -->
-                <label for="comprobante" style="display:block; margin-top:10px; font-size:0.9rem;">Sube tu comprobante (Obligatorio para procesar):</label>
-                <input type="file" id="comprobante" accept="image/*" style="margin-top: 5px;">
-            </div>
-
-            <label for="nombre-cliente">Ingresa tu Nombre o Número de Mesa:</label>
-            <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez o Mesa 4">
-            
-            <button class="btn-enviar" onclick="enviarPedido()">🚀 Confirmar y Finalizar Pedido</button>
-            <button class="btn-cerrar" onclick="cerrarCarrito()">Regresar al Menú</button>        </div>
-        
-      <a id="btn-wa-link" href="#" target="_blank" onclick="finalizarYResetear()" style="display: block; background-color: #25D366; color: white; text-align: center; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">
-        📱 Abrir WhatsApp y Enviar
-    </a>
-    
-    <button onclick="finalizarYResetear()" style="display: block; width: 100%; background-color: #555; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar y Nueva Orden</button>
+    <!-- SOLO PIDE NOMBRE -->
+    <div style="text-align: left; margin-bottom: 15px;">
+      <label style="font-size: 0.9rem; color:#ccc;">Ingresa tu Nombre:</label>
+      <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez" style="width: 93%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white; margin-top:5px;">
     </div>
 
-
-    <!-- Modal de Confirmación WhatsApp (Paso 2) -->
-    <div id="modal-whatsapp" class="modal">
-
-<div class="modal-exito" style="background-color: #1e1e24; color: #fff; padding: 20px; border-radius: 10px; max-width: 500px; text-align: left;">
-    <h2 style="color: #4CAF50; text-align: center;">¡Pedido Generado con Éxito! 🎉</h2>
-    <p style="text-align: center;">Tu orden ya está en nuestro sistema. Para que cocina comience a prepararlo, <strong>necesitamos confirmar tu pago</strong>.</p>
-    
-    <div style="background-color: #2a2a35; padding: 15px; border-radius: 8px; margin: 20px 0;">
-        <p><strong>Paso 1:</strong> Realiza la transferencia por el total a la cuenta indicada.</p>
-        <p><strong>Paso 2:</strong> Guarda tu comprobante o captura de pantalla.</p>
-        <p><strong>Paso 3:</strong> Es requerible enviar su comprobante de pago vía whats para realizar el pedido, agradecemos su preferencia.</p>
-    </div>
-
-    <!-- EL ENLACE YA TIENE TU NÚMERO Y UN MENSAJE PREESTABLECIDO -->
-    <a href="https://wa.me/5530440397?text=Hola,%20adjunto%20mi%20comprobante%20de%20pago%20para%20mi%20pedido." target="_blank" style="display: block; background-color: #25D366; color: white; text-align: center; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">
-        📱 Enviar Comprobante por WhatsApp
-    </a>
-    
-    <button style="display: block; width: 100%; background-color: #555; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar esta ventana</button>
-</div>  
+    <button class="btn-modal btn-confirm" onclick="enviarPedido()">🚀 Confirmar y Finalizar Pedido</button>
+    <button class="btn-modal btn-close" onclick="document.getElementById('modal-carrito').style.display='none'">Regresar al Menú</button>
   </div>
+</div>
 
-    <script>
-        // Catálogo de Productos con rutas para las imágenes que tú meterás
-        const productos = [
-            { id: 1, nombre: 'Hamburguesa', precio: 70, imagen: 'imagenes/hamburguesa.jpg' },
-            { id: 2, nombre: 'Hot Dog', precio: 25, imagen: 'imagenes/hotdog.jpg' },
-            { id: 3, nombre: 'Orden de Hot Dogs', precio: 65, imagen: 'imagenes/orden_hotdogs.jpg' },
-            { id: 4, nombre: 'Sincronizadas Mexa', precio: 85, imagen: 'imagenes/sincronizadas.jpg' },
-            { id: 5, nombre: 'Variantes de Enchiladas', precio: 90, imagen: 'imagenes/enchiladas.jpg' },
-            { id: 6, nombre: 'Chimichangas', precio: 30, imagen: 'imagenes/chimichangas.jpg' },
-            { id: 7, nombre: 'Refresco Varios', precio: 25, imagen: 'imagenes/refresco.jpeg' }
-        ];
+<!-- Modal Éxito (Confirmar tu pedido) -->
+<div id="modal-exito" class="modal-overlay">
+  <div class="modal-content">
+    <!-- IMAGEN KIRBY 3 AQUÍ -->
+    <img src="imagenes/kirby3.webp" alt="Kirby Celebrando" class="img-kirby">
+    <h2>¡Pedido Generado con Éxito! 🎉</h2>
+    <p style="font-size: 0.9rem; color: #ccc;">Tu orden ya está en nuestro sistema. Para que cocina comience a prepararlo, <b>necesitamos confirmar tu pago</b>.</p>
+    
+    <div style="background: #111; padding: 10px; border-radius: 5px; font-size: 0.85rem; text-align: left; margin-bottom: 15px;">
+      <p><b>Paso 1:</b> Realiza la transferencia.<br><b>Paso 2:</b> Guarda tu comprobante.<br><b>Paso 3:</b> Envíalo vía WhatsApp.</p>
+    </div>
 
-        let carrito = [];
+    <!-- BOTON WHATSAPP CON NUMERO SOLICITADO -->
+    <button class="btn-modal btn-wa" onclick="abrirWhatsApp()">📱 Enviar Comprobante por WhatsApp</button>
+    <button class="btn-modal btn-close" onclick="cerrarExito()">Cerrar esta ventana</button>
+  </div>
+</div>
 
-        window.onload = function() {
-            renderizarMenu();
-        };
+<script>
+// Base de datos local provisional por si falla el API, con los nombres y precios exactos requeridos.
+const menuBase = {
+  "Hamburguesas": [
+    { nombre: "Clásica", precio: 60, imagen: "clasica.jpg" },
+    { nombre: "Doble", precio: 80, imagen: "doble.jpeg" }
+  ],
+  "Hot Dogs": [
+    { nombre: "Hot Dog", precio: 30, imagen: "hot.jpg" },
+    { nombre: "Orden de Hot Dogs", precio: 75, imagen: "Ordenhot.jpg" }
+  ],
+  "Especialidades": [
+    { nombre: "Enchiladas", precio: 75, imagen: "enchiladas.jpeg" },
+    { nombre: "Chilaquiles", precio: 65, imagen: "chilaquiles.jpg" },
+    { nombre: "Club Sandwich", precio: 85, imagen: "club.jpg" },
+    { nombre: "Sincronizadas Mexa", precio: 85, imagen: "sincromexa.jpeg" },
+    { nombre: "Crepa Pizza", precio: 90, imagen: "sincrop.webp" }
+  ],
+  "Bebidas": [
+    { nombre: "Refrescos Varios", precio: 25, imagen: "refrescosvarios.jpeg" },
+    { nombre: "Coca Cola", precio: 25, imagen: "coca cola.jpeg" }
+  ]
+};
 
-        function renderizarMenu() {
-            const grid = document.getElementById('menu-grid');
-            let html = '';
-            productos.forEach(p => {
-                html += `
-                    <div class="producto-card">
-                        <!-- DEJA ESTAS LÍNEAS. Solo asegúrate de que las fotos existan en la carpeta -->
-                        <img src="${p.imagen}" alt="${p.nombre}" class="producto-img" onerror="this.src='https://via.placeholder.com/300x180/2a2a35/ffffff?text=Sin+Imagen'">
-                        <div class="producto-info">
-                            <div>
-                                <h3>${p.nombre}</h3>
-                                <div class="precio">$${p.precio.toFixed(2)}</div>
-                            </div>
-                            <div>
-                                <div class="controles-pedido">
-                                    <input type="number" id="cant-${p.id}" class="input-cant" value="1" min="1">
-                                    <input type="text" id="nota-${p.id}" class="input-nota" placeholder="Notas (Ej. Sin cebolla)">
-                                </div>
-                                <button class="btn-add" onclick="agregarAlCarrito(${p.id}, '${p.nombre}', ${p.precio})">Agregar a la orden</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            grid.innerHTML = html;
-        }
+let carrito = [];
+let ultimoPedido = "";
 
-        function agregarAlCarrito(id, nombre, precio) {
-            const cantidad = parseInt(document.getElementById(`cant-${id}`).value) || 1;
-            const notas = document.getElementById(`nota-${id}`).value.trim();
+function cargarMenu() {
+  fetch('/api/menu').then(r => r.json()).catch(() => menuBase).then(data => {
+    let html = "";
+    for (let cat in data) {
+      data[cat].forEach((p, idx) => {
+        if(p.disponible === false) return; // Ocultar bloqueados
+        let idFicticio = cat.charAt(0) + idx;
+        html += `
+          <div class="card-prod">
+            <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
+            <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
+            <p class="precio">$${p.precio.toFixed(2)}</p>
+            <div class="controles">
+              <input type="number" min="1" value="1" id="cant-${idFicticio}" class="input-cant">
+              <input type="text" placeholder="Notas (Ej. Sin cebolla)" id="nota-${idFicticio}" class="input-nota">
+            </div>
+            <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar a la orden</button>
+          </div>
+        `;
+      });
+    }
+    document.getElementById('contenedor-menu').innerHTML = html;
+  });
+}
 
-            carrito.push({ nombre: nombre, precio: precio, cantidad: cantidad, notas: notas });
-            
-            // Limpiar inputs
-            document.getElementById(`cant-${id}`).value = 1;
-            document.getElementById(`nota-${id}`).value = '';
-            
-            actualizarContador();
-            alert(`✅ Se agregaron ${cantidad}x ${nombre} al pedido.`);
-        }
+function addCarrito(nombre, precio, idElem) {
+  let cant = parseInt(document.getElementById(`cant-${idElem}`).value) || 1;
+  let notas = document.getElementById(`nota-${idElem}`).value;
+  carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
+  document.getElementById('contador-items').innerText = carrito.length;
+  document.getElementById(`cant-${idElem}`).value = 1;
+  document.getElementById(`nota-${idElem}`).value = '';
+  alert(`${cant}x ${nombre} agregado al pedido.`);
+}
 
-        function actualizarContador() {
-            let totalItems = 0;
-            carrito.forEach(i => totalItems += i.cantidad);
-            document.getElementById('contador-carrito').innerText = totalItems;
-        }
+function abrirCarrito() {
+  if (carrito.length === 0) return alert("El carrito está vacío.");
+  let html = ""; let total = 0;
+  carrito.forEach((i, idx) => {
+    html += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #444; padding:5px 0;">
+      <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
+      <div>$${i.subtotal.toFixed(2)} <button onclick="quitarItem(${idx})" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;">X</button></div>
+    </div>`;
+    total += i.subtotal;
+  });
+  document.getElementById('lista-carrito').innerHTML = html;
+  document.getElementById('total-carrito').innerText = total.toFixed(2);
+  document.getElementById('modal-carrito').style.display = 'flex';
+}
 
-        function abrirCarrito() {
-            const lista = document.getElementById('lista-carrito');
-            let html = '';
-            let total = 0;
+function quitarItem(idx) { carrito.splice(idx, 1); abrirCarrito(); document.getElementById('contador-items').innerText = carrito.length; if(carrito.length===0) document.getElementById('modal-carrito').style.display='none'; }
 
-            carrito.forEach((item, index) => {
-                let subtotal = item.precio * item.cantidad;
-                total += subtotal;
-                let notaTexto = item.notas ? `<div class="item-nota-carrito">Nota: ${item.notas}</div>` : '';
-                
-                html += `
-                    <li>
-                        <div class="item-carrito-header">
-                            <span>${item.cantidad}x ${item.nombre}</span>
-                            <span>$${subtotal.toFixed(2)} <button onclick="eliminarDelCarrito(${index})" style="background:red; color:white; border:none; border-radius:3px; cursor:pointer; margin-left:10px;">X</button></span>
-                        </div>
-                        ${notaTexto}
-                    </li>
-                `;
-            });
+function enviarPedido() {
+  let nombre = document.getElementById('nombre-cliente').value;
+  if (!nombre) return alert("Por favor, ingresa tu nombre.");
+  
+  let total = carrito.reduce((sum, i) => sum + i.subtotal, 0);
+  let pedido = {
+    cliente: nombre, total: total, items: carrito, estado: 'Pendiente', 
+    fecha: new Date().toLocaleTimeString(), metodo: 'Transferencia'
+  };
 
-            lista.innerHTML = html || '<li>El carrito está vacío.</li>';
-            document.getElementById('total-carrito').innerText = total.toFixed(2);
-            document.getElementById('modal-carrito').style.display = 'flex';
-        }
+  // Aquí iría la lógica para subir la imagen y obtener URL (si usas backend)
+  // Por ahora mandamos el JSON
+  fetch('/api/pedidos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(pedido) })
+  .catch(err => console.log("Guardado local mode"))
+  .finally(() => {
+    ultimoPedido = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
+    carrito = [];
+    document.getElementById('contador-items').innerText = "0";
+    document.getElementById('modal-carrito').style.display = 'none';
+    document.getElementById('modal-exito').style.display = 'flex';
+  });
+}
 
-        function eliminarDelCarrito(index) {
-            carrito.splice(index, 1);
-            actualizarContador();
-            abrirCarrito();
-        }
+function abrirWhatsApp() {
+  let txt = encodeURIComponent(`Hola, acabo de realizar un pedido a nombre de *${document.getElementById('nombre-cliente').value}*. \nMi orden es: ${ultimoPedido}\n\nAdjunto mi comprobante de pago.`);
+  window.open(`https://wa.me/52795696184?text=${txt}`, '_blank');
+}
 
-        function cerrarCarrito() {
-            document.getElementById('modal-carrito').style.display = 'none';
-        }
-         function enviarPedido() {
-            if (carrito.length === 0) {
-                alert("Tu carrito está vacío.");
-                return;
-            }
+function cerrarExito() {
+  document.getElementById('modal-exito').style.display = 'none';
+  document.getElementById('nombre-cliente').value = '';
+}
 
-            const nombreCliente = document.getElementById('nombre-cliente').value.trim();
-            if (!nombreCliente) {
-                alert("Por favor ingresa tu nombre o número de mesa.");
-                return;
-            }
-            
-            // Validar que subió imagen (Opcional, puedes quitar este if si no quieres forzarlo)
-            const comprobante = document.getElementById('comprobante').value;
-            if(!comprobante) {
-                alert("Por favor, selecciona tu comprobante de pago antes de continuar.");
-                return;
-            }
-
-            let total = 0;
-            let textoWA = `Hola, soy *${nombreCliente}*. Aquí está mi pedido y mi comprobante de pago:\n\n`;
-            
-            carrito.forEach(i => {
-                total += (i.precio * i.cantidad);
-                textoWA += `▪️ ${i.cantidad}x ${i.nombre} - $${(i.precio * i.cantidad).toFixed(2)}\n`;
-                if(i.notas) textoWA += `   _Nota: ${i.notas}_\n`;
-            });
-            
-            textoWA += `\n*Total a pagar: $${total.toFixed(2)}*\n\n(Adjunto la imagen de mi transferencia)`;
-
-            // Guardar en localStorage
-            const nuevoPedido = {
-                id: Math.random().toString(36).substr(2, 6),
-                tipo: 'online', 
-                cliente: nombreCliente,
-                hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                items: carrito,
-                total: total
-            };
-
-            let pedidosActivos = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-            pedidosActivos.push(nuevoPedido);
-            localStorage.setItem('pedidos_activos', JSON.stringify(pedidosActivos));
-
-            // Generar enlace dinámico de WhatsApp
-            document.getElementById('btn-wa-link').href = `https://wa.me/5530440397?text=${encodeURIComponent(textoWA)}`;
-
-            // Ocultar modal 1 y abrir modal 2
-            document.getElementById('modal-carrito').style.display = 'none';
-            document.getElementById('modal-whatsapp').style.display = 'flex';
-        }
-
-        // NUEVA FUNCIÓN: Limpia todo y deja listo para otra orden
-        function finalizarYResetear() {
-            document.getElementById('modal-whatsapp').style.display = 'none';
-            
-            // Vaciar carrito
-            carrito = [];
-            actualizarContador();
-            
-            // Limpiar inputs
-            document.getElementById('nombre-cliente').value = '';
-            document.getElementById('comprobante').value = '';
-            
-            // Re-renderizar el menú para limpiar las cantidades de los inputs
-            renderizarMenu();
-            
-            // Subir al inicio de la página
-            window.scrollTo({ top: 0, behavior: 'smooth' })
-        }
-    </script>
+cargarMenu();
+</script>
 </body>
 </html>
