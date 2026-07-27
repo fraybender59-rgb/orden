@@ -32,12 +32,24 @@
   .btn-cancel { background: #f44336; color: #fff; }
   .item-bloqueo { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #444; background: #1a1a24; margin-bottom: 5px; border-radius: 5px; }
 </style>
+<script>
+  // VALIDACIÓN INICIAL DE SEGURIDAD
+  const claveSeguridad = "IBARRITA";
+  (function verificarAccesoInicial() {
+    let pass = prompt("🔐 Ingrese Clave de Administrador:");
+    if (pass !== claveSeguridad) {
+      alert("🚫 Acceso Denegado. Clave incorrecta.");
+      document.write("<div style='background:#121216; color:#f44336; font-family:sans-serif; text-align:center; padding-top:100px; height:100vh;'><h1>🚫 ACCESO RESTRINGIDO</h1><p style='color:#aaa;'>Se requiere contraseña válida para ver esta sección.</p><button onclick='location.reload()' style='padding:10px 20px; background:#ff9800; border:none; font-weight:bold; cursor:pointer; border-radius:5px;'>Reintentar</button></div>");
+      window.stop();
+    }
+  })();
+</script>
 </head>
 <body>
 
 <div class="barra-nav">
   <a href="comandero.html" target="_blank" class="btn-nav">📱 Comandero</a>
-  <a href="punto_staf_77.html" target="_blank" class="btn-nav">🧑‍🍳 Staff 77</a>
+  <a href="punto_staff_77.html" target="_blank" class="btn-nav">🧑‍🍳 Staff 77</a>
   <a href="almacen.html" target="_blank" class="btn-nav btn-almacen">📦 Almacén</a>
   <button onclick="document.getElementById('modal-historial').style.display='flex';" class="btn-nav btn-historial">🗃️ Historial</button>
   <button onclick="abrirModalPrecios()" class="btn-nav btn-precios">✏️ Precios</button>
@@ -92,7 +104,7 @@
   <div class="modal-content">
     <h3 id="titulo-accion" style="color:#ff9800;">Acción</h3>
     <div id="cuerpo-accion"></div>
-    <div style="display: flex; justify-content: space-between;">
+    <div style="display: flex; justify-content: space-between; margin-top:15px;">
       <button class="btn-modal btn-cancel" onclick="document.getElementById('modal-accion').style.display='none'">Cancelar</button>
       <button class="btn-modal btn-ok" id="btn-confirmar-accion">Confirmar</button>
     </div>
@@ -100,15 +112,11 @@
 </div>
 
 <script>
-const claveSeguridad = "IBARRITA";
 let pedidosLocales = [];
 let idSeleccionado = null;
 let menuGlobal = {};
 
-// Sistema de Precios Dinámicos
 function abrirModalPrecios() {
-  let pass = prompt("Atención: Clave para modificar precios:");
-  if (pass !== claveSeguridad) return alert("Clave incorrecta.");
   fetch('/api/menu').then(r => r.json()).then(data => {
       menuGlobal = data;
       let selectCat = document.getElementById('select-cat');
@@ -119,6 +127,7 @@ function abrirModalPrecios() {
       document.getElementById('modal-precios').style.display = 'flex';
   });
 }
+
 function cargarProdsPrecio() {
   let cat = document.getElementById('select-cat').value;
   let selectProd = document.getElementById('select-prod');
@@ -127,6 +136,7 @@ function cargarProdsPrecio() {
     menuGlobal[cat].forEach(p => selectProd.innerHTML += `<option value="${p.nombre}">${p.nombre} (Actual: $${p.precio})</option>`);
   }
 }
+
 function guardarPrecio() {
   let cat = document.getElementById('select-cat').value;
   let prod = document.getElementById('select-prod').value;
@@ -141,10 +151,7 @@ function guardarPrecio() {
   });
 }
 
-// Sistema de Bloqueo (Nuevo)
 function abrirModalBloqueo() {
-  let pass = prompt("Atención: Clave para gestionar disponibilidad:");
-  if (pass !== claveSeguridad) return alert("Clave incorrecta.");
   fetch('/api/menu').then(r => r.json()).then(data => {
       let contenedor = document.getElementById('lista-productos-bloqueo');
       contenedor.innerHTML = "";
@@ -164,6 +171,7 @@ function abrirModalBloqueo() {
       document.getElementById('modal-bloqueo').style.display = 'flex';
   });
 }
+
 function toggleEstadoProducto(categoria, nombre, estadoActual) {
   fetch('/api/menu/bloqueo', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -171,7 +179,6 @@ function toggleEstadoProducto(categoria, nombre, estadoActual) {
   }).then(() => abrirModalBloqueo());
 }
 
-// Render Caja Principal
 function renderAdmin() {
   fetch('/api/pedidos').then(r => r.json()).then(pedidos => {
     pedidosLocales = pedidos;
@@ -181,8 +188,6 @@ function renderAdmin() {
       if (!p.id) return; 
       let estadoClase = p.estado === 'Cancelado' ? 'cancelado' : p.estado === 'Cobrado' ? 'cobrado' : '';
       let productosTexto = p.items.map(i => `<div>${i.cantidad}x ${i.nombre} ${i.notas ? '<i>('+i.notas+')</i>' : ''} ($${i.subtotal})</div>`).join('');
-      
-      // Botón de Comprobante (Carpeta)
       let btnComprobante = p.comprobanteUrl ? `<a href="${p.comprobanteUrl}" target="_blank" class="btn-comprobante">📁 Ver Transferencia</a>` : '';
       
       let infoExtra = "";
@@ -218,7 +223,7 @@ function renderAdmin() {
     document.getElementById('bandeja-caja').innerHTML = htmlCaja || '<p style="color:#666; text-align:center;">Sin pedidos activos</p>';
     document.getElementById('bandeja-historial').innerHTML = htmlHistorial || '<p style="color:#666; text-align:center;">Sin registro</p>';
     document.getElementById('total-ventas-historial').innerText = `Suma Total de Ventas: $${totalVentasCobradas.toFixed(2)}`;
-  });
+  }).catch(() => {});
 }
 
 window.cobrar = function(id, metodo) {
@@ -241,8 +246,6 @@ window.accion = function(id, tipo) {
       ejecutar({ estado: 'Descuento', total: Math.max(0, ped.total - m), motivo: `Desc. $${m}: ${document.getElementById('inp-mot').value}` });
     };
   } else if (tipo === 'Cancelado') {
-    let pass = prompt("Atención: Clave para cancelar:");
-    if (pass !== claveSeguridad) return alert("Clave incorrecta.");
     div.innerHTML = `<input type="text" id="inp-mot" placeholder="Motivo de cancelación" style="width:100%; padding:10px; background:#111; color:white; border-radius:5px;">`;
     document.getElementById('btn-confirmar-accion').onclick = () => ejecutar({ estado: 'Cancelado', motivo: document.getElementById('inp-mot').value });
   }

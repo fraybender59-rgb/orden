@@ -732,5 +732,28 @@
             }
         ],
         "total": 245
+    },
+    {
+        "id": "fead2bea",
+        "cliente": "el rey",
+        "telefono": "",
+        "fecha": "2026-07-27 11:35:30",
+        "items": [
+            {
+                "nombre": "Cl\u00e1sica",
+                "precio": 60,
+                "cantidad": 3,
+                "subtotal": 180,
+                "notas": ""
+            },
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 3,
+                "subtotal": 240,
+                "notas": ""
+            }
+        ],
+        "total": 420
     }
 ]
