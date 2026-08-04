@@ -10,7 +10,6 @@
   .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 80px; }
   .card-prod { background: #1e1e24; border-radius: 8px; padding-bottom: 15px; text-align: center; border: 1px solid #333; }
   
-  /* ESTANDARIZACIÓN DE IMÁGENES: IDENTICO A COMANDERO */
   .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; }
   
   .precio { color: #ff9800; font-size: 1.2rem; font-weight: bold; margin: 10px 0; }
@@ -21,12 +20,13 @@
   
   .flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #ff9800; color: #111; padding: 15px 20px; border-radius: 30px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
   
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-  .modal-content { background: #2a2a35; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid #00bcd4; max-height: 90vh; overflow-y: auto; text-align: center;}
-  
-  .btn-modal { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 1rem; }
-  .btn-confirm { background: #8bc34a; color: #111; }
-  .btn-close { background: #f44336; color: #fff; }
+  /* ESTILOS DEL TICKET DE CONFIRMACIÓN */
+  .modal-ticket { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+  .ticket-content { background: #fff; color: #111; padding: 20px; border-radius: 5px; width: 100%; max-width: 350px; font-family: 'Courier New', Courier, monospace; }
+  .ticket-content h3 { text-align: center; margin-top: 0; border-bottom: 2px dashed #111; padding-bottom: 10px; }
+  .ticket-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+  .ticket-total { font-weight: bold; font-size: 1.2rem; text-align: right; margin-top: 15px; border-top: 2px dashed #111; padding-top: 10px; }
+  .btn-imprimir { background: #8bc34a; color: #111; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
 </style>
 </head>
 <body>
@@ -37,25 +37,51 @@
 <button class="flotante-carrito" onclick="abrirCarrito()">📝 Enviar a Caja (<span id="contador-items">0</span>)</button>
 
 <!-- Modal Carrito Staff -->
-<div id="modal-carrito" class="modal-overlay">
-  <div class="modal-content">
-    <h2 style="margin-top:0; color: #00bcd4;">📝 Resumen de Orden</h2>
-    <div id="lista-carrito" style="text-align: left; margin-bottom: 15px;"></div>
-    <h3 style="color:#8bc34a; text-align:right;">Total: $<span id="total-carrito">0.00</span></h3>
-    
-    <!-- SOLO PIDE NOMBRE / IDENTIFICADOR -->
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 0.9rem; color:#ccc;">Nombre de Cliente o Mesa:</label>
-      <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez" style="width: 93%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white; margin-top:5px;">
+<div id="modal-carrito" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto;">
+    <div style="background: #222; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 10px; color: white;">
+        <h2>Carrito (Staff)</h2>
+        <div id="lista-carrito" style="margin-bottom: 20px; max-height: 300px; overflow-y: auto;"></div>
+        <h3 style="text-align: right; color: #4caf50;">Total: $<span id="total-carrito">0.00</span></h3>
+        
+        <input type="text" id="nombre-cliente" placeholder="Nombre del Cliente o Mesa" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white;">
+        
+        <!-- SELECCIÓN DE MESERO (5 MESEROS) -->
+        <div style="text-align: left; margin-bottom: 15px;">
+          <label style="font-size: 0.9rem; color:#ccc;">Mesero que atiende:</label>
+          <select id="select-mesero" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white; margin-top:5px;">
+              <option value="Staff Caja">Caja Principal</option>
+              <option value="Mesero 1">Mesero 1</option>
+              <option value="Mesero 2">Mesero 2</option>
+              <option value="Mesero 3">Mesero 3</option>
+              <option value="Mesero 4">Mesero 4</option>
+              <option value="Mesero 5">Mesero 5</option>
+          </select>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button onclick="document.getElementById('modal-carrito').style.display='none'" style="flex: 1; padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px;">Cancelar</button>
+            <button onclick="enviarPedidoStaff()" style="flex: 1; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 5px;">Enviar a Cocina</button>
+        </div>
     </div>
+</div>
 
-    <button class="btn-modal btn-confirm" onclick="enviarPedidoStaff()">🚀 Lanzar a Cocina / Caja</button>
-    <button class="btn-modal btn-close" onclick="document.getElementById('modal-carrito').style.display='none'">Regresar</button>
-  </div>
+<!-- Modal Ticket (Se ve lo que se envía) -->
+<div id="modal-ticket" class="modal-ticket">
+    <div class="ticket-content">
+        <h3>🍔 CHULAS BURGERS 🍔<br><small>Ticket Generado</small></h3>
+        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Mesa/Cliente:</strong> <span id="ticket-cliente"></span></p>
+        <p style="margin: 5px 0 15px 0; font-size: 0.9rem;"><strong>Atendió:</strong> <span id="ticket-mesero"></span></p>
+        
+        <div id="ticket-items"></div>
+        
+        <div class="ticket-total">Total: $<span id="ticket-total-val"></span></div>
+        <p style="text-align: center; font-size: 0.8rem; margin-top: 10px; color: #555;">Sincronizado vía CONTROL_JEFE_99</p>
+        
+        <button class="btn-imprimir" onclick="cerrarTicket()">Aceptar y Nueva Orden</button>
+    </div>
 </div>
 
 <script>
-// El mismo menú base configurado con precios e imágenes exactas
 const menuBase = {
   "Hamburguesas": [
     { nombre: "Clásica", precio: 60, imagen: "clasica.jpg" },
@@ -80,13 +106,20 @@ const menuBase = {
 
 let carrito = [];
 
+// Función para actualizar el contador del botón flotante correctamente
+function actualizarContador() {
+    let totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+    document.getElementById('contador-items').innerText = totalArticulos;
+}
+
 function cargarMenu() {
   fetch('/api/menu').then(r => r.json()).catch(() => menuBase).then(data => {
     let html = "";
     for (let cat in data) {
       data[cat].forEach((p, idx) => {
         if(p.disponible === false) return;
-        let idFicticio = cat.charAt(0) + idx;
+        // Generador de ID más seguro para evitar fallos
+        let idFicticio = cat.replace(/\s+/g, '_') + '_' + idx;
         html += `
           <div class="card-prod">
             <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
@@ -106,10 +139,22 @@ function cargarMenu() {
 }
 
 function addCarrito(nombre, precio, idElem) {
-  let cant = parseInt(document.getElementById(`cant-${idElem}`).value) || 1;
+  let cant = parseInt(document.getElementById(`cant-${idElem}`).value, 10) || 1;
   let notas = document.getElementById(`nota-${idElem}`).value;
-  carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
-  document.getElementById('contador-items').innerText = carrito.length;
+  
+  // Lógica mejorada: Si el producto ya está en el carrito con las mismas notas, suma la cantidad
+  let itemExistente = carrito.find(i => i.nombre === nombre && i.notas === notas);
+  
+  if (itemExistente) {
+      itemExistente.cantidad += cant;
+      itemExistente.subtotal = itemExistente.cantidad * itemExistente.precio;
+  } else {
+      carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
+  }
+  
+  actualizarContador();
+  
+  // Resetear los inputs después de agregar
   document.getElementById(`cant-${idElem}`).value = 1;
   document.getElementById(`nota-${idElem}`).value = '';
 }
@@ -120,7 +165,7 @@ function abrirCarrito() {
   carrito.forEach((i, idx) => {
     html += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #444; padding:5px 0;">
       <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
-      <div>$${i.subtotal.toFixed(2)} <button onclick="quitarItem(${idx})" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;">X</button></div>
+      <div>$${i.subtotal.toFixed(2)} <button onclick="quitarItem(${idx})" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;padding:2px 6px;">X</button></div>
     </div>`;
     total += i.subtotal;
   });
@@ -129,26 +174,71 @@ function abrirCarrito() {
   document.getElementById('modal-carrito').style.display = 'flex';
 }
 
-function quitarItem(idx) { carrito.splice(idx, 1); abrirCarrito(); document.getElementById('contador-items').innerText = carrito.length; if(carrito.length===0) document.getElementById('modal-carrito').style.display='none'; }
+function quitarItem(idx) { 
+    carrito.splice(idx, 1); 
+    abrirCarrito(); 
+    actualizarContador(); 
+    if(carrito.length === 0) document.getElementById('modal-carrito').style.display='none'; 
+}
 
 function enviarPedidoStaff() {
   let nombre = document.getElementById('nombre-cliente').value;
+  let meseroAtendiendo = document.getElementById('select-mesero').value; 
+  
   if (!nombre) return alert("Obligatorio poner nombre o mesa.");
   
   let pedido = {
-    cliente: nombre, total: carrito.reduce((sum, i) => sum + i.subtotal, 0), items: carrito, 
-    estado: 'Pendiente', fecha: new Date().toLocaleTimeString(), metodo: 'Local'
+    cliente: nombre, 
+    mesero: meseroAtendiendo,
+    control_sincronizacion: 'CONTROL_JEFE_99', // Sincronizado para el backend
+    total: carrito.reduce((sum, i) => sum + i.subtotal, 0), 
+    items: carrito, 
+    estado: 'Pendiente', 
+    fecha: new Date().toLocaleTimeString(), 
+    metodo: 'Local'
   };
 
-  fetch('/api/pedidos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(pedido) })
-  .catch(err => console.log("Guardado local mode"))
-  .finally(() => {
-    alert("✅ ¡Comanda enviada a Cocina/Caja!");
-    carrito = [];
-    document.getElementById('contador-items').innerText = "0";
-    document.getElementById('nombre-cliente').value = '';
-    document.getElementById('modal-carrito').style.display = 'none';
+  // Se envía el pedido a tu app.js
+  fetch('/api/pedidos', { 
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'}, 
+      body: JSON.stringify(pedido) 
+  })
+  .then(() => {
+    mostrarTicket(pedido);
+  })
+  .catch(err => {
+      console.error("Error al enviar pedido, mostrando ticket de todas formas (Modo Offline):", err);
+      mostrarTicket(pedido);
   });
+}
+
+// Nueva función para mostrar lo que se envió en formato cuenta/ticket
+function mostrarTicket(pedido) {
+    document.getElementById('modal-carrito').style.display = 'none';
+    
+    document.getElementById('ticket-cliente').innerText = pedido.cliente;
+    document.getElementById('ticket-mesero').innerText = pedido.mesero;
+    document.getElementById('ticket-total-val').innerText = pedido.total.toFixed(2);
+    
+    let itemsHtml = "";
+    pedido.items.forEach(i => {
+        itemsHtml += `<div class="ticket-item">
+            <span>${i.cantidad}x ${i.nombre} <br><small style="color: #666;">${i.notas}</small></span>
+            <span>$${i.subtotal.toFixed(2)}</span>
+        </div>`;
+    });
+    
+    document.getElementById('ticket-items').innerHTML = itemsHtml;
+    document.getElementById('modal-ticket').style.display = 'flex';
+}
+
+// Cierra el ticket y deja la pantalla limpia para la siguiente orden
+function cerrarTicket() {
+    carrito = [];
+    actualizarContador();
+    document.getElementById('nombre-cliente').value = '';
+    document.getElementById('modal-ticket').style.display = 'none';
 }
 
 cargarMenu();

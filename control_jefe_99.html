@@ -14,6 +14,7 @@
         .btn-corte { background: #ffb74d; color: #111; border: none; }
         .btn-historial { background: #ab47bc; color: white; border: none; }
         .btn-historial-dias { background: #009688; color: white; border: none; }
+        .btn-meseros-config { background: #03a9f4; color: #111; border: none; }
         
         .caja-resumen-jefe { background: #1e1e24; border: 2px solid #8bc34a; border-radius: 10px; padding: 20px; max-width: 800px; margin: 0 auto 25px auto; text-align: center; }
         .monto-total-texto { font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; }
@@ -68,6 +69,9 @@
         .btn-ingresar { width: 100%; background: #8bc34a; color: #111; padding: 15px; font-size: 1.2rem; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-ingresar:hover { background: #7cb342; }
         .mensaje-error { color: #e53935; font-weight: bold; margin-top: 15px; display: none; }
+        
+        .fila-mesero-config { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; background: #1e1e24; padding: 10px; border-radius: 6px; border: 1px solid #444; }
+        .fila-mesero-config input { flex: 1; padding: 8px; background: #111; border: 1px solid #555; color: white; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -87,6 +91,7 @@
     <div class="barra-nav">
         <a href="comandero.html" target="_blank" class="btn-nav">📱 Comandero Público</a>
         <a href="punto_staff_77.html" target="_blank" class="btn-nav">📝 Comandero Caja (Staff)</a>
+        <button onclick="abrirModalMeseros()" class="btn-nav btn-meseros-config">👥 Configurar Meseros</button>
         <button onclick="alternarCorte()" class="btn-nav btn-corte">💰 Ver Ventas / Corte</button>
         <button onclick="abrirModalHistorialCobradas()" class="btn-nav btn-historial">📂 Cobradas Hoy</button>
         <button onclick="abrirModalHistorialDias()" class="btn-nav btn-historial-dias">📅 Historial de Días (30)</button>
@@ -107,11 +112,11 @@
 
     <div class="pantalla-doble">
         <div class="columna-pedidos">
-            <h2>📱 Pedidos Online (Activos)</h2>
+            <h2>📱 Pedidos COMANDERO (Online)</h2>
             <div id="contenedor-online">Cargando...</div>
         </div>
         <div class="columna-pedidos">
-            <h2>📝 Pedidos STAFF (Activos)</h2>
+            <h2>📝 Pedidos PUNTO_STAFF_77 (Caja)</h2>
             <div id="contenedor-caja">Cargando...</div>
         </div>
     </div>
@@ -143,47 +148,104 @@
         </div>
     </div>
 
+    <!-- Modal Configuración de Meseros -->
+    <div id="modal-meseros" class="modal">
+        <div class="modal-contenido" style="max-height: 80vh; overflow-y: auto;">
+            <h2>👥 Configuración de los 5 Meseros</h2>
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">Personaliza los nombres y contraseñas/PIN de cada mesero del equipo.</p>
+            <div id="contenedor-inputs-meseros"></div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-accion-corte" style="flex: 1; background: #8bc34a; color: #111;" onclick="guardarMeserosConfig()">Guardar Cambios</button>
+                <button class="btn-accion-corte" style="flex: 1; background: #444; color: white;" onclick="cerrarModalMeseros()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let intervaloActualizacion = null;
+
         // ------------------ SISTEMA DE LOGIN EXCLUSIVO GERENTE ------------------
         function verificarLogin() {
             const pwd = document.getElementById('input-password').value.trim();
             const errorMsg = document.getElementById('error-login');
             
-            // SOLO clave de Gerente autorizada
             if (pwd === 'IBARRITA') {
                 document.getElementById('pantalla-login').style.display = 'none';
                 cargarEstadoInicial();
-                setInterval(cargarEstadoInicial, 2000); // Refresca automático
+                if(!intervaloActualizacion) {
+                    intervaloActualizacion = setInterval(cargarEstadoInicial, 3000); // Polling 3s
+                }
             } else {
                 errorMsg.style.display = 'block';
                 setTimeout(() => errorMsg.style.display = 'none', 3000);
             }
         }
 
-        // ------------------ CARGA Y RENDERIZADO DE PEDIDOS ------------------
-        function cargarEstadoInicial() {
-            renderizarPedidos();
+        // ------------------ CARGA Y RENDERIZADO DE PEDIDOS (BACKEND) ------------------
+        async function cargarEstadoInicial() {
+            try {
+                const res = await fetch('/api/pedidos');
+                if (res.ok) {
+                    const todosLosPedidos = await res.json();
+                    let pedidosOnline = [];
+                    let pedidosCaja = [];
+
+                    todosLosPedidos.forEach(p => {
+                        if (!p.id) return;
+                        if (p.estado === 'Cobrado' || p.estado === 'Cancelado' || p.metodo_pago) return;
+
+                        let esStaff = false;
+
+                        // 1. Si el pedido tiene un número de mesa, o etiquetas específicas de origen de staff
+                        if (p.mesa || p.origen === 'staff' || p.origen === 'punto_staff_77') {
+                            esStaff = true;
+                        } 
+                        // 2. Si trae un mesero asignado que NO sea "online" o "cliente"
+                        else if (p.mesero && p.mesero.trim() !== '' && p.mesero.toLowerCase() !== 'online' && p.mesero.toLowerCase() !== 'cliente') {
+                            esStaff = true;
+                        }
+
+                        // Dividimos estrictamente según el Súper Filtro
+                        if (esStaff) {
+                            pedidosCaja.push(p);
+                        } else {
+                            pedidosOnline.push(p);
+                        }
+                    });
+                    renderizarPedidos(pedidosOnline, pedidosCaja);
+                } else {
+                    cargarDesdeLocalStorage();
+                }
+            } catch (e) {
+                cargarDesdeLocalStorage();
+            }
             actualizarGranTotal();
         }
 
-        function renderizarPedidos() {
+        function cargarDesdeLocalStorage() {
+            // Comandero guarda aquí:
+            let online = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+            
+            // Punto Staff 77 guarda aquí:
+            let staff = JSON.parse(localStorage.getItem('mesas_activas')) 
+                     || JSON.parse(localStorage.getItem('pedidos_staff')) 
+                     || JSON.parse(localStorage.getItem('pedidos_caja')) || {};
+                     
+            renderizarPedidos(online, staff);
+        }
+
+        function renderizarPedidos(pedidosOnline, pedidosCaja) {
             const contOnline = document.getElementById('contenedor-online');
             const contCaja = document.getElementById('contenedor-caja');
             let htmlOnline = '', htmlCaja = '';
 
-            // 1. Lectura segura Online
-            let pedidosOnline = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-            
-            // 2. LECTURA SEGURA STAFF: Busca en las 3 memorias más probables que genere tu punto_staff_77
-            let pedidosCaja = JSON.parse(localStorage.getItem('mesas_activas')) 
-                           || JSON.parse(localStorage.getItem('pedidos_staff')) 
-                           || JSON.parse(localStorage.getItem('pedidos_caja')) || {};
-
-            // Renderizar Pedidos Online
+            // Renderizar Pedidos COMANDERO
             if (Array.isArray(pedidosOnline)) {
                 pedidosOnline.forEach((p, idx) => {
                     if(!p || !p.items) return;
-                    let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${(it.precio * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
+                    let idParam = p.id ? `'${p.id}'` : idx; 
+                    
+                    let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
                     
                     htmlOnline += `
                         <div class="tarjeta-cuenta tarjeta-online">
@@ -193,172 +255,190 @@
                                 <span class="mesero-tag">👤 ${p.mesero || 'Online'}</span>
                             </div>
                             <ul class="lista-items">${itemsHtml}</ul>
-                            <div class="total-tarjeta">TOTAL: $${parseFloat(p.total).toFixed(2)}</div>
+                            <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)}</div>
                             <div class="grid-botones-cobro">
-                                <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta(${idx}, 'efectivo', 'online')">💵 EFECTIVO</button>
-                                <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta(${idx}, 'tarjeta', 'online')">💳 TARJETA</button>
-                                <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta(${idx}, 'cortesia', 'online')">🎁 Cortesía</button>
-                                <button class="btn-cobro btn-descuento" onclick="aplicarDescuento(${idx}, 'online')">🏷️ Descuento</button>
+                                <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta(${idParam}, 'Efectivo', 'online', '${p.cliente || 'Cliente'}')">💵 EFECTIVO</button>
+                                <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta(${idParam}, 'Tarjeta', 'online', '${p.cliente || 'Cliente'}')">💳 TARJETA</button>
+                                <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta(${idParam}, 'Cortesía', 'online', '${p.cliente || 'Cliente'}')">🎁 Cortesía</button>
+                                <button class="btn-cobro btn-descuento" onclick="aplicarDescuento(${idParam}, 'online')">🏷️ Descuento</button>
                             </div>
-                            <button class="btn-cancelar-cuenta" onclick="cancelarCuenta(${idx}, 'online')">🗑️ Cancelar</button>
+                            <button class="btn-cancelar-cuenta" onclick="cancelarCuenta(${idParam}, 'online')">🗑️ Cancelar</button>
                         </div>`;
                 });
             }
 
-            // Renderizar Pedidos STAFF (Iterador robusto para Objetos o Arrays)
+            // Renderizar Pedidos PUNTO STAFF 77
             let iteradorCaja = Array.isArray(pedidosCaja) ? pedidosCaja.map((p, i) => [i, p]) : Object.entries(pedidosCaja);
             
             iteradorCaja.forEach(([key, p]) => {
-                if(!p || !p.items) return; // Evitar errores si hay datos vacíos
-                let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${(it.precio * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
-                let idParam = typeof key === 'string' ? `'${key}'` : key;
+                if(!p || !p.items) return;
+                let idParam = p.id ? `'${p.id}'` : (typeof key === 'string' ? `'${key}'` : key);
+                
+                let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
+                let tituloMesa = p.mesa || p.cliente || key;
                 
                 htmlCaja += `
                     <div class="tarjeta-cuenta">
                         <div class="header-tarjeta">
-                            <span class="nombre-cliente">${p.mesa || p.cliente || key}</span>
+                            <span class="nombre-cliente">${tituloMesa}</span>
                             <span class="mesero-tag">👤 ${p.mesero || 'Staff'}</span>
                         </div>
                         <ul class="lista-items">${itemsHtml}</ul>
-                        <div class="total-tarjeta">TOTAL: $${parseFloat(p.total).toFixed(2)}</div>
+                        <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)}</div>
                         <div class="grid-botones-cobro">
-                            <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta(${idParam}, 'efectivo', 'caja')">💵 EFECTIVO</button>
-                            <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta(${idParam}, 'tarjeta', 'caja')">💳 TARJETA</button>
-                            <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta(${idParam}, 'cortesia', 'caja')">🎁 Cortesía</button>
+                            <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta(${idParam}, 'Efectivo', 'caja', '${tituloMesa}')">💵 EFECTIVO</button>
+                            <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta(${idParam}, 'Tarjeta', 'caja', '${tituloMesa}')">💳 TARJETA</button>
+                            <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta(${idParam}, 'Cortesía', 'caja', '${tituloMesa}')">🎁 Cortesía</button>
                             <button class="btn-cobro btn-descuento" onclick="aplicarDescuento(${idParam}, 'caja')">🏷️ Descuento</button>
                         </div>
                         <button class="btn-cancelar-cuenta" onclick="cancelarCuenta(${idParam}, 'caja')">🗑️ Cancelar</button>
                     </div>`;
             });
 
-            contOnline.innerHTML = htmlOnline || '<p style="color:#777; text-align:center;">Sin pedidos online.</p>';
+            contOnline.innerHTML = htmlOnline || '<p style="color:#777; text-align:center;">Sin pedidos del Comandero activos.</p>';
             contCaja.innerHTML = htmlCaja || '<p style="color:#777; text-align:center;">Sin pedidos de Staff activos.</p>';
         }
 
-        // ------------------ LOGICA DE COBRO Y DESCUENTO EN ALMACÉN ------------------
-        function descontarDeInventario(itemsVendidos) {
-            if (!itemsVendidos || itemsVendidos.length === 0) return;
-            
-            // Asume que la lista de almacen.html se guarda bajo la clave 'inventario'
-            let inventario = JSON.parse(localStorage.getItem('inventario')) || [];
-            if (inventario.length === 0) return; // Si no hay inventario, no hacemos nada
+        // ------------------ CONFIGURACIÓN DE MESEROS ------------------
+        function obtenerMeserosConfig() {
+            let configDefault = [
+                { nombre: "Mesero 1", pin: "1111" },
+                { nombre: "Mesero 2", pin: "2222" },
+                { nombre: "Mesero 3", pin: "3333" },
+                { nombre: "Mesero 4", pin: "4444" },
+                { nombre: "Mesero 5", pin: "5555" }
+            ];
+            return JSON.parse(localStorage.getItem('chulas_meseros_config')) || configDefault;
+        }
 
-            itemsVendidos.forEach(itemVendido => {
-                // Busca coincidencia por nombre de producto
-                let index = inventario.findIndex(prod => prod.nombre.trim().toLowerCase() === itemVendido.nombre.trim().toLowerCase());
+        function abrirModalMeseros() {
+            let meseros = obtenerMeserosConfig();
+            let html = "";
+            meseros.forEach((m, idx) => {
+                html += `
+                    <div class="fila-mesero-config">
+                        <span style="font-weight:bold; color:#ffb74d; width:70px;">#${idx+1}</span>
+                        <input type="text" id="nombre-mesero-${idx}" value="${m.nombre}" placeholder="Nombre del Mesero">
+                        <input type="text" id="pin-mesero-${idx}" value="${m.pin}" placeholder="Contraseña / PIN" style="width: 120px;">
+                    </div>
+                `;
+            });
+            document.getElementById('contenedor-inputs-meseros').innerHTML = html;
+            document.getElementById('modal-meseros').style.display = 'flex';
+        }
+
+        function cerrarModalMeseros() { document.getElementById('modal-meseros').style.display = 'none'; }
+
+        function guardarMeserosConfig() {
+            let nuevosMeseros = [];
+            for (let i = 0; i < 5; i++) {
+                let nombre = document.getElementById(`nombre-mesero-${i}`).value.trim() || `Mesero ${i+1}`;
+                let pin = document.getElementById(`pin-mesero-${i}`).value.trim() || '0000';
+                nuevosMeseros.push({ nombre, pin });
+            }
+            localStorage.setItem('chulas_meseros_config', JSON.stringify(nuevosMeseros));
+            alert("✅ ¡Configuración de meseros guardada con éxito!");
+            cerrarModalMeseros();
+        }
+
+        // ------------------ LOGICA DE COBRO EN SERVIDOR Y LOCAL ------------------
+        async function cobrarCuenta(id, metodo, origen, etiquetaNombre = '') {
+            if (!confirm(`¿Confirmas cobro por ${metodo.toUpperCase()} de ${etiquetaNombre}?`)) return;
+
+            try {
+                const res = await fetch('/api/pedidos/cobrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, metodo: metodo })
+                });
                 
-                if (index !== -1) {
-                    // Restar cantidad y evitar que queden existencias negativas
-                    inventario[index].cantidad = (inventario[index].cantidad || 0) - (itemVendido.cantidad || 1);
-                    if (inventario[index].cantidad < 0) inventario[index].cantidad = 0; 
+                if(!res.ok) throw new Error("Error backend");
+                cargarEstadoInicial(); 
+                
+            } catch (e) {
+                let cobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
+                let orden = null;
+
+                if (origen === 'online') {
+                    let online = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+                    orden = online.splice(id, 1)[0];
+                    localStorage.setItem('pedidos_activos', JSON.stringify(online));
+                } else {
+                    let llave = localStorage.getItem('mesas_activas') ? 'mesas_activas' : 'pedidos_staff';
+                    let caja = JSON.parse(localStorage.getItem(llave)) || {};
+                    if (Array.isArray(caja)) {
+                        orden = caja.splice(id, 1)[0];
+                    } else {
+                        orden = caja[id];
+                        delete caja[id];
+                    }
+                    localStorage.setItem(llave, JSON.stringify(caja));
                 }
-            });
-            
-            // Guarda el nuevo stock para que almacen.html lo vea
-            localStorage.setItem('inventario', JSON.stringify(inventario));
+
+                if (orden) {
+                    cobradas.push({
+                        cliente: orden.cliente || orden.mesa || etiquetaNombre,
+                        total: parseFloat(orden.total || 0),
+                        metodoPago: metodo.toLowerCase(),
+                        horaCobro: new Date().toLocaleTimeString(),
+                        mesero: orden.mesero || 'Staff'
+                    });
+                    localStorage.setItem('cuentas_cobradas', JSON.stringify(cobradas));
+                }
+                cargarEstadoInicial();
+            }
         }
 
-        function cobrarCuenta(id, metodo, origen) {
-            let cuenta;
-            let activosOnline = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+        // ------------- CANCELACIONES Y DESCUENTOS -------------
+        async function cancelarCuenta(id, origen) {
+            if (!confirm("¿Estás seguro de cancelar esta orden? (No se descontará del almacén ni se sumará a ventas)")) return;
             
-            // Detectar qué llave está usando el Staff realmente
-            let llaveStaff = localStorage.getItem('mesas_activas') ? 'mesas_activas' : 
-                             localStorage.getItem('pedidos_staff') ? 'pedidos_staff' : 'pedidos_caja';
-            let activosCaja = JSON.parse(localStorage.getItem(llaveStaff)) || {};
-
-            if (origen === 'online') {
-                cuenta = activosOnline[id];
-            } else {
-                cuenta = Array.isArray(activosCaja) ? activosCaja[id] : activosCaja[id];
-            }
-
-            if (!cuenta) return;
-
-            let nombreVisual = cuenta.cliente || cuenta.mesa || 'Mesa';
-            if (!confirm(`¿Confirmas pago por ${metodo.toUpperCase()} para ${nombreVisual}? (Se descontará del inventario)`)) return;
-
-            // 1. DESCONTAR DEL ALMACÉN AUTOMÁTICAMENTE
-            descontarDeInventario(cuenta.items);
-
-            // 2. Guardar el registro monetario
-            let montoFinal = (metodo === 'cortesia') ? 0 : parseFloat(cuenta.total);
-            let cuentasCobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
-            cuentasCobradas.push({ 
-                ...cuenta, 
-                cliente: nombreVisual, 
-                mesero: cuenta.mesero || 'Staff',
-                total: montoFinal, 
-                metodoPago: metodo, 
-                horaCobro: new Date().toLocaleTimeString() 
-            });
-            localStorage.setItem('cuentas_cobradas', JSON.stringify(cuentasCobradas));
-
-            // 3. Eliminar de la pantalla
-            if (origen === 'online') {
-                activosOnline.splice(id, 1);
-                localStorage.setItem('pedidos_activos', JSON.stringify(activosOnline));
-            } else {
-                if (Array.isArray(activosCaja)) activosCaja.splice(id, 1);
-                else delete activosCaja[id];
-                localStorage.setItem(llaveStaff, JSON.stringify(activosCaja));
-            }
-            
-            cargarEstadoInicial();
-        }
-
-        // ------------- CANCELACIONES, DESCUENTOS Y CORTES -------------
-        function aplicarDescuento(id, origen) {
-            const rebaja = prompt("Descuento en $: ", "10");
-            if (rebaja && !isNaN(rebaja) && rebaja > 0) {
+            try {
+                const res = await fetch('/api/pedidos/cobrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, metodo: 'Cancelado' }) 
+                });
+                if(res.ok) { cargarEstadoInicial(); return; }
+            } catch(e) {
                 if (origen === 'online') {
                     let activosOnline = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-                    activosOnline[id].total = Math.max(0, activosOnline[id].total - parseFloat(rebaja));
+                    activosOnline.splice(id, 1);
                     localStorage.setItem('pedidos_activos', JSON.stringify(activosOnline));
                 } else {
                     let llaveStaff = localStorage.getItem('mesas_activas') ? 'mesas_activas' : 'pedidos_staff';
                     let activosCaja = JSON.parse(localStorage.getItem(llaveStaff)) || {};
-                    if (Array.isArray(activosCaja)) activosCaja[id].total = Math.max(0, activosCaja[id].total - parseFloat(rebaja));
-                    else activosCaja[id].total = Math.max(0, activosCaja[id].total - parseFloat(rebaja));
+                    if (Array.isArray(activosCaja)) activosCaja.splice(id, 1);
+                    else delete activosCaja[id];
                     localStorage.setItem(llaveStaff, JSON.stringify(activosCaja));
                 }
                 cargarEstadoInicial();
             }
         }
 
-        function cancelarCuenta(id, origen) {
-            if (!confirm("¿Estás seguro de cancelar esta orden? (No se descontará del almacén ni se sumará a ventas)")) return;
-            
-            if (origen === 'online') {
-                let activosOnline = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-                activosOnline.splice(id, 1);
-                localStorage.setItem('pedidos_activos', JSON.stringify(activosOnline));
-            } else {
-                let llaveStaff = localStorage.getItem('mesas_activas') ? 'mesas_activas' : 'pedidos_staff';
-                let activosCaja = JSON.parse(localStorage.getItem(llaveStaff)) || {};
-                if (Array.isArray(activosCaja)) activosCaja.splice(id, 1);
-                else delete activosCaja[id];
-                localStorage.setItem(llaveStaff, JSON.stringify(activosCaja));
+        function aplicarDescuento(id, origen) {
+            const rebaja = prompt("Descuento a aplicar en $: ", "10");
+            if (rebaja && !isNaN(rebaja) && parseFloat(rebaja) > 0) {
+                alert("Nota: El descuento rápido solo se refleja en modo local. En red, debes ajustar el total del pedido en el punto de venta.");
             }
-            cargarEstadoInicial();
         }
 
         function actualizarGranTotal() {
             let cuentasCobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
-            let granTotal = cuentasCobradas.reduce((sum, c) => sum + parseFloat(c.total), 0);
+            let granTotal = cuentasCobradas.reduce((sum, c) => sum + parseFloat(c.total || 0), 0);
             document.getElementById('monto-gran-total').innerText = `$${granTotal.toFixed(2)}`;
         }
 
         // ------------- CIERRE Y PANELES -------------
         function cerrarDiaVentas() {
             let cuentasCobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
-            if (cuentasCobradas.length === 0) return alert("No hay ventas registradas hoy.");
+            if (cuentasCobradas.length === 0) return alert("No hay ventas locales registradas para cerrar hoy.");
             
             if (confirm("⚠️ ¿CERRAR EL DÍA? El total se irá al historial y las ventas en pantalla volverán a cero.")) {
                 let efectivo = 0, tarjeta = 0;
                 cuentasCobradas.forEach(c => {
-                    if (c.metodoPago === 'efectivo') efectivo += parseFloat(c.total);
-                    if (c.metodoPago === 'tarjeta') tarjeta += parseFloat(c.total);
+                    if (c.metodoPago === 'efectivo' || c.metodoPago === 'Efectivo') efectivo += parseFloat(c.total || 0);
+                    if (c.metodoPago === 'tarjeta' || c.metodoPago === 'Tarjeta') tarjeta += parseFloat(c.total || 0);
                 });
 
                 let historial = JSON.parse(localStorage.getItem('historial_cortes_dias')) || [];
@@ -380,9 +460,10 @@
             let cuentasCobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
             let efec = 0, tarj = 0, cortesia = 0;
             cuentasCobradas.forEach(c => {
-                if (c.metodoPago === 'efectivo') efec += parseFloat(c.total);
-                if (c.metodoPago === 'tarjeta') tarj += parseFloat(c.total);
-                if (c.metodoPago === 'cortesia') cortesia += parseFloat(c.total);
+                let m = parseFloat(c.total || 0);
+                if (c.metodoPago === 'efectivo' || c.metodoPago === 'Efectivo') efec += m;
+                if (c.metodoPago === 'tarjeta' || c.metodoPago === 'Tarjeta') tarj += m;
+                if (c.metodoPago === 'cortesia' || c.metodoPago === 'Cortesía') cortesia += m;
             });
             const panel = document.getElementById('pantalla-resultados-corte');
             panel.style.display = 'block';
@@ -399,13 +480,18 @@
             let ventas = {};
             cuentasCobradas.forEach(c => {
                 let m = c.mesero || 'Staff';
+                let monto = parseFloat(c.total || 0);
+                let metodo = c.metodoPago ? c.metodoPago.toLowerCase() : '';
+                
                 if (!ventas[m]) ventas[m] = { efec: 0, tarj: 0, total: 0 };
-                if (c.metodoPago === 'efectivo') ventas[m].efec += parseFloat(c.total);
-                if (c.metodoPago === 'tarjeta') ventas[m].tarj += parseFloat(c.total);
-                ventas[m].total += parseFloat(c.total);
+                if (metodo === 'efectivo') ventas[m].efec += monto;
+                if (metodo === 'tarjeta') ventas[m].tarj += monto;
+                ventas[m].total += monto;
             });
             let html = '';
-            for (let m in ventas) html += `<p><strong>${m}:</strong> $${ventas[m].total.toFixed(2)} (💵 $${ventas[m].efec} | 💳 $${ventas[m].tarj})</p>`;
+            for (let m in ventas) {
+                html += `<p><strong>${m}:</strong> $${ventas[m].total.toFixed(2)} (💵 $${ventas[m].efec.toFixed(2)} | 💳 $${ventas[m].tarj.toFixed(2)})</p>`;
+            }
             const panel = document.getElementById('pantalla-resultados-corte');
             panel.style.display = 'block';
             panel.innerHTML = `<h2 style="color:#03a9f4;">📊 Ventas por Mesero / Staff</h2>${html || '<p>Sin ventas.</p>'}`;
@@ -420,7 +506,7 @@
         function abrirModalHistorialCobradas() {
             let cuentas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
             const tbody = document.getElementById('lista-cobradas-tabla');
-            tbody.innerHTML = cuentas.map(c => `<tr><td>${c.horaCobro||'--'}</td><td>${c.cliente}</td><td>${c.metodoPago.toUpperCase()}</td><td>$${c.total.toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="4">No hay cobros de hoy.</td></tr>';
+            tbody.innerHTML = cuentas.map(c => `<tr><td>${c.horaCobro||'--'}</td><td>${c.cliente || 'Cliente'}</td><td>${(c.metodoPago || '').toUpperCase()}</td><td>$${parseFloat(c.total || 0).toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="4">No hay cobros de hoy.</td></tr>';
             document.getElementById('modal-historial').style.display = 'flex';
         }
         function cerrarModalHistorialCobradas() { document.getElementById('modal-historial').style.display = 'none'; }
@@ -428,7 +514,7 @@
         function abrirModalHistorialDias() {
             let historial = JSON.parse(localStorage.getItem('historial_cortes_dias')) || [];
             const tbody = document.getElementById('lista-dias-tabla');
-            tbody.innerHTML = historial.map(d => `<tr><td style="color:#03a9f4;">${d.fecha}</td><td>$${d.efectivo.toFixed(2)}</td><td>$${d.tarjeta.toFixed(2)}</td><td style="color:#8bc34a; font-weight:bold;">$${d.totalDia.toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="4">Sin historial.</td></tr>';
+            tbody.innerHTML = historial.map(d => `<tr><td style="color:#03a9f4;">${d.fecha}</td><td>$${parseFloat(d.efectivo || 0).toFixed(2)}</td><td>$${parseFloat(d.tarjeta || 0).toFixed(2)}</td><td style="color:#8bc34a; font-weight:bold;">$${parseFloat(d.totalDia || 0).toFixed(2)}</td></tr>`).join('') || '<tr><td colspan="4">Sin historial.</td></tr>';
             document.getElementById('modal-dias').style.display = 'flex';
         }
         function cerrarModalHistorialDias() { document.getElementById('modal-dias').style.display = 'none'; }

@@ -1,0 +1,44 @@
+[
+    {
+        "id": "hamb_sencilla",
+        "nombre": "Hamburguesa Sencilla",
+        "stock": 100,
+        "precio": 70
+    },
+    {
+        "id": "hamb_doble",
+        "nombre": "Hamburguesa Doble",
+        "stock": 100,
+        "precio": 100
+    },
+    {
+        "id": "hd_sencillo",
+        "nombre": "Hotdog Sencillo",
+        "stock": 100,
+        "precio": 50
+    },
+    {
+        "id": "hd_orden",
+        "nombre": "Orden Hotdogs",
+        "stock": 100,
+        "precio": 90
+    },
+    {
+        "id": "hd_toluqueno",
+        "nombre": "Hotdog Toluque\u00f1o",
+        "stock": 100,
+        "precio": 70
+    },
+    {
+        "id": "papas",
+        "nombre": "Papas Fritas",
+        "stock": 100,
+        "precio": 40
+    },
+    {
+        "id": "refresco",
+        "nombre": "Refresco",
+        "stock": 100,
+        "precio": 25
+    }
+]

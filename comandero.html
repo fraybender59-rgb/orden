@@ -111,39 +111,59 @@ const menuBase = {
 
 let carrito = [];
 let ultimoPedido = "";
+let nombreClienteGuardado = "";
 
 function cargarMenu() {
-  fetch('/api/menu').then(r => r.json()).catch(() => menuBase).then(data => {
-    let html = "";
-    for (let cat in data) {
-      data[cat].forEach((p, idx) => {
-        if(p.disponible === false) return; // Ocultar bloqueados
-        let idFicticio = cat.charAt(0) + idx;
-        html += `
-          <div class="card-prod">
-            <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
-            <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
-            <p class="precio">$${p.precio.toFixed(2)}</p>
-            <div class="controles">
-              <input type="number" min="1" value="1" id="cant-${idFicticio}" class="input-cant">
-              <input type="text" placeholder="Notas (Ej. Sin cebolla)" id="nota-${idFicticio}" class="input-nota">
-            </div>
-            <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar a la orden</button>
+  fetch('/api/menu')
+    .then(r => {
+      if (!r.ok) throw new Error("Respuesta no OK");
+      return r.json();
+    })
+    .then(data => {
+      renderizarMenu(data);
+    })
+    .catch(err => {
+      console.warn("Cargando catálogo base...", err);
+      renderizarMenu(menuBase);
+    });
+}
+
+function renderizarMenu(data) {
+  let html = "";
+  for (let cat in data) {
+    data[cat].forEach((p, idx) => {
+      if (p.disponible === false) return; // Ocultar bloqueados
+      
+      // ID único (corrige conflicto entre Hamburguesas y Hot Dogs: Ham0 vs Hot0)
+      let idFicticio = cat.substring(0, 3).replace(/\s/g, '') + idx; 
+      
+      html += `
+        <div class="card-prod">
+          <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
+          <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
+          <p class="precio">$${p.precio.toFixed(2)}</p>
+          <div class="controles">
+            <input type="number" min="1" value="1" id="cant-${idFicticio}" class="input-cant">
+            <input type="text" placeholder="Notas (Ej. Sin cebolla)" id="nota-${idFicticio}" class="input-nota">
           </div>
-        `;
-      });
-    }
-    document.getElementById('contenedor-menu').innerHTML = html;
-  });
+          <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar a la orden</button>
+        </div>
+      `;
+    });
+  }
+  document.getElementById('contenedor-menu').innerHTML = html || "<p style='grid-column:1/-1;text-align:center;'>No hay productos disponibles.</p>";
 }
 
 function addCarrito(nombre, precio, idElem) {
-  let cant = parseInt(document.getElementById(`cant-${idElem}`).value) || 1;
-  let notas = document.getElementById(`nota-${idElem}`).value;
+  let cantElem = document.getElementById(`cant-${idElem}`);
+  let notaElem = document.getElementById(`nota-${idElem}`);
+  let cant = parseInt(cantElem ? cantElem.value : 1) || 1;
+  let notas = notaElem ? notaElem.value : '';
+  
   carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
   document.getElementById('contador-items').innerText = carrito.length;
-  document.getElementById(`cant-${idElem}`).value = 1;
-  document.getElementById(`nota-${idElem}`).value = '';
+  if (cantElem) cantElem.value = 1;
+  if (notaElem) notaElem.value = '';
   alert(`${cant}x ${nombre} agregado al pedido.`);
 }
 
@@ -151,9 +171,15 @@ function abrirCarrito() {
   if (carrito.length === 0) return alert("El carrito está vacío.");
   let html = ""; let total = 0;
   carrito.forEach((i, idx) => {
-    html += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #444; padding:5px 0;">
-      <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
-      <div>$${i.subtotal.toFixed(2)} <button onclick="quitarItem(${idx})" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;">X</button></div>
+    html += `<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444; padding:8px 0;">
+      <div>
+        <strong>${i.cantidad}x ${i.nombre}</strong>
+        ${i.notas ? `<br><small style="color:#aaa;">Nota: ${i.notas}</small>` : ''}
+      </div>
+      <div>
+        <span style="margin-right:10px;">$${i.subtotal.toFixed(2)}</span>
+        <button onclick="quitarItem(${idx})" style="background:#f44336;color:white;border:none;border-radius:3px;padding:3px 8px;cursor:pointer;">X</button>
+      </div>
     </div>`;
     total += i.subtotal;
   });
@@ -162,24 +188,47 @@ function abrirCarrito() {
   document.getElementById('modal-carrito').style.display = 'flex';
 }
 
-function quitarItem(idx) { carrito.splice(idx, 1); abrirCarrito(); document.getElementById('contador-items').innerText = carrito.length; if(carrito.length===0) document.getElementById('modal-carrito').style.display='none'; }
+function quitarItem(idx) { 
+  carrito.splice(idx, 1); 
+  document.getElementById('contador-items').innerText = carrito.length; 
+  if (carrito.length === 0) {
+    document.getElementById('modal-carrito').style.display = 'none';
+  } else {
+    abrirCarrito(); 
+  }
+}
 
 function enviarPedido() {
-  let nombre = document.getElementById('nombre-cliente').value;
+  let nombre = document.getElementById('nombre-cliente').value.trim();
   if (!nombre) return alert("Por favor, ingresa tu nombre.");
   
+  nombreClienteGuardado = nombre;
   let total = carrito.reduce((sum, i) => sum + i.subtotal, 0);
   let pedido = {
-    cliente: nombre, total: total, items: carrito, estado: 'Pendiente', 
-    fecha: new Date().toLocaleTimeString(), metodo: 'Transferencia'
+    cliente: nombre, 
+    total: total, 
+    items: carrito, 
+    estado: 'Pendiente', 
+    fecha: new Date().toLocaleTimeString(), 
+    metodo: 'Transferencia',
+    origen: 'Online'
   };
 
-  // Aquí iría la lógica para subir la imagen y obtener URL (si usas backend)
-  // Por ahora mandamos el JSON
-  fetch('/api/pedidos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(pedido) })
-  .catch(err => console.log("Guardado local mode"))
+  // ENVIAR AL BACKEND SERVIDOR (NO QUEDA SOLO EN EL NAVEGADOR)
+  fetch('/api/pedidos', { 
+    method: 'POST', 
+    headers: {'Content-Type': 'application/json'}, 
+    body: JSON.stringify(pedido) 
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Error en el servidor al guardar el pedido");
+    return res.json();
+  })
+  .catch(err => {
+    console.error("Error al transmitir al servidor backend:", err);
+  })
   .finally(() => {
-    ultimoPedido = carrito.map(i => `${i.cantidad}x ${i.nombre}`).join(", ");
+    ultimoPedido = carrito.map(i => `${i.cantidad}x ${i.nombre}${i.notas ? ' ('+i.notas+')' : ''}`).join(", ");
     carrito = [];
     document.getElementById('contador-items').innerText = "0";
     document.getElementById('modal-carrito').style.display = 'none';
@@ -188,7 +237,7 @@ function enviarPedido() {
 }
 
 function abrirWhatsApp() {
-  let txt = encodeURIComponent(`Hola, acabo de realizar un pedido a nombre de *${document.getElementById('nombre-cliente').value}*. \nMi orden es: ${ultimoPedido}\n\nAdjunto mi comprobante de pago.`);
+  let txt = encodeURIComponent(`Hola, acabo de realizar un pedido a nombre de *${nombreClienteGuardado || document.getElementById('nombre-cliente').value}*.\n\nMi orden es:\n${ultimoPedido}\n\nAdjunto mi comprobante de pago.`);
   window.open(`https://wa.me/52795696184?text=${txt}`, '_blank');
 }
 
@@ -197,6 +246,7 @@ function cerrarExito() {
   document.getElementById('nombre-cliente').value = '';
 }
 
+// Iniciar la carga del menú al abrir la página
 cargarMenu();
 </script>
 </body>

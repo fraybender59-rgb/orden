@@ -5,120 +5,147 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Almacén - Chulas Burgers</title>
 <style>
-  body { background-color: #121216; color: #f5f5f7; font-family: sans-serif; margin: 0; padding: 15px; }
-  h1 { text-align: center; color: #00bcd4; margin-bottom: 5px; }
+  :root {
+    --bg-main: #121216;
+    --bg-card: #1e1e24;
+    --bg-item: #111116;
+    --accent: #00bcd4;
+    --text-main: #f5f5f7;
+    --ok-color: #8bc34a;
+    --low-color: #ff9800;
+    --empty-color: #f44336;
+    --border-color: #333;
+  }
+  
+  body { background-color: var(--bg-main); color: var(--text-main); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 15px; }
+  h1 { text-align: center; color: var(--accent); margin-bottom: 5px; font-size: 1.8rem; }
   p.sub { text-align: center; color: #aaa; margin-top: 0; margin-bottom: 20px; font-size: 0.9rem; }
   
   .contenedor-almacen { max-width: 800px; margin: 0 auto; }
-  .seccion-cat { background: #1e1e24; border-radius: 8px; padding: 15px; margin-bottom: 20px; border: 1px solid #333; }
-  .titulo-cat { color: #ffb74d; border-bottom: 1px solid #444; padding-bottom: 8px; margin-top: 0; }
   
-  .grid-insumos { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
-  .item-insumo { background: #111116; border: 1px solid #2a2a35; padding: 12px; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; }
-  .nombre-prod { font-weight: bold; font-size: 1rem; color: #fff; }
+  .grid-insumos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+  .item-insumo { background: var(--bg-item); border: 1px solid #2a2a35; padding: 15px; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: transform 0.2s;}
+  .item-insumo:active { transform: scale(0.98); }
   
-  .stock-status { margin: 10px 0; font-size: 1.1rem; font-weight: bold; text-align: center; }
-  .badge-ok { color: #8bc34a; }
-  .badge-low { color: #ff9800; }
-  .badge-empty { color: #f44336; }
+  .nombre-prod { font-weight: bold; font-size: 1.1rem; color: #fff; text-align: center; }
+  .precio-prod { text-align: center; color: #aaa; font-size: 0.85rem; margin-top: 5px; }
   
-  .controles-stock { display: flex; gap: 5px; justify-content: center; align-items: center; }
-  .btn-qty { background: #333; color: white; border: 1px solid #555; padding: 5px 12px; font-size: 1.2rem; font-weight: bold; border-radius: 4px; cursor: pointer; }
-  .btn-qty:hover { background: #00bcd4; color: #111; }
-  .inp-stock { width: 50px; text-align: center; background: #1e1e24; color: white; border: 1px solid #444; padding: 5px; border-radius: 4px; font-weight: bold; }
+  .stock-status { margin: 15px 0; font-size: 1.5rem; font-weight: bold; text-align: center; }
+  .badge-ok { color: var(--ok-color); }
+  .badge-low { color: var(--low-color); }
+  .badge-empty { color: var(--empty-color); }
   
-  .btn-volver { display: block; width: 200px; margin: 30px auto; text-align: center; background: #333; color: white; padding: 10px; text-decoration: none; border-radius: 5px; font-weight: bold; border: 1px solid #555; }
+  .controles-stock { display: flex; gap: 8px; justify-content: center; align-items: center; }
+  .btn-qty { background: #333; color: white; border: none; width: 40px; height: 40px; font-size: 1.5rem; font-weight: bold; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+  .btn-qty:active { background: var(--accent); color: #111; }
+  .inp-stock { width: 60px; height: 38px; text-align: center; background: var(--bg-card); color: white; border: 1px solid #555; border-radius: 6px; font-weight: bold; font-size: 1.2rem;}
+  
+  .acciones-globales { display: flex; justify-content: space-between; gap: 10px; margin: 30px auto; max-width: 800px;}
+  .btn-accion { flex: 1; text-align: center; padding: 15px; text-decoration: none; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-size: 1rem;}
+  .btn-volver { background: #333; color: white; border: 1px solid #555; }
+  .btn-reiniciar { background: var(--empty-color); color: white; }
 </style>
 </head>
 <body>
 
 <div class="contenedor-almacen">
-  <h1>📦 Control de Almacén e Inventario</h1>
-  <p class="sub">Gestión de existencias en tiempo real para Chulas Burgers</p>
+  <h1>📦 Control de Inventario</h1>
+  <p class="sub">Sincronizado en tiempo real con el servidor</p>
 
-  <div id="contenedor-categorias">Cargando inventario...</div>
+  <div class="grid-insumos" id="contenedor-categorias">
+    <p style="text-align: center; width: 100%; color: #aaa;">Conectando con el servidor...</p>
+  </div>
 
-  <a href="administracion.html" class="btn-volver">⬅️ Volver a Administración</a>
+  <div class="acciones-globales">
+    <a href="administracion.html" class="btn-accion btn-volver">⬅️ Volver</a>
+    <button onclick="reiniciarInventario()" class="btn-accion btn-reiniciar">🔄 Reiniciar a 100pz</button>
+  </div>
 </div>
 
 <script>
-// Lista de Productos Sincronizada con Comandero y Staff 77
-const inventarioInicial = {
-  "Hamburguesas": [
-    { nombre: "Clásica", stock: 20 },
-    { nombre: "Doble", stock: 15 }
-  ],
-  "Hot Dogs": [
-    { nombre: "Hot Dog", stock: 30 },
-    { nombre: "Orden de Hot Dogs", stock: 12 }
-  ],
-  "Especialidades": [
-    { nombre: "Enchiladas", stock: 10 },
-    { nombre: "Chilaquiles", stock: 15 },
-    { nombre: "Club Sandwich", stock: 10 },
-    { nombre: "Sincronizadas Mexa", stock: 10 },
-    { nombre: "Crepa Pizza", stock: 8 }
-  ],
-  "Bebidas": [
-    { nombre: "Refrescos Varios", stock: 40 },
-    { nombre: "Coca Cola", stock: 50 }
-  ]
-};
+let inventarioGlobal = [];
 
-let almacenData = JSON.parse(localStorage.getItem('almacen_chulas')) || inventarioInicial;
+// Obtener inventario desde servidor.py
+async function fetchInventario() {
+  try {
+    const response = await fetch('/api/inventario');
+    if (!response.ok) throw new Error('Error en red');
+    inventarioGlobal = await response.json();
+    renderAlmacen();
+  } catch (error) {
+    document.getElementById('contenedor-categorias').innerHTML = '<p style="color:#f44336; text-align:center;">Error de conexión con el servidor. Verifica que tu backend esté en ejecución.</p>';
+  }
+}
 
 function renderAlmacen() {
   let html = "";
-  for (let cat in almacenData) {
-    html += `<div class="seccion-cat">
-      <h3 class="titulo-cat">📂 ${cat}</h3>
-      <div class="grid-insumos">`;
-      
-    almacenData[cat].forEach((item, index) => {
-      let claseBadge = item.stock > 5 ? 'badge-ok' : item.stock > 0 ? 'badge-low' : 'badge-empty';
-      let textoEstado = item.stock > 5 ? 'En Stock' : item.stock > 0 ? 'Stock Bajo' : 'Agotado';
-      
-      html += `
-        <div class="item-insumo">
-          <div class="nombre-prod">${item.nombre}</div>
-          <div class="stock-status ${claseBadge}">
-            <span id="cant-${cat}-${index}">${item.stock}</span> <small style="font-size:0.7rem;">(${textoEstado})</small>
-          </div>
-          <div class="controles-stock">
-            <button class="btn-qty" onclick="modificarStock('${cat}', ${index}, -1)">-</button>
-            <input type="number" class="inp-stock" value="${item.stock}" onchange="cambiarDirecto('${cat}', ${index}, this.value)">
-            <button class="btn-qty" onclick="modificarStock('${cat}', ${index}, 1)">+</button>
-          </div>
-        </div>`;
-    });
-
-    html += `</div></div>`;
-  }
+  inventarioGlobal.forEach((item, index) => {
+    let claseBadge = item.stock > 15 ? 'badge-ok' : item.stock > 0 ? 'badge-low' : 'badge-empty';
+    let textoEstado = item.stock > 15 ? 'Óptimo' : item.stock > 0 ? 'Bajo' : 'Agotado';
+    
+    html += `
+      <div class="item-insumo">
+        <div>
+            <div class="nombre-prod">${item.nombre}</div>
+            <div class="precio-prod">$${item.precio.toFixed(2)}</div>
+        </div>
+        <div class="stock-status ${claseBadge}">
+          <span id="cant-${index}">${item.stock}</span> 
+          <div style="font-size:0.8rem; margin-top:2px;">${textoEstado}</div>
+        </div>
+        <!-- CONTROLES PARA AGREGAR STOCK MANUALMENTE -->
+        <div class="controles-stock" style="margin-top: 10px; display: flex; gap: 5px;">
+          <input type="number" id="add-stock-${index}" class="inp-stock" value="1" min="1" style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid #444; background: #222; color: white;">
+          <button class="btn-qty" style="padding: 5px 10px; font-size: 0.9rem; background: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;" onclick="sumarStock('${item.nombre}', ${index})">➕ Ingresar</button>
+        </div>
+      </div>`;
+  });
   document.getElementById('contenedor-categorias').innerHTML = html;
 }
 
-function modificarStock(cat, idx, cambio) {
-  almacenData[cat][idx].stock = Math.max(0, almacenData[cat][idx].stock + cambio);
-  guardarYActualizar();
+async function sumarStock(nombre, index) {
+  let inputStock = document.getElementById(`add-stock-${index}`);
+  let cantidadAAgregar = parseInt(inputStock.value);
+  
+  if (!cantidadAAgregar || cantidadAAgregar <= 0) return alert("Ingresa una cantidad válida.");
+
+  try {
+    await fetch('/api/inventario/sumar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre: nombre, cantidad: cantidadAAgregar })
+    });
+    
+    inputStock.value = 1;
+    fetchInventario(); 
+  } catch (e) {
+    console.error(e);
+    alert("Error al conectar con el servidor.");
+  }
 }
 
-function cambiarDirecto(cat, idx, valor) {
-  let valNum = parseInt(valor) || 0;
-  almacenData[cat][idx].stock = Math.max(0, valNum);
-  guardarYActualizar();
+// Función para reiniciar el inventario a 100 piezas (Faltaba en el código original)
+async function reiniciarInventario() {
+  if(!confirm("¿Estás seguro de reiniciar TODO el inventario a 100 piezas?")) return;
+  
+  try {
+    const response = await fetch('/api/inventario/reiniciar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) throw new Error("Error en el servidor al reiniciar");
+    
+    alert("Inventario reiniciado con éxito.");
+    fetchInventario(); // Recarga la interfaz con los nuevos valores
+  } catch (e) {
+    console.error("Error al reiniciar:", e);
+    alert("Error al intentar reiniciar el inventario en el servidor. Asegúrate de tener configurada la ruta en tu backend.");
+  }
 }
 
-function guardarYActualizar() {
-  localStorage.setItem('almacen_chulas', JSON.stringify(almacenData));
-  fetch('/api/almacen', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(almacenData)
-  }).catch(() => {});
-  renderAlmacen();
-}
-
-renderAlmacen();
+// Iniciar la carga del inventario al abrir la página
+fetchInventario();
 </script>
 </body>
 </html>
