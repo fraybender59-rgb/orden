@@ -15,6 +15,7 @@
         .btn-historial { background: #ab47bc; color: white; border: none; }
         .btn-historial-dias { background: #009688; color: white; border: none; }
         .btn-meseros-config { background: #03a9f4; color: #111; border: none; }
+        .btn-comprobantes { background: #e91e63; color: white; border: none; }
         
         .caja-resumen-jefe { background: #1e1e24; border: 2px solid #8bc34a; border-radius: 10px; padding: 20px; max-width: 800px; margin: 0 auto 25px auto; text-align: center; }
         .monto-total-texto { font-size: 1.8rem; font-weight: bold; margin-bottom: 15px; }
@@ -30,7 +31,6 @@
         .pantalla-doble { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
         .columna-pedidos { background: #1a1a20; border: 1px solid #333; border-radius: 8px; padding: 15px; min-height: 400px; }
         
-        /* ESTILOS DE LAS TARJETAS */
         .tarjeta-cuenta { background: #1e1e24; border: 1px solid #444; border-radius: 8px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .tarjeta-online { border: 2px solid #03a9f4; background: #151f28; box-shadow: 0 0 15px rgba(3, 169, 244, 0.4); }
         .badge-online { background: #03a9f4; color: #111; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-bottom: 5px; display: inline-block; animation: parpadeo 2s infinite; }
@@ -61,7 +61,6 @@
         .tabla-registros th, .tabla-registros td { border: 1px solid #444; padding: 8px; text-align: left; font-size: 0.9rem; }
         .tabla-registros th { background: #1e1e24; color: #ffb74d; }
 
-        /* ESTILOS DE PANTALLA DE LOGIN */
         #pantalla-login { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(18, 18, 22, 0.98); backdrop-filter: blur(8px); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10000; }
         .caja-login { background: #1e1e24; padding: 40px; border-radius: 12px; border: 2px solid #ffb74d; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: 90%; max-width: 400px; }
         .caja-login h2 { color: #ffb74d; margin-top: 0; margin-bottom: 20px; font-size: 1.8rem; }
@@ -76,7 +75,6 @@
 </head>
 <body>
 
-    <!-- PANTALLA DE LOGIN UNICA PARA GERENTE -->
     <div id="pantalla-login">
         <div class="caja-login">
             <h2>🔐 Control Maestro</h2>
@@ -87,14 +85,14 @@
         </div>
     </div>
 
-    <!-- PANEL DEL JEFE -->
     <div class="barra-nav">
         <a href="comandero.html" target="_blank" class="btn-nav">📱 Comandero Público</a>
         <a href="punto_staff_77.html" target="_blank" class="btn-nav">📝 Comandero Caja (Staff)</a>
         <button onclick="abrirModalMeseros()" class="btn-nav btn-meseros-config">👥 Configurar Meseros</button>
         <button onclick="alternarCorte()" class="btn-nav btn-corte">💰 Ver Ventas / Corte</button>
         <button onclick="abrirModalHistorialCobradas()" class="btn-nav btn-historial">📂 Cobradas Hoy</button>
-        <button onclick="abrirModalHistorialDias()" class="btn-nav btn-historial-dias">📅 Historial de Días (30)</button>
+        <button onclick="abrirModalHistorialDias()" class="btn-nav btn-historial-dias">📅 Historial de Días</button>
+        <button onclick="abrirModalComprobantes()" class="btn-nav btn-comprobantes">📸 Ver Comprobantes</button> 
     </div>
 
     <div class="caja-resumen-jefe">
@@ -121,7 +119,6 @@
         </div>
     </div>
 
-    <!-- Modales -->
     <div id="modal-historial" class="modal">
         <div class="modal-contenido" style="max-height: 80vh; overflow-y: auto;">
             <h2>📂 Cuentas Cobradas de Hoy</h2>
@@ -139,7 +136,7 @@
         <div class="modal-contenido" style="max-height: 80vh; overflow-y: auto;">
             <h2>📅 Historial de Cierres Diarios (Últimos 30 días)</h2>
             <table class="tabla-registros">
-                <thead><tr><th>Fecha</th><th>Efectivo</th><th>Tarjeta</th><th>Total del Día</th></tr></thead>
+                <thead><tr><th>Fecha</th><th>Efectivo</th><th>Transferencia</th><th>Total del Día</th></tr></thead>
                 <tbody id="lista-dias-tabla"></tbody>
             </table>
             <div style="text-align: right; margin-top: 15px;">
@@ -148,7 +145,6 @@
         </div>
     </div>
 
-    <!-- Modal Configuración de Meseros -->
     <div id="modal-meseros" class="modal">
         <div class="modal-contenido" style="max-height: 80vh; overflow-y: auto;">
             <h2>👥 Configuración de los 5 Meseros</h2>
@@ -161,10 +157,23 @@
         </div>
     </div>
 
+    <div id="modal-comprobantes" class="modal">
+        <div class="modal-contenido" style="max-height: 85vh; overflow-y: auto; max-width: 800px;">
+            <h2 style="color: #e91e63;">📸 Galería de Transferencias</h2>
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Comprobantes recibidos desde la red o guardados localmente.</p>
+            
+            <div id="galeria-comprobantes" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"></div>
+            
+            <div style="text-align: right; margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
+                <button class="btn-accion-corte" style="background:#444; color:white;" onclick="cerrarModalComprobantes()">Cerrar Galería</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         let intervaloActualizacion = null;
+        let ultimosPedidosCargados = [];
 
-        // ------------------ SISTEMA DE LOGIN EXCLUSIVO GERENTE ------------------
         function verificarLogin() {
             const pwd = document.getElementById('input-password').value.trim();
             const errorMsg = document.getElementById('error-login');
@@ -173,7 +182,7 @@
                 document.getElementById('pantalla-login').style.display = 'none';
                 cargarEstadoInicial();
                 if(!intervaloActualizacion) {
-                    intervaloActualizacion = setInterval(cargarEstadoInicial, 3000); // Polling 3s
+                    intervaloActualizacion = setInterval(cargarEstadoInicial, 3000);
                 }
             } else {
                 errorMsg.style.display = 'block';
@@ -181,55 +190,36 @@
             }
         }
 
-        // ------------------ CARGA Y RENDERIZADO DE PEDIDOS (BACKEND) ------------------
         async function cargarEstadoInicial() {
+            let pedidosOnline = [];
+            let pedidosCaja = [];
+            ultimosPedidosCargados = [];
+
             try {
                 const res = await fetch('/api/pedidos');
                 if (res.ok) {
                     const todosLosPedidos = await res.json();
-                    let pedidosOnline = [];
-                    let pedidosCaja = [];
+                    if (Array.isArray(todosLosPedidos)) {
+                        ultimosPedidosCargados = todosLosPedidos;
+                        todosLosPedidos.forEach(p => {
+                            if (!p || (p.id === undefined && p.id !== 0)) return;
+                            if (p.estado === 'Cobrado' || p.estado === 'Cancelado' || p.metodo_pago) return;
 
-                    todosLosPedidos.forEach(p => {
-                        if (!p.id) return;
-                        if (p.estado === 'Cobrado' || p.estado === 'Cancelado' || p.metodo_pago) return;
+                            let esStaff = false;
+                            let clienteStr = p.cliente ? String(p.cliente).trim().toLowerCase() : '';
 
-                        let esStaff = false;
-                        let clienteStr = p.cliente ? String(p.cliente).trim().toLowerCase() : '';
+                            if (p.origen === 'staff' || p.origen === 'punto_staff_77' || p.origen === 'caja') esStaff = true;
+                            else if (p.origen === 'online') esStaff = false;
+                            else if (clienteStr !== '' && !isNaN(clienteStr)) esStaff = true;
+                            else if (clienteStr.includes('mesa') || clienteStr.includes('barra')) esStaff = true;
+                            else if (p.mesa) esStaff = true;
+                            else if (p.mesero && p.mesero.trim() !== '' && p.mesero.toLowerCase() !== 'online' && p.mesero.toLowerCase() !== 'cliente') esStaff = true;
 
-                        // --- SÚPER FILTRO REFORZADO ---
-                        // 1. Verificamos explícitamente el origen
-                        if (p.origen === 'staff' || p.origen === 'punto_staff_77' || p.origen === 'caja') {
-                            esStaff = true;
-                        } 
-                        // 2. Si el origen dice expresamente 'online', lo respetamos (a menos que apliquen otras reglas locales).
-                        else if (p.origen === 'online') {
-                            esStaff = false;
-                        }
-                        // 3. Si el nombre del cliente es SÓLO un número (ej. "4"), asumimos que es número de mesa de la CAJA
-                        else if (clienteStr !== '' && !isNaN(clienteStr)) {
-                            esStaff = true;
-                        }
-                        // 4. Si el nombre del cliente contiene las palabras "mesa" o "barra"
-                        else if (clienteStr.includes('mesa') || clienteStr.includes('barra')) {
-                            esStaff = true;
-                        }
-                        // 5. Si tiene propiedad de mesa asignada
-                        else if (p.mesa) {
-                            esStaff = true;
-                        } 
-                        // 6. Si trae un mesero que NO sea "online" o "cliente"
-                        else if (p.mesero && p.mesero.trim() !== '' && p.mesero.toLowerCase() !== 'online' && p.mesero.toLowerCase() !== 'cliente') {
-                            esStaff = true;
-                        }
-
-                        // Dividimos estrictamente según el Súper Filtro Reforzado
-                        if (esStaff) {
-                            pedidosCaja.push(p);
-                        } else {
-                            pedidosOnline.push(p);
-                        }
-                    });
+                            if (esStaff) pedidosCaja.push(p);
+                            else pedidosOnline.push(p);
+                        });
+                    }
+                    aplicarDescuentosGuardados(pedidosOnline, pedidosCaja);
                     renderizarPedidos(pedidosOnline, pedidosCaja);
                 } else {
                     cargarDesdeLocalStorage();
@@ -241,15 +231,49 @@
         }
 
         function cargarDesdeLocalStorage() {
-            // Comandero guarda aquí:
             let online = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-            
-            // Punto Staff 77 guarda aquí:
-            let staff = JSON.parse(localStorage.getItem('mesas_activas')) 
+            let staffRaw = JSON.parse(localStorage.getItem('mesas_activas')) 
                      || JSON.parse(localStorage.getItem('pedidos_staff')) 
                      || JSON.parse(localStorage.getItem('pedidos_caja')) || {};
-                     
+            
+            let staff = [];
+            if (Array.isArray(staffRaw)) {
+                staff = staffRaw;
+            } else {
+                for (let k in staffRaw) {
+                    if (staffRaw[k]) {
+                        let item = staffRaw[k];
+                        if (!item.id) item.id = k;
+                        staff.push(item);
+                    }
+                }
+            }
+
+            ultimosPedidosCargados = [...online, ...staff];
+            aplicarDescuentosGuardados(online, staff);
             renderizarPedidos(online, staff);
+        }
+
+        function aplicarDescuentosGuardados(online, caja) {
+            let descuentos = JSON.parse(localStorage.getItem('descuentos_aplicados')) || {};
+            
+            const procesar = (lista) => {
+                if (!Array.isArray(lista)) return;
+                lista.forEach(p => {
+                    let idKey = String(p.id);
+                    if (descuentos[idKey]) {
+                        let descMonto = parseFloat(descuentos[idKey]) || 0;
+                        if (!p._descuentoLocalAplicado) {
+                            p.total = Math.max(0, parseFloat(p.total || 0) - descMonto);
+                            p._descuentoLocalAplicado = true;
+                            p.descuento_aplicado = descMonto;
+                        }
+                    }
+                });
+            };
+
+            procesar(online);
+            procesar(caja);
         }
 
         function renderizarPedidos(pedidosOnline, pedidosCaja) {
@@ -257,14 +281,14 @@
             const contCaja = document.getElementById('contenedor-caja');
             let htmlOnline = '', htmlCaja = '';
 
-            // Renderizar Pedidos COMANDERO
             if (Array.isArray(pedidosOnline)) {
                 pedidosOnline.forEach((p, idx) => {
                     if(!p || !p.items) return;
-                    let idParam = p.id ? `'${p.id}'` : idx; 
-                    
+                    let idVal = (p.id !== undefined && p.id !== null) ? String(p.id) : idx;
+                    let safeCliente = (p.cliente || 'Cliente').replace(/'/g, "\\'");
                     let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
-                    
+                    let descHtml = p.descuento_aplicado ? `<span style="color:#e91e63; font-size:0.85rem; display:block; margin-top:2px;">🏷️ Descuento: -$${parseFloat(p.descuento_aplicado).toFixed(2)}</span>` : '';
+
                     htmlOnline += `
                         <div class="tarjeta-cuenta tarjeta-online">
                             <div class="badge-online">🌐 ONLINE</div>
@@ -273,28 +297,28 @@
                                 <span class="mesero-tag">👤 ${p.mesero || 'Online'}</span>
                             </div>
                             <ul class="lista-items">${itemsHtml}</ul>
-                            <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)}</div>
+                            <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)} ${descHtml}</div>
                             <div class="grid-botones-cobro">
-                                <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta(${idParam}, 'Efectivo', 'online', '${p.cliente || 'Cliente'}')">💵 EFECTIVO</button>
-                                <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta(${idParam}, 'Tarjeta', 'online', '${p.cliente || 'Cliente'}')">💳 TARJETA</button>
-                                <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta(${idParam}, 'Cortesía', 'online', '${p.cliente || 'Cliente'}')">🎁 Cortesía</button>
-                                <button class="btn-cobro btn-descuento" onclick="aplicarDescuento(${idParam}, 'online')">🏷️ Descuento</button>
+                                <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta('${idVal}', 'Efectivo', 'online', '${safeCliente}')">💵 EFECTIVO</button>
+                                <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta('${idVal}', 'Transferencia', 'online', '${safeCliente}')">💳 TRANSFERENCIA</button>
+                                <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta('${idVal}', 'Cortesía', 'online', '${safeCliente}')">🎁 Cortesía</button>
+                                <button class="btn-cobro btn-descuento" onclick="aplicarDescuento('${idVal}', 'online')">🏷️ Descuento</button>
                             </div>
-                            <button class="btn-cancelar-cuenta" onclick="cancelarCuenta(${idParam}, 'online')">🗑️ Cancelar</button>
+                            <button class="btn-cancelar-cuenta" onclick="cancelarCuenta('${idVal}', 'online')">🗑️ Cancelar</button>
                         </div>`;
                 });
             }
 
-            // Renderizar Pedidos PUNTO STAFF 77
             let iteradorCaja = Array.isArray(pedidosCaja) ? pedidosCaja.map((p, i) => [i, p]) : Object.entries(pedidosCaja);
             
             iteradorCaja.forEach(([key, p]) => {
                 if(!p || !p.items) return;
-                let idParam = p.id ? `'${p.id}'` : (typeof key === 'string' ? `'${key}'` : key);
-                
-                let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
+                let idVal = (p.id !== undefined && p.id !== null) ? String(p.id) : String(key);
                 let tituloMesa = p.mesa || p.cliente || key;
-                
+                let safeMesa = String(tituloMesa).replace(/'/g, "\\'");
+                let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
+                let descHtml = p.descuento_aplicado ? `<span style="color:#e91e63; font-size:0.85rem; display:block; margin-top:2px;">🏷️ Descuento: -$${parseFloat(p.descuento_aplicado).toFixed(2)}</span>` : '';
+
                 htmlCaja += `
                     <div class="tarjeta-cuenta">
                         <div class="header-tarjeta">
@@ -302,14 +326,14 @@
                             <span class="mesero-tag">👤 ${p.mesero || 'Staff'}</span>
                         </div>
                         <ul class="lista-items">${itemsHtml}</ul>
-                        <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)}</div>
+                        <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)} ${descHtml}</div>
                         <div class="grid-botones-cobro">
-                            <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta(${idParam}, 'Efectivo', 'caja', '${tituloMesa}')">💵 EFECTIVO</button>
-                            <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta(${idParam}, 'Tarjeta', 'caja', '${tituloMesa}')">💳 TARJETA</button>
-                            <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta(${idParam}, 'Cortesía', 'caja', '${tituloMesa}')">🎁 Cortesía</button>
-                            <button class="btn-cobro btn-descuento" onclick="aplicarDescuento(${idParam}, 'caja')">🏷️ Descuento</button>
+                            <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta('${idVal}', 'Efectivo', 'caja', '${safeMesa}')">💵 EFECTIVO</button>
+                            <button class="btn-cobro btn-tarjeta" onclick="cobrarCuenta('${idVal}', 'Transferencia', 'caja', '${safeMesa}')">💳 TRANSFERENCIA</button>
+                            <button class="btn-cobro btn-cortesia" onclick="cobrarCuenta('${idVal}', 'Cortesía', 'caja', '${safeMesa}')">🎁 Cortesía</button>
+                            <button class="btn-cobro btn-descuento" onclick="aplicarDescuento('${idVal}', 'caja')">🏷️ Descuento</button>
                         </div>
-                        <button class="btn-cancelar-cuenta" onclick="cancelarCuenta(${idParam}, 'caja')">🗑️ Cancelar</button>
+                        <button class="btn-cancelar-cuenta" onclick="cancelarCuenta('${idVal}', 'caja')">🗑️ Cancelar</button>
                     </div>`;
             });
 
@@ -317,14 +341,203 @@
             contCaja.innerHTML = htmlCaja || '<p style="color:#777; text-align:center;">Sin pedidos de Staff activos.</p>';
         }
 
-        // ------------------ CONFIGURACIÓN DE MESEROS ------------------
+        async function cobrarCuenta(id, metodo, origen, etiquetaNombre = '') {
+            if (!confirm(`¿Confirmas cobro por ${metodo.toUpperCase()} de ${etiquetaNombre}?`)) return;
+
+            let idStr = String(id);
+            let orden = ultimosPedidosCargados.find(p => String(p.id) === idStr) || null;
+
+            if (!orden) {
+                let online = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+                orden = online.find(p => String(p.id) === idStr);
+            }
+            if (!orden) {
+                let staff = JSON.parse(localStorage.getItem('pedidos_staff')) || JSON.parse(localStorage.getItem('mesas_activas')) || {};
+                if (Array.isArray(staff)) orden = staff.find(p => String(p.id) === idStr);
+                else if (staff[id]) orden = staff[id];
+            }
+
+            try {
+                await fetch('/api/pedidos/cobrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, metodo: metodo, origen: origen, cliente: etiquetaNombre })
+                });
+            } catch (e) {
+                console.warn("API de cobro no disponible, procediendo en local...");
+            }
+
+            if (origen === 'online') {
+                let online = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+                let idx = online.findIndex(p => String(p.id) === idStr);
+                if (idx !== -1) online.splice(idx, 1);
+                localStorage.setItem('pedidos_activos', JSON.stringify(online));
+            } else {
+                ['mesas_activas', 'pedidos_staff', 'pedidos_caja'].forEach(llave => {
+                    let data = JSON.parse(localStorage.getItem(llave));
+                    if (data) {
+                        if (Array.isArray(data)) {
+                            let idx = data.findIndex(p => String(p.id) === idStr);
+                            if (idx !== -1) data.splice(idx, 1);
+                        } else if (data[id]) delete data[id];
+                        localStorage.setItem(llave, JSON.stringify(data));
+                    }
+                });
+            }
+
+            let cobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
+            let clienteFinal = (orden && (orden.cliente || orden.mesa)) ? (orden.cliente || orden.mesa) : etiquetaNombre;
+            let totalFinal = orden ? parseFloat(orden.total || 0) : 0;
+            let meseroFinal = orden ? (orden.mesero || 'Staff') : 'Staff';
+
+            cobradas.push({
+                id: idStr,
+                cliente: clienteFinal || 'Cliente',
+                total: totalFinal,
+                metodoPago: metodo.toLowerCase(),
+                horaCobro: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                mesero: meseroFinal
+            });
+            localStorage.setItem('cuentas_cobradas', JSON.stringify(cobradas));
+
+            let descuentos = JSON.parse(localStorage.getItem('descuentos_aplicados')) || {};
+            if (descuentos[idStr]) {
+                delete descuentos[idStr];
+                localStorage.setItem('descuentos_aplicados', JSON.stringify(descuentos));
+            }
+
+            cargarEstadoInicial();
+        }
+
+        async function cancelarCuenta(id, origen) {
+            if (!confirm("¿Estás seguro de cancelar esta orden?")) return;
+            let idStr = String(id);
+            try {
+                await fetch('/api/pedidos/cobrar', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ id: id, metodo: 'Cancelado', origen: origen }) 
+                });
+            } catch(e) {}
+
+            if (origen === 'online') {
+                let activosOnline = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+                let idx = activosOnline.findIndex(p => String(p.id) === idStr);
+                if (idx !== -1) activosOnline.splice(idx, 1);
+                localStorage.setItem('pedidos_activos', JSON.stringify(activosOnline));
+            } else {
+                ['mesas_activas', 'pedidos_staff', 'pedidos_caja'].forEach(llave => {
+                    let data = JSON.parse(localStorage.getItem(llave));
+                    if (data) {
+                        if (Array.isArray(data)) {
+                            let idx = data.findIndex(p => String(p.id) === idStr);
+                            if (idx !== -1) data.splice(idx, 1);
+                        } else if (data[id]) delete data[id];
+                        localStorage.setItem(llave, JSON.stringify(data));
+                    }
+                });
+            }
+            cargarEstadoInicial();
+        }
+
+        async function aplicarDescuento(id, origen) {
+            const rebaja = prompt("Monto del descuento a aplicar en $ (ej. 20):", "10");
+            if (!rebaja || isNaN(rebaja) || parseFloat(rebaja) <= 0) return;
+            const desc = parseFloat(rebaja);
+            let idStr = String(id);
+
+            let descuentos = JSON.parse(localStorage.getItem('descuentos_aplicados')) || {};
+            descuentos[idStr] = (parseFloat(descuentos[idStr]) || 0) + desc;
+            localStorage.setItem('descuentos_aplicados', JSON.stringify(descuentos));
+
+            try {
+                await fetch('/api/pedidos/descuento', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, descuento: desc, origen: origen })
+                });
+            } catch(e) {}
+
+            ['pedidos_activos', 'mesas_activas', 'pedidos_staff', 'pedidos_caja'].forEach(llave => {
+                let datos = JSON.parse(localStorage.getItem(llave));
+                if (datos) {
+                    if (Array.isArray(datos)) {
+                        let target = datos.find(p => String(p.id) === idStr);
+                        if (target) target.total = Math.max(0, parseFloat(target.total || 0) - desc);
+                    } else if (datos[idStr]) {
+                        datos[idStr].total = Math.max(0, parseFloat(datos[idStr].total || 0) - desc);
+                    }
+                    localStorage.setItem(llave, JSON.stringify(datos));
+                }
+            });
+
+            cargarEstadoInicial();
+        }
+
+        async function abrirModalComprobantes() {
+            let comprobantes = [];
+            try {
+                const res = await fetch('/api/comprobantes');
+                if (res.ok) {
+                    comprobantes = await res.json();
+                } else {
+                    comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+                }
+            } catch (e) {
+                comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+            }
+
+            const galeria = document.getElementById('galeria-comprobantes');
+            
+            if (!comprobantes || !Array.isArray(comprobantes) || comprobantes.length === 0) {
+                galeria.innerHTML = '<p style="color:#aaa; width:100%; text-align:center; padding: 20px;">📷 No hay comprobantes guardados aún.</p>';
+            } else {
+                galeria.innerHTML = comprobantes.map((c, i) => {
+                    let imgUrl = typeof c === 'string' ? c : (c.imagenBase64 || c.url || c.ruta || c.imagen || c.foto || c.comprobante || c.data || '');
+                    let cliente = c.mesa || c.cliente || c.nombre || 'Mesa / Cliente';
+                    let monto = parseFloat(c.monto || c.total || 0).toFixed(2);
+                    let fecha = c.fecha || c.hora || 'Hoy';
+                    let idItem = c.id !== undefined ? c.id : i;
+
+                    return `
+                        <div style="background: #1e1e24; border: 1px solid #444; border-radius: 8px; padding: 10px; width: 220px; text-align: center;">
+                            <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">📅 ${fecha}</div>
+                            <div style="font-weight: bold; color: #03a9f4; margin-bottom: 8px;">👤 ${cliente}</div>
+                            <a href="${imgUrl}" target="_blank" title="Haz clic para ver imagen en tamaño completo">
+                                <img src="${imgUrl}" style="width: 100%; height: 180px; object-fit: contain; border-radius: 4px; border: 1px solid #333; background: #000;" alt="Comprobante" onerror="this.onerror=null; this.src='https://via.placeholder.com/200x180?text=Error+al+cargar+imagen';">
+                            </a>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #8bc34a; margin: 10px 0;">$${monto}</div>
+                            <button onclick="borrarComprobante('${idItem}', ${i})" style="background: #e53935; color: white; border: none; padding: 6px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Borrar Foto</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+            document.getElementById('modal-comprobantes').style.display = 'flex';
+        }
+
+        function cerrarModalComprobantes() { document.getElementById('modal-comprobantes').style.display = 'none'; }
+
+        async function borrarComprobante(idServidor, indexLocal) {
+            if (!confirm("¿Estás seguro de que deseas eliminar la foto de este comprobante?")) return;
+            try {
+                await fetch(`/api/comprobantes/${idServidor}`, { method: 'DELETE' });
+            } catch(e) {}
+
+            let comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+            if (comprobantes[indexLocal]) {
+                comprobantes.splice(indexLocal, 1);
+                localStorage.setItem('comprobantes_transferencia', JSON.stringify(comprobantes));
+            }
+            abrirModalComprobantes();
+        }
+
         function obtenerMeserosConfig() {
             let configDefault = [
-                { nombre: "Mesero 1", pin: "1111" },
-                { nombre: "Mesero 2", pin: "2222" },
-                { nombre: "Mesero 3", pin: "3333" },
-                { nombre: "Mesero 4", pin: "4444" },
-                { nombre: "Mesero 5", pin: "5555" }
+                { id: 1, nombre: "Mesero 1", pin: "1111" },
+                { id: 2, nombre: "Mesero 2", pin: "2222" },
+                { id: 3, nombre: "Mesero 3", pin: "3333" },
+                { id: 4, nombre: "Mesero 4", pin: "4444" },
+                { id: 5, nombre: "Mesero 5", pin: "5555" }
             ];
             return JSON.parse(localStorage.getItem('chulas_meseros_config')) || configDefault;
         }
@@ -337,7 +550,7 @@
                     <div class="fila-mesero-config">
                         <span style="font-weight:bold; color:#ffb74d; width:70px;">#${idx+1}</span>
                         <input type="text" id="nombre-mesero-${idx}" value="${m.nombre}" placeholder="Nombre del Mesero">
-                        <input type="text" id="pin-mesero-${idx}" value="${m.pin}" placeholder="Contraseña / PIN" style="width: 120px;">
+                        <input type="text" id="pin-mesero-${idx}" value="${m.pin}" placeholder="PIN" style="width: 120px;">
                     </div>
                 `;
             });
@@ -352,93 +565,11 @@
             for (let i = 0; i < 5; i++) {
                 let nombre = document.getElementById(`nombre-mesero-${i}`).value.trim() || `Mesero ${i+1}`;
                 let pin = document.getElementById(`pin-mesero-${i}`).value.trim() || '0000';
-                nuevosMeseros.push({ nombre, pin });
+                nuevosMeseros.push({ id: (i+1), nombre, pin });
             }
             localStorage.setItem('chulas_meseros_config', JSON.stringify(nuevosMeseros));
-            alert("✅ ¡Configuración de meseros guardada con éxito!");
+            alert("✅ ¡Configuración de meseros guardada!");
             cerrarModalMeseros();
-        }
-
-        // ------------------ LOGICA DE COBRO EN SERVIDOR Y LOCAL ------------------
-        async function cobrarCuenta(id, metodo, origen, etiquetaNombre = '') {
-            if (!confirm(`¿Confirmas cobro por ${metodo.toUpperCase()} de ${etiquetaNombre}?`)) return;
-
-            try {
-                const res = await fetch('/api/pedidos/cobrar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id, metodo: metodo })
-                });
-                
-                if(!res.ok) throw new Error("Error backend");
-                cargarEstadoInicial(); 
-                
-            } catch (e) {
-                let cobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
-                let orden = null;
-
-                if (origen === 'online') {
-                    let online = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-                    orden = online.splice(id, 1)[0];
-                    localStorage.setItem('pedidos_activos', JSON.stringify(online));
-                } else {
-                    let llave = localStorage.getItem('mesas_activas') ? 'mesas_activas' : 'pedidos_staff';
-                    let caja = JSON.parse(localStorage.getItem(llave)) || {};
-                    if (Array.isArray(caja)) {
-                        orden = caja.splice(id, 1)[0];
-                    } else {
-                        orden = caja[id];
-                        delete caja[id];
-                    }
-                    localStorage.setItem(llave, JSON.stringify(caja));
-                }
-
-                if (orden) {
-                    cobradas.push({
-                        cliente: orden.cliente || orden.mesa || etiquetaNombre,
-                        total: parseFloat(orden.total || 0),
-                        metodoPago: metodo.toLowerCase(),
-                        horaCobro: new Date().toLocaleTimeString(),
-                        mesero: orden.mesero || 'Staff'
-                    });
-                    localStorage.setItem('cuentas_cobradas', JSON.stringify(cobradas));
-                }
-                cargarEstadoInicial();
-            }
-        }
-
-        // ------------- CANCELACIONES Y DESCUENTOS -------------
-        async function cancelarCuenta(id, origen) {
-            if (!confirm("¿Estás seguro de cancelar esta orden? (No se descontará del almacén ni se sumará a ventas)")) return;
-            
-            try {
-                const res = await fetch('/api/pedidos/cobrar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: id, metodo: 'Cancelado' }) 
-                });
-                if(res.ok) { cargarEstadoInicial(); return; }
-            } catch(e) {
-                if (origen === 'online') {
-                    let activosOnline = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
-                    activosOnline.splice(id, 1);
-                    localStorage.setItem('pedidos_activos', JSON.stringify(activosOnline));
-                } else {
-                    let llaveStaff = localStorage.getItem('mesas_activas') ? 'mesas_activas' : 'pedidos_staff';
-                    let activosCaja = JSON.parse(localStorage.getItem(llaveStaff)) || {};
-                    if (Array.isArray(activosCaja)) activosCaja.splice(id, 1);
-                    else delete activosCaja[id];
-                    localStorage.setItem(llaveStaff, JSON.stringify(activosCaja));
-                }
-                cargarEstadoInicial();
-            }
-        }
-
-        function aplicarDescuento(id, origen) {
-            const rebaja = prompt("Descuento a aplicar en $: ", "10");
-            if (rebaja && !isNaN(rebaja) && parseFloat(rebaja) > 0) {
-                alert("Nota: El descuento rápido solo se refleja en modo local. En red, debes ajustar el total del pedido en el punto de venta.");
-            }
         }
 
         function actualizarGranTotal() {
@@ -447,16 +578,15 @@
             document.getElementById('monto-gran-total').innerText = `$${granTotal.toFixed(2)}`;
         }
 
-        // ------------- CIERRE Y PANELES -------------
         function cerrarDiaVentas() {
             let cuentasCobradas = JSON.parse(localStorage.getItem('cuentas_cobradas')) || [];
-            if (cuentasCobradas.length === 0) return alert("No hay ventas locales registradas para cerrar hoy.");
+            if (cuentasCobradas.length === 0) return alert("No hay ventas registradas para cerrar hoy.");
             
-            if (confirm("⚠️ ¿CERRAR EL DÍA? El total se irá al historial y las ventas en pantalla volverán a cero.")) {
+            if (confirm("⚠️ ¿CERRAR EL DÍA? El total se irá al historial.")) {
                 let efectivo = 0, tarjeta = 0;
                 cuentasCobradas.forEach(c => {
-                    if (c.metodoPago === 'efectivo' || c.metodoPago === 'Efectivo') efectivo += parseFloat(c.total || 0);
-                    if (c.metodoPago === 'tarjeta' || c.metodoPago === 'Tarjeta') tarjeta += parseFloat(c.total || 0);
+                    if (c.metodoPago === 'efectivo') efectivo += parseFloat(c.total || 0);
+                    if (c.metodoPago === 'transferencia' || c.metodoPago === 'tarjeta') tarjeta += parseFloat(c.total || 0);
                 });
 
                 let historial = JSON.parse(localStorage.getItem('historial_cortes_dias')) || [];
@@ -468,9 +598,11 @@
                 
                 localStorage.setItem('historial_cortes_dias', JSON.stringify(historial));
                 localStorage.setItem('cuentas_cobradas', JSON.stringify([])); 
+                localStorage.removeItem('comprobantes_transferencia');
+                localStorage.removeItem('descuentos_aplicados');
                 
                 cargarEstadoInicial();
-                alert("¡Día cerrado con éxito! Sistema listo para el siguiente turno.");
+                alert("¡Día cerrado con éxito!");
             }
         }
 
@@ -479,16 +611,16 @@
             let efec = 0, tarj = 0, cortesia = 0;
             cuentasCobradas.forEach(c => {
                 let m = parseFloat(c.total || 0);
-                if (c.metodoPago === 'efectivo' || c.metodoPago === 'Efectivo') efec += m;
-                if (c.metodoPago === 'tarjeta' || c.metodoPago === 'Tarjeta') tarj += m;
-                if (c.metodoPago === 'cortesia' || c.metodoPago === 'Cortesía') cortesia += m;
+                if (c.metodoPago === 'efectivo') efec += m;
+                if (c.metodoPago === 'transferencia' || c.metodoPago === 'tarjeta') tarj += m;
+                if (c.metodoPago === 'cortesía' || c.metodoPago === 'cortesia') cortesia += m;
             });
             const panel = document.getElementById('pantalla-resultados-corte');
             panel.style.display = 'block';
             panel.innerHTML = `
                 <h2 style="color: #ffb74d;">📋 Resumen de Ventas de Hoy</h2>
                 <p><strong>Total Generado:</strong> <span style="color:#8bc34a; font-size:1.2rem;">$${(efec+tarj).toFixed(2)}</span></p>
-                <p>💵 Efectivo: <strong>$${efec.toFixed(2)}</strong> | 💳 Tarjeta: <strong>$${tarj.toFixed(2)}</strong></p>
+                <p>💵 Efectivo: <strong>$${efec.toFixed(2)}</strong> | 💳 Transferencia: <strong>$${tarj.toFixed(2)}</strong></p>
                 <p style="color:#ab47bc;">🎁 Cortesías Otorgadas: $${cortesia.toFixed(2)}</p>
             `;
         }
@@ -503,7 +635,7 @@
                 
                 if (!ventas[m]) ventas[m] = { efec: 0, tarj: 0, total: 0 };
                 if (metodo === 'efectivo') ventas[m].efec += monto;
-                if (metodo === 'tarjeta') ventas[m].tarj += monto;
+                if (metodo === 'transferencia' || metodo === 'tarjeta') ventas[m].tarj += monto;
                 ventas[m].total += monto;
             });
             let html = '';

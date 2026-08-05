@@ -20,10 +20,12 @@
   /* GRID MESAS */
   .header-mesas { text-align: center; margin-bottom: 20px; }
   .grid-mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; max-width: 800px; margin: 0 auto; }
-  .btn-mesa { background: #1e1e24; border: 1px solid #444; border-radius: 8px; padding: 15px; color: white; text-align: center; cursor: pointer; }
+  .btn-mesa { background: #1e1e24; border: 1px solid #444; border-radius: 8px; padding: 15px; color: white; text-align: center; cursor: pointer; position: relative;}
   .btn-mesa.ocupada { border-color: #ff9800; background: #332200; }
   .btn-mesa span { display: block; font-size: 0.8rem; color: #aaa; margin-top: 5px; }
   .btn-mesa.ocupada span { color: #ff9800; }
+  .etiqueta-mesero { font-size: 0.7rem; color: #00bcd4; font-weight: bold; margin-top: 5px; display: block;}
+  
   .btn-logout { background: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 30px; }
 
   /* HEADER MENU */
@@ -53,13 +55,19 @@
   .btn-mesa-abierta { background: #2196F3; color: white; }
   .btn-pedir-cuenta { background: #4CAF50; color: white; }
   
-  /* MODAL TICKET */
+  /* MODAL TICKET & MOVER PRODUCTOS */
   .modal-ticket { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
   .ticket-content { background: #fff; color: #111; padding: 20px; border-radius: 5px; width: 100%; max-width: 350px; font-family: 'Courier New', Courier, monospace; }
   .ticket-content h3 { text-align: center; margin-top: 0; border-bottom: 2px dashed #111; padding-bottom: 10px; }
   .ticket-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
   .ticket-total { font-weight: bold; font-size: 1.2rem; text-align: right; margin-top: 15px; border-top: 2px dashed #111; padding-top: 10px; }
-  .btn-imprimir { background: #8bc34a; color: #111; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 1rem; }
+  .btn-imprimir { background: #8bc34a; color: #111; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+
+  /* ESTILOS PARA MODAL DE MOVER PRODUCTOS */
+  .item-mover { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 8px;}
+  .item-mover label { font-size: 0.9rem; flex-grow: 1; }
+  .input-mover { width: 60px; padding: 8px; text-align: center; background: #111; color: white; border: 1px solid #00bcd4; border-radius: 4px; font-weight: bold;}
+  .btn-mover-confirm { background: #ff9800; color: #111; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 1rem;}
 </style>
 </head>
 <body>
@@ -88,7 +96,7 @@
     <div class="header-menu">
         <button class="btn-volver" onclick="volverAMesas()">⬅ Mesas</button>
         <h2 id="titulo-mesa-actual" style="margin: 0; color: #fff;">Mesa X</h2>
-        <button class="btn-admin-accion" onclick="cambiarDeMesa()">🔄 Cambiar Mesa</button>
+        <button class="btn-admin-accion" onclick="cambiarDeMesa()">🔄 Cambiar Mesa (Por Producto)</button>
     </div>
     
     <div class="grid-menu" id="contenedor-menu">Cargando menú...</div>
@@ -101,13 +109,13 @@
     <div style="background: #222; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 10px; color: white;">
         <h2>Cuenta de <span id="carrito-titulo-mesa"></span></h2>
         
-        <!-- Productos ya enviados a cocina (No se pueden cancelar sin clave) -->
+        <!-- Productos ya enviados a cocina -->
         <div class="seccion-carrito" id="seccion-cocina">
             <h4>🔥 Ya en Cocina</h4>
             <div id="lista-cocina"></div>
         </div>
 
-        <!-- Productos nuevos por enviar (Se pueden cancelar libremente) -->
+        <!-- Productos nuevos por enviar -->
         <div class="seccion-carrito" id="seccion-pendientes">
             <h4>🛒 Por Enviar a Cocina</h4>
             <div id="lista-pendientes"></div>
@@ -118,6 +126,25 @@
         <button class="btn-accion-cuenta btn-mesa-abierta" onclick="enviarMesaAbierta()">🍽️ Mandar a Cocina y DEJAR MESA ABIERTA</button>
         <button class="btn-accion-cuenta btn-pedir-cuenta" onclick="enviarYPedirCuenta()">🧾 Mandar a Cocina y PEDIR CUENTA</button>
         <button class="btn-accion-cuenta" style="background: #f44336; color: white;" onclick="document.getElementById('modal-carrito').style.display='none'">Cerrar Ventana</button>
+    </div>
+</div>
+
+<!-- MODAL MOVER PRODUCTOS -->
+<div id="modal-mover" class="modal-ticket">
+    <div class="ticket-content" style="max-width: 400px; max-height: 85vh; overflow-y: auto; background: #222; color: white; border: 1px solid #00bcd4;">
+        <h3 style="color: #00bcd4; border-bottom: 1px solid #444; padding-bottom: 10px;">🔄 Mover Productos</h3>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="color: #aaa; font-size: 0.9rem;">Mover a la Mesa # (1 al 15):</label>
+            <input type="number" id="destino-mover" min="1" max="15" class="input-cant" style="width: 100%; box-sizing: border-box; margin-top: 5px; font-size: 1.1rem; padding: 10px;">
+        </div>
+
+        <div id="lista-items-mover">
+            <!-- Se llena con JS con los productos para elegir -->
+        </div>
+
+        <button class="btn-mover-confirm" onclick="ejecutarMover()">Confirmar Transferencia</button>
+        <button class="btn-accion-cuenta" style="background: #f44336; color: white;" onclick="document.getElementById('modal-mover').style.display='none'">Cancelar</button>
     </div>
 </div>
 
@@ -133,7 +160,9 @@
         <div class="ticket-total">Total a Pagar: $<span id="ticket-total-val"></span></div>
         <p style="text-align: center; font-size: 0.8rem; margin-top: 10px; color: #555;">Sincronizado vía CONTROL_JEFE_99</p>
         
-        <button class="btn-imprimir" onclick="cerrarTicket()">Aceptar y Volver</button>
+        <!-- BOTONES AÑADIDOS -->
+        <button class="btn-imprimir" style="background: #03a9f4; color: white;" onclick="enviarComprobanteActual()">📸 Subir Ticket de Transferencia</button>
+        <button class="btn-imprimir" onclick="cerrarTicket()">Aceptar y Volver (Efectivo/Finalizar)</button>
     </div>
 </div>
 
@@ -141,15 +170,13 @@
 // --- DATOS Y ESTADOS ---
 const menuBase = {
   "Hamburguesas": [
-    { nombre: "Clásica", precio: 60, imagen: "clasica.jpg" },
-    { nombre: "Doble", precio: 80, imagen: "doble.jpeg" }
+    { nombre: "Hamburguesa Sencilla", precio: 60, imagen: "clasica.jpg" },
+    { nombre: "Hamburguesa Doble", precio: 80, imagen: "doble.jpeg" }
   ],
   "Hot Dogs": [
     { nombre: "Hot Dog", precio: 30, imagen: "hot.jpeg" },
     { nombre: "Orden de Hot Dogs", precio: 75, imagen: "Ordenhot.jpg" }
   ],
-
-
  "Especialidades": [
     { nombre: "Enchiladas", precio: 75, imagen: "enchiladas.jpeg" },
     { nombre: "Chilaquiles", precio: 65, imagen: "chilaquiles.jpg" },
@@ -157,25 +184,28 @@ const menuBase = {
     { nombre: "Sincronizadas Mexa", precio: 85, imagen: "sincromexa.jpeg" },
     { nombre: "Crepa Pizza", precio: 90, imagen: "sincrop.webp" }
   ],
-
   "Bebidas": [
-    { nombre: "Refrescos Varios", precio: 25, imagen: "refrescosvarios.jpeg" },
+    { nombre: "Refresco", precio: 25, imagen: "refrescosvarios.jpeg" },
     { nombre: "Coca Cola", precio: 25, imagen: "coca cola.jpeg" }
   ]
 };
 
-const MESEROS = [
+const configPorDefecto = [
     { id: 1, nombre: "Mesero 1", pin: "1111" },
     { id: 2, nombre: "Mesero 2", pin: "2222" },
     { id: 3, nombre: "Mesero 3", pin: "3333" },
     { id: 4, nombre: "Mesero 4", pin: "4444" },
     { id: 5, nombre: "Mesero 5", pin: "5555" }
 ];
+let MESEROS = JSON.parse(localStorage.getItem('chulas_meseros_config')) || configPorDefecto;
 
+// INICIALIZACIÓN DE MESAS: Agregamos variables para saber de quién es la mesa.
 let estadoMesas = {};
 for(let i=1; i<=15; i++) {
     estadoMesas[`Mesa ${i}`] = { 
         estado: 'Libre',
+        meseroId: null,      // Bloqueo de mesero ID
+        meseroNombre: null,  // Nombre para mostrar en pantalla
         cocina: [],
         pendientes: []
     };
@@ -226,15 +256,44 @@ function renderizarMesas() {
         let mNombre = `Mesa ${i}`;
         let mData = estadoMesas[mNombre];
         let claseExtra = mData.estado !== 'Libre' ? 'ocupada' : '';
+        
+        // Muestra de quién es la mesa si está ocupada
+        let infoMesero = mData.meseroNombre ? `<span class="etiqueta-mesero">Atiende: ${mData.meseroNombre}</span>` : '';
+
         html += `<div class="btn-mesa ${claseExtra}" onclick="abrirMesa('${mNombre}')">
                     <strong>${mNombre}</strong>
                     <span>${mData.estado}</span>
+                    ${infoMesero}
                  </div>`;
     }
     document.getElementById('contenedor-mesas').innerHTML = html;
 }
 
 function abrirMesa(nombreMesa) {
+    let mData = estadoMesas[nombreMesa];
+
+    // LÓGICA DE BLOQUEO DE MESA PARA EL MESERO QUE LA ABRIÓ
+    if (mData.estado !== 'Libre' && mData.meseroId !== meseroActual.id) {
+        let override = confirm(`Esta mesa fue abierta por ${mData.meseroNombre}. Solo él puede ingresar.\n¿Desea ingresar contraseña de JEFE para forzar el acceso?`);
+        if (override) {
+            solicitarPermisoJefe(() => {
+                entrarAMesa(nombreMesa);
+            });
+        }
+        return; // Si no es el jefe, aquí se corta y no entra.
+    }
+    
+    entrarAMesa(nombreMesa);
+}
+
+function entrarAMesa(nombreMesa) {
+    let mData = estadoMesas[nombreMesa];
+    // Si la mesa estaba libre, el mesero actual se adueña de ella
+    if (mData.estado === 'Libre') {
+        mData.meseroId = meseroActual.id;
+        mData.meseroNombre = meseroActual.nombre;
+    }
+    
     mesaActual = nombreMesa;
     document.getElementById('titulo-mesa-actual').innerText = nombreMesa;
     actualizarContador();
@@ -247,7 +306,7 @@ function volverAMesas() {
     cambiarVista('vista-mesas');
 }
 
-// --- AUTORIZACIÓN JEFE (IBARRITA) ---
+// --- AUTORIZACIÓN JEFE ---
 function solicitarPermisoJefe(accionCallback) {
     let pass = prompt("Acción Protegida. Ingrese contraseña de JEFE:");
     if (pass === "IBARRITA") {
@@ -257,25 +316,110 @@ function solicitarPermisoJefe(accionCallback) {
     }
 }
 
+// --- LÓGICA PARA TRANSFERIR PRODUCTOS (UNO POR UNO) ---
 function cambiarDeMesa() {
     solicitarPermisoJefe(() => {
-        let destino = prompt(`Está administrando ${mesaActual}.\nIngrese el número de la mesa destino (1 al 15):`);
-        if(destino && destino >= 1 && destino <= 15) {
-            let mesaDestino = `Mesa ${destino}`;
-            if(estadoMesas[mesaDestino].estado !== 'Libre') {
-                alert("La mesa destino ya está ocupada. Fusione o libere primero.");
-                return;
-            }
-            estadoMesas[mesaDestino].cocina = [...estadoMesas[mesaActual].cocina];
-            estadoMesas[mesaDestino].pendientes = [...estadoMesas[mesaActual].pendientes];
-            estadoMesas[mesaDestino].estado = estadoMesas[mesaActual].estado;
-            
-            estadoMesas[mesaActual] = { estado: 'Libre', cocina: [], pendientes: [] };
-            
-            alert(`Cuenta movida con éxito de ${mesaActual} a ${mesaDestino}`);
-            volverAMesas();
+        let m = estadoMesas[mesaActual];
+        if (m.cocina.length === 0 && m.pendientes.length === 0) {
+            return alert("La mesa está vacía, no hay productos para mover.");
         }
+        
+        // Generar lista de lo que está en cocina
+        let html = "<h4 style='color:#ff5722; margin-bottom:5px;'>🔥 Productos en Cocina</h4>";
+        m.cocina.forEach((item, idx) => {
+            html += `
+            <div class="item-mover">
+                <label>${item.nombre} <br><small style="color:#aaa;">Disp: ${item.cantidad} | ${item.notas}</small></label>
+                <input type="number" id="mover-cocina-${idx}" class="input-mover" min="0" max="${item.cantidad}" value="0">
+            </div>`;
+        });
+
+        // Generar lista de lo que está pendiente
+        html += "<h4 style='color:#4caf50; margin-bottom:5px; margin-top:15px;'>🛒 Productos Nuevos (Sin enviar)</h4>";
+        m.pendientes.forEach((item, idx) => {
+            html += `
+            <div class="item-mover">
+                <label>${item.nombre} <br><small style="color:#aaa;">Disp: ${item.cantidad} | ${item.notas}</small></label>
+                <input type="number" id="mover-pend-${idx}" class="input-mover" min="0" max="${item.cantidad}" value="0">
+            </div>`;
+        });
+
+        document.getElementById('lista-items-mover').innerHTML = html;
+        document.getElementById('destino-mover').value = "";
+        document.getElementById('modal-mover').style.display = 'flex';
     });
+}
+
+function ejecutarMover() {
+    let destinoInt = parseInt(document.getElementById('destino-mover').value);
+    if (isNaN(destinoInt) || destinoInt < 1 || destinoInt > 15) {
+        return alert("Ingrese un número de mesa destino válido (1 al 15).");
+    }
+    
+    let mesaDestino = `Mesa ${destinoInt}`;
+    if (mesaDestino === mesaActual) return alert("No puedes transferir productos a la misma mesa.");
+
+    let mOrigen = estadoMesas[mesaActual];
+    let mDestino = estadoMesas[mesaDestino];
+    let itemsMovidos = 0;
+
+    // Función que procesa los inputs y transfiere del origen al destino
+    function moverItems(tipo) {
+        let arrOrigen = mOrigen[tipo];
+        let arrDestino = mDestino[tipo];
+        
+        // Se itera al revés para poder borrar elementos sin romper el ciclo
+        for (let i = arrOrigen.length - 1; i >= 0; i--) {
+            let item = arrOrigen[i];
+            let cantMover = parseInt(document.getElementById(`mover-${tipo === 'cocina' ? 'cocina' : 'pend'}-${i}`).value) || 0;
+            
+            if (cantMover > 0 && cantMover <= item.cantidad) {
+                itemsMovidos++;
+                let itemClon = { ...item, cantidad: cantMover, subtotal: item.precio * cantMover };
+                
+                item.cantidad -= cantMover;
+                item.subtotal = item.cantidad * item.precio;
+                
+                // Sumar a la mesa destino (si ya existe el producto, solo suma cantidad)
+                let existente = arrDestino.find(x => x.nombre === itemClon.nombre && x.notas === itemClon.notas);
+                if (existente) {
+                    existente.cantidad += cantMover;
+                    existente.subtotal += itemClon.subtotal;
+                } else {
+                    arrDestino.push(itemClon);
+                }
+                
+                if (item.cantidad === 0) arrOrigen.splice(i, 1);
+            }
+        }
+    }
+
+    moverItems('cocina');
+    moverItems('pendientes');
+
+    if (itemsMovidos > 0) {
+        if (mDestino.estado === 'Libre') {
+            mDestino.estado = 'Ocupada';
+            mDestino.meseroId = meseroActual.id; // La mesa destino ahora pertenece a este mesero
+            mDestino.meseroNombre = meseroActual.nombre;
+        }
+
+        if (mOrigen.cocina.length === 0 && mOrigen.pendientes.length === 0) {
+            // Si la mesa se quedó sin nada, se libera completamente
+            mOrigen.estado = 'Libre';
+            mOrigen.meseroId = null;
+            mOrigen.meseroNombre = null;
+            alert(`Productos transferidos con éxito. La ${mesaActual} quedó vacía y fue liberada.`);
+            document.getElementById('modal-mover').style.display = 'none';
+            volverAMesas();
+        } else {
+            alert("Productos transferidos con éxito.");
+            document.getElementById('modal-mover').style.display = 'none';
+            actualizarContador();
+        }
+    } else {
+        alert("No seleccionaste ninguna cantidad para transferir.");
+    }
 }
 
 // --- LÓGICA DEL MENÚ Y CARRITO ---
@@ -380,6 +524,43 @@ function quitarItemCocina(idx) {
     });
 }
 
+// --- FUNCIÓN DE INVENTARIO PARA PUNTO STAFF (CORREGIDA) ---
+async function descontarDeAlmacen(carritoPedido) {
+    // 1. PRIMERO ACTUALIZAMOS EL LOCALSTORAGE PARA ASEGURARNOS QUE FUNCIONE OFFLINE
+    let inventario = JSON.parse(localStorage.getItem('chulas_inventario')) || [];
+    let inventarioActualizado = false;
+
+    carritoPedido.forEach(itemCarrito => {
+        let p = inventario.find(p => p.nombre.toLowerCase() === itemCarrito.nombre.toLowerCase());
+        if(p) { 
+            p.stock -= itemCarrito.cantidad; 
+            if(p.stock < 0) p.stock = 0; // Prevenir números negativos
+            inventarioActualizado = true;
+        }
+    });
+
+    if (inventarioActualizado) {
+        localStorage.setItem('chulas_inventario', JSON.stringify(inventario));
+        // Despacha un evento para que otras pestañas (como la de inventario) se enteren al instante
+        window.dispatchEvent(new Event('storage'));
+    }
+
+    // 2. LUEGO INTENTAMOS MANDARLO A VERCEL (Si falla, no pasa nada porque ya lo restamos arriba)
+    try {
+        let response = await fetch('/api/inventario/restar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: carritoPedido })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API Vercel devolvió código ${response.status}`);
+        }
+    } catch (e) {
+        console.warn("Modo local o API no disponible: Inventario actualizado únicamente en localStorage.");
+    }
+}
+
 // --- ACCIONES DE ENVÍO ---
 function enviarMesaAbierta() {
     let m = estadoMesas[mesaActual];
@@ -388,6 +569,9 @@ function enviarMesaAbierta() {
         return;
     }
     
+    // DESCONTAR DEL ALMACÉN LO QUE SE MANDA A COCINA
+    descontarDeAlmacen(m.pendientes);
+
     m.cocina = m.cocina.concat(m.pendientes);
     m.pendientes = [];
     m.estado = 'Ocupada';
@@ -401,6 +585,8 @@ function enviarYPedirCuenta() {
     let m = estadoMesas[mesaActual];
     
     if(m.pendientes.length > 0) {
+        // DESCONTAR DEL ALMACÉN LO QUE SE MANDA A COCINA ANTES DE CERRAR
+        descontarDeAlmacen(m.pendientes);
         m.cocina = m.cocina.concat(m.pendientes);
         m.pendientes = [];
     }
@@ -448,9 +634,44 @@ function mostrarTicket(pedido) {
 }
 
 function cerrarTicket() {
-    estadoMesas[mesaActual] = { estado: 'Libre', cocina: [], pendientes: [] };
+    // Al cerrar la cuenta, la mesa se libera y se quita el dueño (mesero)
+    estadoMesas[mesaActual] = { estado: 'Libre', meseroId: null, meseroNombre: null, cocina: [], pendientes: [] };
     document.getElementById('modal-ticket').style.display = 'none';
     volverAMesas();
+}
+
+// --- FUNCIÓN DE COMPROBANTES DE TRANSFERENCIA ---
+function subirComprobante(nombreMesa, totalMesa) {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    
+    input.onchange = e => { 
+        let file = e.target.files[0];
+        if (!file) return; 
+        
+        let reader = new FileReader();
+        reader.onload = function(evento) {
+            let comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+            comprobantes.push({
+                mesa: nombreMesa,
+                monto: parseFloat(totalMesa),
+                fecha: new Date().toLocaleTimeString(),
+                imagenBase64: evento.target.result 
+            });
+            localStorage.setItem('comprobantes_transferencia', JSON.stringify(comprobantes));
+            alert("¡Comprobante guardado con éxito! El jefe ya lo puede ver en su panel.");
+        }
+        reader.readAsDataURL(file);
+    }
+    input.click();
+}
+
+function enviarComprobanteActual() {
+    let mesaStr = document.getElementById('ticket-mesa').innerText;
+    let totalStr = document.getElementById('ticket-total-val').innerText;
+    subirComprobante(mesaStr, parseFloat(totalStr));
 }
 
 window.onload = inicializar;

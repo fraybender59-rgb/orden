@@ -794,5 +794,1064 @@
         "metodo_pago": "Tarjeta",
         "hora_cobro": "21:09:01",
         "estado": "Cobrado"
+    },
+    {
+        "id": "c3881ab5",
+        "cliente": "AOP",
+        "telefono": "",
+        "fecha": "2026-08-04 21:15:57",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            }
+        ],
+        "total": 90,
+        "origen": "Online",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "22:17:31",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "9b2a7583",
+        "cliente": "RET",
+        "telefono": "",
+        "fecha": "2026-08-04 22:04:43",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 1,
+                "subtotal": 30,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 4,
+                "subtotal": 300,
+                "notas": ""
+            }
+        ],
+        "total": 420,
+        "origen": "Online",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "22:17:35",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "347ac13c",
+        "cliente": "Or",
+        "telefono": "",
+        "fecha": "2026-08-04 22:16:12",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 5,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 9,
+                "subtotal": 675,
+                "notas": ""
+            }
+        ],
+        "total": 825,
+        "origen": "Online",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "22:17:40",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "927e3ed9",
+        "cliente": "4",
+        "telefono": "",
+        "fecha": "2026-08-04 21:10:10",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 4,
+                "subtotal": 300,
+                "notas": ""
+            }
+        ],
+        "total": 390,
+        "origen": "comandero",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "22:17:45",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "ac60c0ed",
+        "cliente": "5",
+        "telefono": "",
+        "fecha": "2026-08-04 21:13:59",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 120,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "22:17:48",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "a4b771c7",
+        "cliente": "54",
+        "telefono": "",
+        "fecha": "2026-08-04 21:16:51",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            }
+        ],
+        "total": 60,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "22:17:50",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "d5c12c80",
+        "cliente": "5",
+        "telefono": "",
+        "fecha": "2026-08-04 21:23:03",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 8,
+                "subtotal": 240,
+                "notas": ""
+            }
+        ],
+        "total": 240,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "22:17:53",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "2080b1e8",
+        "cliente": "Por",
+        "telefono": "",
+        "fecha": "2026-08-04 22:27:10",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 22,
+                "subtotal": 660,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 12,
+                "subtotal": 900,
+                "notas": ""
+            }
+        ],
+        "total": 1560,
+        "origen": "Online",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "22:27:22",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "50d68b67",
+        "cliente": "Rey",
+        "telefono": "",
+        "fecha": "2026-08-04 22:33:11",
+        "items": [
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 1,
+                "subtotal": 80,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 4,
+                "subtotal": 300,
+                "notas": ""
+            }
+        ],
+        "total": 440,
+        "origen": "Online",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "22:41:21",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "8087d2d0",
+        "cliente": "Mesa 4",
+        "telefono": "",
+        "fecha": "2026-08-04 22:36:01",
+        "items": [
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 1,
+                "subtotal": 80,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 6,
+                "subtotal": 180,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 4,
+                "subtotal": 300,
+                "notas": ""
+            }
+        ],
+        "total": 560,
+        "origen": "comandero",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "22:41:36",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "25f8ec42",
+        "cliente": "Mesa 2",
+        "telefono": "",
+        "fecha": "2026-08-05 06:57:31",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Refrescos Varios",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            },
+            {
+                "nombre": "Coca Cola",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            }
+        ],
+        "total": 260,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "07:12:29",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "3335b9b8",
+        "cliente": "perez",
+        "telefono": "",
+        "fecha": "2026-08-05 07:08:48",
+        "items": [
+            {
+                "nombre": "Refrescos Varios",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            },
+            {
+                "nombre": "Coca Cola",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            }
+        ],
+        "total": 260,
+        "origen": "Online",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "07:12:33",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "9dd27620",
+        "cliente": "POIOI",
+        "telefono": "",
+        "fecha": "2026-08-05 07:49:26",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            },
+            {
+                "nombre": "Refrescos Varios",
+                "precio": 25,
+                "cantidad": 2,
+                "subtotal": 50,
+                "notas": ""
+            }
+        ],
+        "total": 170,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "08:07:25",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "9b60b70f",
+        "cliente": "OPE",
+        "telefono": "",
+        "fecha": "2026-08-05 07:49:47",
+        "items": [
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 4,
+                "subtotal": 320,
+                "notas": ""
+            }
+        ],
+        "total": 320,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "08:08:30",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "e3f0132b",
+        "cliente": "Mesa 1",
+        "telefono": "",
+        "fecha": "2026-08-05 07:16:19",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 3,
+                "subtotal": 225,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            }
+        ],
+        "total": 405,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:08:34",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "3a8ca289",
+        "cliente": "prueba",
+        "telefono": "",
+        "fecha": "2026-08-05 08:14:16",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 4,
+                "subtotal": 300,
+                "notas": ""
+            }
+        ],
+        "total": 390,
+        "origen": "Online",
+        "metodo_pago": "Cortes\u00eda",
+        "hora_cobro": "08:21:52",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "b6e59ec4",
+        "cliente": "POLES",
+        "telefono": "",
+        "fecha": "2026-08-05 08:08:22",
+        "items": [
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 3,
+                "subtotal": 225,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            }
+        ],
+        "total": 315,
+        "origen": "Online",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:22:05",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "4813ead2",
+        "cliente": "joel",
+        "telefono": "",
+        "fecha": "2026-08-05 08:42:07",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            }
+        ],
+        "total": 240,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "08:44:10",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "aacd4a65",
+        "cliente": "Mesa 1",
+        "telefono": "",
+        "fecha": "2026-08-05 08:38:18",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 3,
+                "subtotal": 225,
+                "notas": ""
+            },
+            {
+                "nombre": "Refrescos Varios",
+                "precio": 25,
+                "cantidad": 2,
+                "subtotal": 50,
+                "notas": "1 fanta .7up"
+            },
+            {
+                "nombre": "Coca Cola",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            }
+        ],
+        "total": 390,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:44:34",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "4165eb88",
+        "cliente": "LOPEZ",
+        "telefono": "",
+        "fecha": "2026-08-05 08:43:26",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 1,
+                "subtotal": 75,
+                "notas": ""
+            },
+            {
+                "nombre": "Enchiladas",
+                "precio": 75,
+                "cantidad": 1,
+                "subtotal": 75,
+                "notas": ""
+            }
+        ],
+        "total": 270,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "08:44:37",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "1301900b",
+        "cliente": "Mesa 1",
+        "telefono": "",
+        "fecha": "2026-08-05 08:48:51",
+        "items": [
+            {
+                "nombre": "Coca Cola",
+                "precio": 25,
+                "cantidad": 2,
+                "subtotal": 50,
+                "notas": ""
+            },
+            {
+                "nombre": "Chilaquiles",
+                "precio": 65,
+                "cantidad": 2,
+                "subtotal": 130,
+                "notas": ""
+            },
+            {
+                "nombre": "Club Sandwich",
+                "precio": 85,
+                "cantidad": 2,
+                "subtotal": 170,
+                "notas": ""
+            },
+            {
+                "nombre": "Sincronizadas Mexa",
+                "precio": 85,
+                "cantidad": 2,
+                "subtotal": 170,
+                "notas": ""
+            },
+            {
+                "nombre": "Crepa Pizza",
+                "precio": 90,
+                "cantidad": 2,
+                "subtotal": 180,
+                "notas": ""
+            },
+            {
+                "nombre": "Refrescos Varios",
+                "precio": 25,
+                "cantidad": 2,
+                "subtotal": 50,
+                "notas": ""
+            },
+            {
+                "nombre": "Enchiladas",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            },
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 2,
+                "subtotal": 160,
+                "notas": ""
+            },
+            {
+                "nombre": "Cl\u00e1sica",
+                "precio": 60,
+                "cantidad": 2,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 1390,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:51:06",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "54132763",
+        "cliente": "Mesa 4",
+        "telefono": "",
+        "fecha": "2026-08-05 08:48:24",
+        "items": [
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 2,
+                "subtotal": 160,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Enchiladas",
+                "precio": 75,
+                "cantidad": 2,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Cl\u00e1sica",
+                "precio": 60,
+                "cantidad": 2,
+                "subtotal": 120,
+                "notas": ""
+            },
+            {
+                "nombre": "Chilaquiles",
+                "precio": 65,
+                "cantidad": 2,
+                "subtotal": 130,
+                "notas": ""
+            },
+            {
+                "nombre": "Club Sandwich",
+                "precio": 85,
+                "cantidad": 2,
+                "subtotal": 170,
+                "notas": ""
+            },
+            {
+                "nombre": "Sincronizadas Mexa",
+                "precio": 85,
+                "cantidad": 2,
+                "subtotal": 170,
+                "notas": ""
+            }
+        ],
+        "total": 1110,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:51:10",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "7cecd6b9",
+        "cliente": "Mesa 1",
+        "telefono": "",
+        "fecha": "2026-08-05 08:46:19",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 1,
+                "subtotal": 30,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 1,
+                "subtotal": 75,
+                "notas": ""
+            }
+        ],
+        "total": 105,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:51:13",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "00235cf3",
+        "cliente": "Mesa 2",
+        "telefono": "",
+        "fecha": "2026-08-05 08:41:12",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 8,
+                "subtotal": 600,
+                "notas": ""
+            }
+        ],
+        "total": 690,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "08:51:17",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "1e429d64",
+        "cliente": "RALF",
+        "telefono": "",
+        "fecha": "2026-08-05 08:54:31",
+        "items": [
+            {
+                "nombre": "Club Sandwich",
+                "precio": 85,
+                "cantidad": 1,
+                "subtotal": 85,
+                "notas": ""
+            },
+            {
+                "nombre": "Chilaquiles",
+                "precio": 65,
+                "cantidad": 1,
+                "subtotal": 65,
+                "notas": ""
+            },
+            {
+                "nombre": "Refrescos Varios",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": "FESCA"
+            },
+            {
+                "nombre": "Coca Cola",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            }
+        ],
+        "total": 200,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "08:55:14",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "13e0e5d1",
+        "cliente": "CLART",
+        "telefono": "",
+        "fecha": "2026-08-05 08:54:50",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 1,
+                "subtotal": 30,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 1,
+                "subtotal": 75,
+                "notas": ""
+            },
+            {
+                "nombre": "Doble",
+                "precio": 80,
+                "cantidad": 1,
+                "subtotal": 80,
+                "notas": ""
+            }
+        ],
+        "total": 185,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "08:55:19",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "e2521a22",
+        "cliente": "LOPEZ",
+        "telefono": "",
+        "fecha": "2026-08-05 14:20:48",
+        "items": [
+            {
+                "nombre": "Hamburguesa Sencilla",
+                "precio": 60,
+                "cantidad": 2,
+                "subtotal": 120,
+                "notas": ""
+            },
+            {
+                "nombre": "Hamburguesa Doble",
+                "precio": 80,
+                "cantidad": 2,
+                "subtotal": 160,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            }
+        ],
+        "total": 340,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "14:21:14",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "e5710e27",
+        "cliente": "Mesa 3",
+        "telefono": "",
+        "fecha": "2026-08-05 14:20:07",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 1,
+                "subtotal": 30,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 1,
+                "subtotal": 75,
+                "notas": ""
+            },
+            {
+                "nombre": "Sincronizadas Mexa",
+                "precio": 85,
+                "cantidad": 1,
+                "subtotal": 85,
+                "notas": ""
+            },
+            {
+                "nombre": "Refresco",
+                "precio": 25,
+                "cantidad": 1,
+                "subtotal": 25,
+                "notas": ""
+            }
+        ],
+        "total": 215,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "14:21:19",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "8f498558",
+        "cliente": "PEREZ",
+        "telefono": "",
+        "fecha": "2026-08-05 14:24:40",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 1,
+                "subtotal": 30,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 1,
+                "subtotal": 75,
+                "notas": ""
+            }
+        ],
+        "total": 105,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "14:26:25",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "2938f62a",
+        "cliente": "Mesa 1",
+        "telefono": "",
+        "fecha": "2026-08-05 14:22:33",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 21,
+                "subtotal": 630,
+                "notas": ""
+            }
+        ],
+        "total": 630,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "14:26:44",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "714636af",
+        "cliente": "Mesa 2",
+        "telefono": "",
+        "fecha": "2026-08-05 14:23:16",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 5,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Hamburguesa Doble",
+                "precio": 80,
+                "cantidad": 4,
+                "subtotal": 320,
+                "notas": ""
+            }
+        ],
+        "total": 470,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "14:26:48",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "e7f3a577",
+        "cliente": "LOPEZ",
+        "telefono": "",
+        "fecha": "2026-08-05 14:27:38",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 120,
+        "origen": "Online",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "14:27:54",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "a3fca14b",
+        "cliente": "ERES",
+        "telefono": "",
+        "fecha": "2026-08-05 14:28:09",
+        "items": [
+            {
+                "nombre": "Hamburguesa Doble",
+                "precio": 80,
+                "cantidad": 21,
+                "subtotal": 1680,
+                "notas": ""
+            }
+        ],
+        "total": 1680,
+        "origen": "Online",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "14:43:30",
+        "estado": "Cobrado"
     }
 ]

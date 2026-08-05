@@ -2,13 +2,13 @@
     {
         "id": "hamb_sencilla",
         "nombre": "Hamburguesa Sencilla",
-        "stock": 100,
+        "stock": 78,
         "precio": 70
     },
     {
         "id": "hamb_doble",
         "nombre": "Hamburguesa Doble",
-        "stock": 100,
+        "stock": 53,
         "precio": 100
     },
     {
@@ -38,7 +38,7 @@
     {
         "id": "refresco",
         "nombre": "Refresco",
-        "stock": 100,
+        "stock": 99,
         "precio": 25
     }
 ]
