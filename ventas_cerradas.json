@@ -1853,5 +1853,128 @@
         "metodo_pago": "Efectivo",
         "hora_cobro": "14:43:30",
         "estado": "Cobrado"
+    },
+    {
+        "id": "14b59b93",
+        "cliente": "Mesa 2",
+        "telefono": "",
+        "fecha": "2026-08-05 14:43:56",
+        "items": [
+            {
+                "nombre": "Hamburguesa Sencilla",
+                "precio": 60,
+                "cantidad": 20,
+                "subtotal": 1200,
+                "notas": ""
+            },
+            {
+                "nombre": "Hamburguesa Doble",
+                "precio": 80,
+                "cantidad": 20,
+                "subtotal": 1600,
+                "notas": ""
+            }
+        ],
+        "total": 2800,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "15:05:21",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "362f4609",
+        "cliente": "PEREZ",
+        "telefono": "",
+        "fecha": "2026-08-05 15:10:44",
+        "items": [
+            {
+                "nombre": "Hamburguesa Sencilla",
+                "precio": 60,
+                "cantidad": 10,
+                "subtotal": 600,
+                "notas": ""
+            },
+            {
+                "nombre": "Hamburguesa Doble",
+                "precio": 80,
+                "cantidad": 10,
+                "subtotal": 800,
+                "notas": ""
+            },
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 10,
+                "subtotal": 300,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 10,
+                "subtotal": 750,
+                "notas": ""
+            },
+            {
+                "nombre": "Enchiladas",
+                "precio": 75,
+                "cantidad": 10,
+                "subtotal": 750,
+                "notas": ""
+            }
+        ],
+        "total": 3200,
+        "origen": "Online",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "15:11:20",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "516ed1ed",
+        "cliente": "Mesa 1",
+        "telefono": "",
+        "fecha": "2026-08-05 15:10:21",
+        "items": [
+            {
+                "nombre": "Refresco",
+                "precio": 25,
+                "cantidad": 10,
+                "subtotal": 250,
+                "notas": ""
+            },
+            {
+                "nombre": "Crepa Pizza",
+                "precio": 90,
+                "cantidad": 10,
+                "subtotal": 900,
+                "notas": ""
+            },
+            {
+                "nombre": "Sincronizadas Mexa",
+                "precio": 85,
+                "cantidad": 10,
+                "subtotal": 850,
+                "notas": ""
+            },
+            {
+                "nombre": "Club Sandwich",
+                "precio": 85,
+                "cantidad": 10,
+                "subtotal": 850,
+                "notas": ""
+            },
+            {
+                "nombre": "Chilaquiles",
+                "precio": 65,
+                "cantidad": 10,
+                "subtotal": 650,
+                "notas": ""
+            }
+        ],
+        "total": 3500,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "15:11:24",
+        "estado": "Cobrado"
     }
 ]

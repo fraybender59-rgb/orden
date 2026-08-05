@@ -503,29 +503,5 @@
         ],
         "total": 175,
         "estado": "Cobrado"
-    },
-    {
-        "id": "14b59b93",
-        "cliente": "Mesa 2",
-        "telefono": "",
-        "fecha": "2026-08-05 14:43:56",
-        "items": [
-            {
-                "nombre": "Hamburguesa Sencilla",
-                "precio": 60,
-                "cantidad": 20,
-                "subtotal": 1200,
-                "notas": ""
-            },
-            {
-                "nombre": "Hamburguesa Doble",
-                "precio": 80,
-                "cantidad": 20,
-                "subtotal": 1600,
-                "notas": ""
-            }
-        ],
-        "total": 2800,
-        "origen": "comandero"
     }
 ]

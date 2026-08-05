@@ -119,6 +119,7 @@
         </div>
     </div>
 
+    <!-- Modales permanecen intactos -->
     <div id="modal-historial" class="modal">
         <div class="modal-contenido" style="max-height: 80vh; overflow-y: auto;">
             <h2>📂 Cuentas Cobradas de Hoy</h2>
@@ -180,9 +181,14 @@
             
             if (pwd === 'IBARRITA') {
                 document.getElementById('pantalla-login').style.display = 'none';
+                
+                // 🚀 AQUÍ ESTÁ LA MEJORA DE VERCEL (Parte 1): 
+                // Carga los datos inmediatamente al entrar
                 cargarEstadoInicial();
+                
+                // 🚀 Y aquí se activa el ciclo automático de 3 segundos que pediste
                 if(!intervaloActualizacion) {
-                    intervaloActualizacion = setInterval(cargarEstadoInicial, 3000);
+                    intervaloActualizacion = setInterval(cargarEstadoInicial, 3000); 
                 }
             } else {
                 errorMsg.style.display = 'block';
@@ -196,7 +202,10 @@
             ultimosPedidosCargados = [];
 
             try {
-                const res = await fetch('/api/pedidos');
+                // 🚀 AQUÍ ESTÁ LA MEJORA DE VERCEL (Parte 2): 
+                // Esta línea hace exactamente el fetch('/api/pedidos') conectándose a app.js
+                const res = await fetch('/api/pedidos'); 
+                
                 if (res.ok) {
                     const todosLosPedidos = await res.json();
                     if (Array.isArray(todosLosPedidos)) {
@@ -225,6 +234,8 @@
                     cargarDesdeLocalStorage();
                 }
             } catch (e) {
+                // Si por alguna razón el servidor de Vercel falla o no hay internet, 
+                // tu sistema es inteligente y busca en localStorage localmente.
                 cargarDesdeLocalStorage();
             }
             actualizarGranTotal();
