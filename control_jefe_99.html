@@ -195,17 +195,35 @@
                         if (p.estado === 'Cobrado' || p.estado === 'Cancelado' || p.metodo_pago) return;
 
                         let esStaff = false;
+                        let clienteStr = p.cliente ? String(p.cliente).trim().toLowerCase() : '';
 
-                        // 1. Si el pedido tiene un número de mesa, o etiquetas específicas de origen de staff
-                        if (p.mesa || p.origen === 'staff' || p.origen === 'punto_staff_77') {
+                        // --- SÚPER FILTRO REFORZADO ---
+                        // 1. Verificamos explícitamente el origen
+                        if (p.origen === 'staff' || p.origen === 'punto_staff_77' || p.origen === 'caja') {
                             esStaff = true;
                         } 
-                        // 2. Si trae un mesero asignado que NO sea "online" o "cliente"
+                        // 2. Si el origen dice expresamente 'online', lo respetamos (a menos que apliquen otras reglas locales).
+                        else if (p.origen === 'online') {
+                            esStaff = false;
+                        }
+                        // 3. Si el nombre del cliente es SÓLO un número (ej. "4"), asumimos que es número de mesa de la CAJA
+                        else if (clienteStr !== '' && !isNaN(clienteStr)) {
+                            esStaff = true;
+                        }
+                        // 4. Si el nombre del cliente contiene las palabras "mesa" o "barra"
+                        else if (clienteStr.includes('mesa') || clienteStr.includes('barra')) {
+                            esStaff = true;
+                        }
+                        // 5. Si tiene propiedad de mesa asignada
+                        else if (p.mesa) {
+                            esStaff = true;
+                        } 
+                        // 6. Si trae un mesero que NO sea "online" o "cliente"
                         else if (p.mesero && p.mesero.trim() !== '' && p.mesero.toLowerCase() !== 'online' && p.mesero.toLowerCase() !== 'cliente') {
                             esStaff = true;
                         }
 
-                        // Dividimos estrictamente según el Súper Filtro
+                        // Dividimos estrictamente según el Súper Filtro Reforzado
                         if (esStaff) {
                             pedidosCaja.push(p);
                         } else {

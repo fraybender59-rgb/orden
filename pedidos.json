@@ -505,20 +505,95 @@
         "estado": "Cobrado"
     },
     {
-        "id": "e0b50e6e",
-        "cliente": "6",
+        "id": "927e3ed9",
+        "cliente": "4",
         "telefono": "",
-        "fecha": "2026-08-04 13:09:41",
+        "fecha": "2026-08-04 21:10:10",
         "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            },
             {
                 "nombre": "Orden de Hot Dogs",
                 "precio": 75,
-                "cantidad": 14,
-                "subtotal": 1050,
+                "cantidad": 4,
+                "subtotal": 300,
                 "notas": ""
             }
         ],
-        "total": 1050,
+        "total": 390,
+        "origen": "comandero"
+    },
+    {
+        "id": "ac60c0ed",
+        "cliente": "5",
+        "telefono": "",
+        "fecha": "2026-08-04 21:13:59",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 120,
+        "origen": "comandero"
+    },
+    {
+        "id": "c3881ab5",
+        "cliente": "AOP",
+        "telefono": "",
+        "fecha": "2026-08-04 21:15:57",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            }
+        ],
+        "total": 90,
+        "origen": "Online"
+    },
+    {
+        "id": "a4b771c7",
+        "cliente": "54",
+        "telefono": "",
+        "fecha": "2026-08-04 21:16:51",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 2,
+                "subtotal": 60,
+                "notas": ""
+            }
+        ],
+        "total": 60,
+        "origen": "comandero"
+    },
+    {
+        "id": "d5c12c80",
+        "cliente": "5",
+        "telefono": "",
+        "fecha": "2026-08-04 21:23:03",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 8,
+                "subtotal": 240,
+                "notas": ""
+            }
+        ],
+        "total": 240,
         "origen": "comandero"
     }
 ]

@@ -6,12 +6,35 @@
 <title>Punto Staff 77 - Chulas Burgers</title>
 <style>
   body { background-color: #121216; color: #f5f5f7; font-family: sans-serif; margin: 0; padding: 15px; }
-  h1 { text-align: center; color: #00bcd4; }
-  .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 80px; }
+  h1, h2, h3 { text-align: center; color: #00bcd4; margin-top: 0; }
+  
+  /* VISTAS */
+  .vista { display: none; }
+  .vista.activa { display: block; }
+  
+  /* GRID MESEROS */
+  .grid-meseros { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; max-width: 600px; margin: 40px auto; }
+  .btn-mesero { background: #1e1e24; border: 2px solid #00bcd4; color: white; padding: 20px 40px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; width: 45%; }
+  .btn-mesero:hover { background: #00bcd4; color: #111; }
+  
+  /* GRID MESAS */
+  .header-mesas { text-align: center; margin-bottom: 20px; }
+  .grid-mesas { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; max-width: 800px; margin: 0 auto; }
+  .btn-mesa { background: #1e1e24; border: 1px solid #444; border-radius: 8px; padding: 15px; color: white; text-align: center; cursor: pointer; }
+  .btn-mesa.ocupada { border-color: #ff9800; background: #332200; }
+  .btn-mesa span { display: block; font-size: 0.8rem; color: #aaa; margin-top: 5px; }
+  .btn-mesa.ocupada span { color: #ff9800; }
+  .btn-logout { background: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 30px; }
+
+  /* HEADER MENU */
+  .header-menu { display: flex; justify-content: space-between; align-items: center; background: #1e1e24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; }
+  .btn-volver, .btn-admin-accion { background: #444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+  .btn-admin-accion { background: #ff5722; font-weight: bold; }
+  
+  /* GRID MENU */
+  .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-bottom: 80px; }
   .card-prod { background: #1e1e24; border-radius: 8px; padding-bottom: 15px; text-align: center; border: 1px solid #333; }
-  
-  .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; }
-  
+  .img-prod { width: 100%; height: 140px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; }
   .precio { color: #ff9800; font-size: 1.2rem; font-weight: bold; margin: 10px 0; }
   .controles { display: flex; gap: 5px; padding: 0 10px; margin-bottom: 10px; }
   .input-cant { width: 50px; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; text-align: center; }
@@ -20,7 +43,17 @@
   
   .flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #ff9800; color: #111; padding: 15px 20px; border-radius: 30px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
   
-  /* ESTILOS DEL TICKET DE CONFIRMACIÓN */
+  /* CARRITO MODAL */
+  .seccion-carrito { background: #111; padding: 10px; border-radius: 5px; margin-bottom: 15px; border: 1px solid #333; }
+  .seccion-carrito h4 { margin-top: 0; color: #aaa; border-bottom: 1px solid #444; padding-bottom: 5px; }
+  .item-carrito { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding: 8px 0; }
+  .btn-eliminar { background: #f44336; color: white; border: none; border-radius: 3px; cursor: pointer; padding: 4px 8px; }
+  .btn-eliminar-admin { background: #ff5722; }
+  .btn-accion-cuenta { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+  .btn-mesa-abierta { background: #2196F3; color: white; }
+  .btn-pedir-cuenta { background: #4CAF50; color: white; }
+  
+  /* MODAL TICKET */
   .modal-ticket { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
   .ticket-content { background: #fff; color: #111; padding: 20px; border-radius: 5px; width: 100%; max-width: 350px; font-family: 'Courier New', Courier, monospace; }
   .ticket-content h3 { text-align: center; margin-top: 0; border-bottom: 2px dashed #111; padding-bottom: 10px; }
@@ -31,193 +64,374 @@
 </head>
 <body>
 
-<h1>🧑‍🍳 Captura Staff 77</h1>
-<div class="grid-menu" id="contenedor-menu">Cargando menú...</div>
-
-<button class="flotante-carrito" onclick="abrirCarrito()">📝 Enviar a Caja (<span id="contador-items">0</span>)</button>
-
-<!-- Modal Carrito Staff -->
-<div id="modal-carrito" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto;">
-    <div style="background: #222; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 10px; color: white;">
-        <h2>Carrito (Staff)</h2>
-        <div id="lista-carrito" style="margin-bottom: 20px; max-height: 300px; overflow-y: auto;"></div>
-        <h3 style="text-align: right; color: #4caf50;">Total: $<span id="total-carrito">0.00</span></h3>
-        
-        <input type="text" id="nombre-cliente" placeholder="Nombre del Cliente o Mesa" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white;">
-        
-        <!-- SELECCIÓN DE MESERO (5 MESEROS) -->
-        <div style="text-align: left; margin-bottom: 15px;">
-          <label style="font-size: 0.9rem; color:#ccc;">Mesero que atiende:</label>
-          <select id="select-mesero" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white; margin-top:5px;">
-              <option value="Staff Caja">Caja Principal</option>
-              <option value="Mesero 1">Mesero 1</option>
-              <option value="Mesero 2">Mesero 2</option>
-              <option value="Mesero 3">Mesero 3</option>
-              <option value="Mesero 4">Mesero 4</option>
-              <option value="Mesero 5">Mesero 5</option>
-          </select>
-        </div>
-        
-        <div style="display: flex; gap: 10px;">
-            <button onclick="document.getElementById('modal-carrito').style.display='none'" style="flex: 1; padding: 10px; background: #f44336; color: white; border: none; border-radius: 5px;">Cancelar</button>
-            <button onclick="enviarPedidoStaff()" style="flex: 1; padding: 10px; background: #4caf50; color: white; border: none; border-radius: 5px;">Enviar a Cocina</button>
-        </div>
+<!-- VISTA 1: SELECCIÓN DE PERFIL -->
+<div id="vista-perfiles" class="vista activa">
+    <h1>🍔 Selecciona tu Perfil</h1>
+    <div class="grid-meseros" id="contenedor-meseros">
+        <!-- Generado por JS -->
     </div>
 </div>
 
-<!-- Modal Ticket (Se ve lo que se envía) -->
+<!-- VISTA 2: SELECCIÓN DE MESA -->
+<div id="vista-mesas" class="vista">
+    <div class="header-mesas">
+        <h1 id="titulo-saludo">Hola, Mesero</h1>
+        <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
+    <div class="grid-mesas" id="contenedor-mesas">
+        <!-- Generado por JS -->
+    </div>
+</div>
+
+<!-- VISTA 3: MENÚ Y CAPTURA -->
+<div id="vista-menu" class="vista">
+    <div class="header-menu">
+        <button class="btn-volver" onclick="volverAMesas()">⬅ Mesas</button>
+        <h2 id="titulo-mesa-actual" style="margin: 0; color: #fff;">Mesa X</h2>
+        <button class="btn-admin-accion" onclick="cambiarDeMesa()">🔄 Cambiar Mesa</button>
+    </div>
+    
+    <div class="grid-menu" id="contenedor-menu">Cargando menú...</div>
+    
+    <button class="flotante-carrito" onclick="abrirCarrito()">📝 Ver Cuenta (<span id="contador-items">0</span>)</button>
+</div>
+
+<!-- MODAL CARRITO (CUENTA) -->
+<div id="modal-carrito" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px; box-sizing: border-box; overflow-y: auto;">
+    <div style="background: #222; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 10px; color: white;">
+        <h2>Cuenta de <span id="carrito-titulo-mesa"></span></h2>
+        
+        <!-- Productos ya enviados a cocina (No se pueden cancelar sin clave) -->
+        <div class="seccion-carrito" id="seccion-cocina">
+            <h4>🔥 Ya en Cocina</h4>
+            <div id="lista-cocina"></div>
+        </div>
+
+        <!-- Productos nuevos por enviar (Se pueden cancelar libremente) -->
+        <div class="seccion-carrito" id="seccion-pendientes">
+            <h4>🛒 Por Enviar a Cocina</h4>
+            <div id="lista-pendientes"></div>
+        </div>
+        
+        <h3 style="text-align: right; color: #4caf50;">Total General: $<span id="total-carrito">0.00</span></h3>
+        
+        <button class="btn-accion-cuenta btn-mesa-abierta" onclick="enviarMesaAbierta()">🍽️ Mandar a Cocina y DEJAR MESA ABIERTA</button>
+        <button class="btn-accion-cuenta btn-pedir-cuenta" onclick="enviarYPedirCuenta()">🧾 Mandar a Cocina y PEDIR CUENTA</button>
+        <button class="btn-accion-cuenta" style="background: #f44336; color: white;" onclick="document.getElementById('modal-carrito').style.display='none'">Cerrar Ventana</button>
+    </div>
+</div>
+
+<!-- MODAL TICKET -->
 <div id="modal-ticket" class="modal-ticket">
     <div class="ticket-content">
-        <h3>🍔 CHULAS BURGERS 🍔<br><small>Ticket Generado</small></h3>
-        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Mesa/Cliente:</strong> <span id="ticket-cliente"></span></p>
+        <h3>🍔 CHULAS BURGERS 🍔<br><small>Ticket de Cuenta</small></h3>
+        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Mesa:</strong> <span id="ticket-mesa"></span></p>
         <p style="margin: 5px 0 15px 0; font-size: 0.9rem;"><strong>Atendió:</strong> <span id="ticket-mesero"></span></p>
         
         <div id="ticket-items"></div>
         
-        <div class="ticket-total">Total: $<span id="ticket-total-val"></span></div>
+        <div class="ticket-total">Total a Pagar: $<span id="ticket-total-val"></span></div>
         <p style="text-align: center; font-size: 0.8rem; margin-top: 10px; color: #555;">Sincronizado vía CONTROL_JEFE_99</p>
         
-        <button class="btn-imprimir" onclick="cerrarTicket()">Aceptar y Nueva Orden</button>
+        <button class="btn-imprimir" onclick="cerrarTicket()">Aceptar y Volver</button>
     </div>
 </div>
 
 <script>
+// --- DATOS Y ESTADOS ---
 const menuBase = {
   "Hamburguesas": [
     { nombre: "Clásica", precio: 60, imagen: "clasica.jpg" },
     { nombre: "Doble", precio: 80, imagen: "doble.jpeg" }
   ],
   "Hot Dogs": [
-    { nombre: "Hot Dog", precio: 30, imagen: "hot.jpg" },
+    { nombre: "Hot Dog", precio: 30, imagen: "hot.jpeg" },
     { nombre: "Orden de Hot Dogs", precio: 75, imagen: "Ordenhot.jpg" }
   ],
-  "Especialidades": [
+
+
+ "Especialidades": [
     { nombre: "Enchiladas", precio: 75, imagen: "enchiladas.jpeg" },
     { nombre: "Chilaquiles", precio: 65, imagen: "chilaquiles.jpg" },
     { nombre: "Club Sandwich", precio: 85, imagen: "club.jpg" },
     { nombre: "Sincronizadas Mexa", precio: 85, imagen: "sincromexa.jpeg" },
     { nombre: "Crepa Pizza", precio: 90, imagen: "sincrop.webp" }
   ],
+
   "Bebidas": [
     { nombre: "Refrescos Varios", precio: 25, imagen: "refrescosvarios.jpeg" },
     { nombre: "Coca Cola", precio: 25, imagen: "coca cola.jpeg" }
   ]
 };
 
-let carrito = [];
+const MESEROS = [
+    { id: 1, nombre: "Mesero 1", pin: "1111" },
+    { id: 2, nombre: "Mesero 2", pin: "2222" },
+    { id: 3, nombre: "Mesero 3", pin: "3333" },
+    { id: 4, nombre: "Mesero 4", pin: "4444" },
+    { id: 5, nombre: "Mesero 5", pin: "5555" }
+];
 
-// Función para actualizar el contador del botón flotante correctamente
-function actualizarContador() {
-    let totalArticulos = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-    document.getElementById('contador-items').innerText = totalArticulos;
+let estadoMesas = {};
+for(let i=1; i<=15; i++) {
+    estadoMesas[`Mesa ${i}`] = { 
+        estado: 'Libre',
+        cocina: [],
+        pendientes: []
+    };
 }
 
-function cargarMenu() {
-  fetch('/api/menu').then(r => r.json()).catch(() => menuBase).then(data => {
-    let html = "";
-    for (let cat in data) {
-      data[cat].forEach((p, idx) => {
-        if(p.disponible === false) return;
-        // Generador de ID más seguro para evitar fallos
-        let idFicticio = cat.replace(/\s+/g, '_') + '_' + idx;
-        html += `
-          <div class="card-prod">
-            <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
-            <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
-            <p class="precio">$${p.precio.toFixed(2)}</p>
-            <div class="controles">
-              <input type="number" min="1" value="1" id="cant-${idFicticio}" class="input-cant">
-              <input type="text" placeholder="Notas (Ej. Sin cebolla)" id="nota-${idFicticio}" class="input-nota">
-            </div>
-            <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar</button>
-          </div>
-        `;
-      });
+let meseroActual = null;
+let mesaActual = null;
+
+// --- INICIALIZACIÓN DE VISTAS ---
+function cambiarVista(idVista) {
+    document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+    document.getElementById(idVista).classList.add('activa');
+}
+
+function inicializar() {
+    let htmlMeseros = "";
+    MESEROS.forEach(m => {
+        htmlMeseros += `<button class="btn-mesero" onclick="loginMesero(${m.id})">${m.nombre}</button>`;
+    });
+    document.getElementById('contenedor-meseros').innerHTML = htmlMeseros;
+    renderizarMesas();
+    cargarMenuUI();
+}
+
+// --- LÓGICA DE MESEROS ---
+function loginMesero(id) {
+    let m = MESEROS.find(x => x.id === id);
+    let pinIntento = prompt(`Ingrese PIN para ${m.nombre}:`);
+    if(pinIntento === m.pin) {
+        meseroActual = m;
+        document.getElementById('titulo-saludo').innerText = `Hola, ${m.nombre}`;
+        cambiarVista('vista-mesas');
+    } else if (pinIntento !== null) {
+        alert("PIN Incorrecto.");
     }
-    document.getElementById('contenedor-menu').innerHTML = html;
-  });
+}
+
+function cerrarSesion() {
+    meseroActual = null;
+    mesaActual = null;
+    cambiarVista('vista-perfiles');
+}
+
+// --- LÓGICA DE MESAS ---
+function renderizarMesas() {
+    let html = "";
+    for(let i=1; i<=15; i++) {
+        let mNombre = `Mesa ${i}`;
+        let mData = estadoMesas[mNombre];
+        let claseExtra = mData.estado !== 'Libre' ? 'ocupada' : '';
+        html += `<div class="btn-mesa ${claseExtra}" onclick="abrirMesa('${mNombre}')">
+                    <strong>${mNombre}</strong>
+                    <span>${mData.estado}</span>
+                 </div>`;
+    }
+    document.getElementById('contenedor-mesas').innerHTML = html;
+}
+
+function abrirMesa(nombreMesa) {
+    mesaActual = nombreMesa;
+    document.getElementById('titulo-mesa-actual').innerText = nombreMesa;
+    actualizarContador();
+    cambiarVista('vista-menu');
+}
+
+function volverAMesas() {
+    mesaActual = null;
+    renderizarMesas();
+    cambiarVista('vista-mesas');
+}
+
+// --- AUTORIZACIÓN JEFE (IBARRITA) ---
+function solicitarPermisoJefe(accionCallback) {
+    let pass = prompt("Acción Protegida. Ingrese contraseña de JEFE:");
+    if (pass === "IBARRITA") {
+        accionCallback();
+    } else if (pass !== null) {
+        alert("Contraseña incorrecta. Acceso denegado.");
+    }
+}
+
+function cambiarDeMesa() {
+    solicitarPermisoJefe(() => {
+        let destino = prompt(`Está administrando ${mesaActual}.\nIngrese el número de la mesa destino (1 al 15):`);
+        if(destino && destino >= 1 && destino <= 15) {
+            let mesaDestino = `Mesa ${destino}`;
+            if(estadoMesas[mesaDestino].estado !== 'Libre') {
+                alert("La mesa destino ya está ocupada. Fusione o libere primero.");
+                return;
+            }
+            estadoMesas[mesaDestino].cocina = [...estadoMesas[mesaActual].cocina];
+            estadoMesas[mesaDestino].pendientes = [...estadoMesas[mesaActual].pendientes];
+            estadoMesas[mesaDestino].estado = estadoMesas[mesaActual].estado;
+            
+            estadoMesas[mesaActual] = { estado: 'Libre', cocina: [], pendientes: [] };
+            
+            alert(`Cuenta movida con éxito de ${mesaActual} a ${mesaDestino}`);
+            volverAMesas();
+        }
+    });
+}
+
+// --- LÓGICA DEL MENÚ Y CARRITO ---
+function cargarMenuUI() {
+    fetch('/api/menu').then(r => r.json()).catch(() => menuBase).then(data => {
+        let html = "";
+        for (let cat in data) {
+            data[cat].forEach((p, idx) => {
+                if(p.disponible === false) return;
+                let idFicticio = cat.replace(/\s+/g, '_') + '_' + idx;
+                html += `
+                <div class="card-prod">
+                    <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}" onerror="this.style.display='none'">
+                    <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
+                    <p class="precio">$${p.precio.toFixed(2)}</p>
+                    <div class="controles">
+                        <input type="number" min="1" value="1" id="cant-${idFicticio}" class="input-cant">
+                        <input type="text" placeholder="Notas (Ej. Sin cebolla)" id="nota-${idFicticio}" class="input-nota">
+                    </div>
+                    <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar</button>
+                </div>`;
+            });
+        }
+        document.getElementById('contenedor-menu').innerHTML = html;
+    });
 }
 
 function addCarrito(nombre, precio, idElem) {
-  let cant = parseInt(document.getElementById(`cant-${idElem}`).value, 10) || 1;
-  let notas = document.getElementById(`nota-${idElem}`).value;
-  
-  // Lógica mejorada: Si el producto ya está en el carrito con las mismas notas, suma la cantidad
-  let itemExistente = carrito.find(i => i.nombre === nombre && i.notas === notas);
-  
-  if (itemExistente) {
-      itemExistente.cantidad += cant;
-      itemExistente.subtotal = itemExistente.cantidad * itemExistente.precio;
-  } else {
-      carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
-  }
-  
-  actualizarContador();
-  
-  // Resetear los inputs después de agregar
-  document.getElementById(`cant-${idElem}`).value = 1;
-  document.getElementById(`nota-${idElem}`).value = '';
+    let cant = parseInt(document.getElementById(`cant-${idElem}`).value, 10) || 1;
+    let notas = document.getElementById(`nota-${idElem}`).value;
+    
+    let pendientes = estadoMesas[mesaActual].pendientes;
+    let itemExistente = pendientes.find(i => i.nombre === nombre && i.notas === notas);
+    
+    if (itemExistente) {
+        itemExistente.cantidad += cant;
+        itemExistente.subtotal = itemExistente.cantidad * itemExistente.precio;
+    } else {
+        pendientes.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
+    }
+    
+    estadoMesas[mesaActual].estado = 'Ocupada';
+    actualizarContador();
+    
+    document.getElementById(`cant-${idElem}`).value = 1;
+    document.getElementById(`nota-${idElem}`).value = '';
+}
+
+function actualizarContador() {
+    if(!mesaActual) return;
+    let m = estadoMesas[mesaActual];
+    let totalArticulos = m.pendientes.reduce((sum, item) => sum + item.cantidad, 0) + 
+                         m.cocina.reduce((sum, item) => sum + item.cantidad, 0);
+    document.getElementById('contador-items').innerText = totalArticulos;
 }
 
 function abrirCarrito() {
-  if (carrito.length === 0) return alert("Nada capturado aún.");
-  let html = ""; let total = 0;
-  carrito.forEach((i, idx) => {
-    html += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #444; padding:5px 0;">
-      <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
-      <div>$${i.subtotal.toFixed(2)} <button onclick="quitarItem(${idx})" style="background:red;color:white;border:none;border-radius:3px;cursor:pointer;padding:2px 6px;">X</button></div>
-    </div>`;
-    total += i.subtotal;
-  });
-  document.getElementById('lista-carrito').innerHTML = html;
-  document.getElementById('total-carrito').innerText = total.toFixed(2);
-  document.getElementById('modal-carrito').style.display = 'flex';
+    let m = estadoMesas[mesaActual];
+    if (m.pendientes.length === 0 && m.cocina.length === 0) return alert("La mesa no tiene consumos aún.");
+    
+    document.getElementById('carrito-titulo-mesa').innerText = mesaActual;
+    
+    let htmlCocina = "";
+    m.cocina.forEach((i, idx) => {
+        htmlCocina += `<div class="item-carrito">
+            <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
+            <div>$${i.subtotal.toFixed(2)} 
+                <button class="btn-eliminar btn-eliminar-admin" onclick="quitarItemCocina(${idx})">🗑️</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('lista-cocina').innerHTML = htmlCocina || "<p style='color:#666; font-size:0.9rem;'>No hay productos en cocina.</p>";
+
+    let htmlPendientes = "";
+    m.pendientes.forEach((i, idx) => {
+        htmlPendientes += `<div class="item-carrito">
+            <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
+            <div>$${i.subtotal.toFixed(2)} 
+                <button class="btn-eliminar" onclick="quitarItemPendiente(${idx})">X</button>
+            </div>
+        </div>`;
+    });
+    document.getElementById('lista-pendientes').innerHTML = htmlPendientes || "<p style='color:#666; font-size:0.9rem;'>No hay productos nuevos.</p>";
+
+    let total = m.cocina.reduce((sum, i) => sum + i.subtotal, 0) + m.pendientes.reduce((sum, i) => sum + i.subtotal, 0);
+    document.getElementById('total-carrito').innerText = total.toFixed(2);
+    
+    document.getElementById('modal-carrito').style.display = 'flex';
 }
 
-function quitarItem(idx) { 
-    carrito.splice(idx, 1); 
-    abrirCarrito(); 
-    actualizarContador(); 
-    if(carrito.length === 0) document.getElementById('modal-carrito').style.display='none'; 
+function quitarItemPendiente(idx) {
+    estadoMesas[mesaActual].pendientes.splice(idx, 1);
+    actualizarContador();
+    abrirCarrito();
 }
 
-function enviarPedidoStaff() {
-  let nombre = document.getElementById('nombre-cliente').value;
-  let meseroAtendiendo = document.getElementById('select-mesero').value; 
-  
-  if (!nombre) return alert("Obligatorio poner nombre o mesa.");
-  
-  let pedido = {
-    cliente: nombre, 
-    mesero: meseroAtendiendo,
-    control_sincronizacion: 'CONTROL_JEFE_99', // Sincronizado para el backend
-    total: carrito.reduce((sum, i) => sum + i.subtotal, 0), 
-    items: carrito, 
-    estado: 'Pendiente', 
-    fecha: new Date().toLocaleTimeString(), 
-    metodo: 'Local'
-  };
-
-  // Se envía el pedido a tu app.js
-  fetch('/api/pedidos', { 
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json'}, 
-      body: JSON.stringify(pedido) 
-  })
-  .then(() => {
-    mostrarTicket(pedido);
-  })
-  .catch(err => {
-      console.error("Error al enviar pedido, mostrando ticket de todas formas (Modo Offline):", err);
-      mostrarTicket(pedido);
-  });
+function quitarItemCocina(idx) {
+    solicitarPermisoJefe(() => {
+        estadoMesas[mesaActual].cocina.splice(idx, 1);
+        actualizarContador();
+        abrirCarrito();
+    });
 }
 
-// Nueva función para mostrar lo que se envió en formato cuenta/ticket
+// --- ACCIONES DE ENVÍO ---
+function enviarMesaAbierta() {
+    let m = estadoMesas[mesaActual];
+    if(m.pendientes.length === 0) {
+        alert("No hay productos nuevos para mandar a cocina.");
+        return;
+    }
+    
+    m.cocina = m.cocina.concat(m.pendientes);
+    m.pendientes = [];
+    m.estado = 'Ocupada';
+    
+    alert("¡Comanda enviada a cocina! La mesa sigue abierta.");
+    document.getElementById('modal-carrito').style.display = 'none';
+    volverAMesas();
+}
+
+function enviarYPedirCuenta() {
+    let m = estadoMesas[mesaActual];
+    
+    if(m.pendientes.length > 0) {
+        m.cocina = m.cocina.concat(m.pendientes);
+        m.pendientes = [];
+    }
+    
+    m.estado = 'Pidiendo Cuenta';
+    
+    let totalGeneral = m.cocina.reduce((sum, i) => sum + i.subtotal, 0);
+    let pedidoFinal = {
+        cliente: mesaActual, 
+        mesero: meseroActual.nombre,
+        control_sincronizacion: 'CONTROL_JEFE_99',
+        total: totalGeneral, 
+        items: m.cocina, 
+        estado: 'Pendiente Pago', 
+        fecha: new Date().toLocaleTimeString(), 
+        metodo: 'Local'
+    };
+
+    fetch('/api/pedidos', { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify(pedidoFinal) 
+    }).catch(err => console.error("Error offline:", err));
+
+    mostrarTicket(pedidoFinal);
+}
+
 function mostrarTicket(pedido) {
     document.getElementById('modal-carrito').style.display = 'none';
     
-    document.getElementById('ticket-cliente').innerText = pedido.cliente;
+    document.getElementById('ticket-mesa').innerText = pedido.cliente;
     document.getElementById('ticket-mesero').innerText = pedido.mesero;
     document.getElementById('ticket-total-val').innerText = pedido.total.toFixed(2);
     
@@ -233,15 +447,13 @@ function mostrarTicket(pedido) {
     document.getElementById('modal-ticket').style.display = 'flex';
 }
 
-// Cierra el ticket y deja la pantalla limpia para la siguiente orden
 function cerrarTicket() {
-    carrito = [];
-    actualizarContador();
-    document.getElementById('nombre-cliente').value = '';
+    estadoMesas[mesaActual] = { estado: 'Libre', cocina: [], pendientes: [] };
     document.getElementById('modal-ticket').style.display = 'none';
+    volverAMesas();
 }
 
-cargarMenu();
+window.onload = inicializar;
 </script>
 </body>
 </html>

@@ -774,5 +774,25 @@
         "metodo_pago": "Tarjeta",
         "hora_cobro": "13:09:16",
         "estado": "Cobrado"
+    },
+    {
+        "id": "e0b50e6e",
+        "cliente": "6",
+        "telefono": "",
+        "fecha": "2026-08-04 13:09:41",
+        "items": [
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 14,
+                "subtotal": 1050,
+                "notas": ""
+            }
+        ],
+        "total": 1050,
+        "origen": "comandero",
+        "metodo_pago": "Tarjeta",
+        "hora_cobro": "21:09:01",
+        "estado": "Cobrado"
     }
 ]
