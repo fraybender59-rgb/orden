@@ -1,0 +1,11 @@
+{
+  "name": "hamburguesas-pos",
+  "version": "1.0.0",
+  "description": "Punto de venta y administración para el proyecto #hamburguesas",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"

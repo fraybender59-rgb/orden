@@ -1,4 +1,4 @@
-k<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -172,7 +172,6 @@ k<!DOCTYPE html>
     </div>
 
     <script>
-        // Array de inventario por defecto en caso de que sea la primera vez que se abre
         const inventarioPorDefecto = [
             { nombre: "Hamburguesa Sencilla", stock: 50 },
             { nombre: "Hamburguesa Doble", stock: 50 },
@@ -187,7 +186,6 @@ k<!DOCTYPE html>
 
         async function cargarInventario() {
             try {
-                // Intenta buscar el inventario desde el backend (servidor Python)
                 const response = await fetch('/api/inventario');
                 if (response.ok) {
                     inventarioGlobal = await response.json();
@@ -195,7 +193,7 @@ k<!DOCTYPE html>
                     throw new Error("API no disponible");
                 }
             } catch (error) {
-                // Si el servidor falla o no existe, usa LocalStorage como respaldo local (para la sincronización PWA)
+                // Respaldo Automático Local
                 let localData = JSON.parse(localStorage.getItem('chulas_inventario'));
                 if (!localData || localData.length === 0) {
                     localData = inventarioPorDefecto;
@@ -250,7 +248,6 @@ k<!DOCTYPE html>
             let item = inventarioGlobal[index];
 
             try {
-                // Intenta sumar en el servidor
                 const response = await fetch('/api/inventario/sumar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -258,13 +255,12 @@ k<!DOCTYPE html>
                 });
                 if (!response.ok) throw new Error("Fallo API");
             } catch (error) {
-                // Respaldo en LocalStorage
                 item.stock += cantidad;
                 localStorage.setItem('chulas_inventario', JSON.stringify(inventarioGlobal));
             }
 
-            inputCantidad.value = ""; // Limpiar campo después de sumar
-            cargarInventario(); // Refrescar la tabla
+            inputCantidad.value = ""; 
+            cargarInventario(); 
         }
 
         async function eliminarProducto(index) {
@@ -279,7 +275,6 @@ k<!DOCTYPE html>
                     body: JSON.stringify({ nombre: item.nombre })
                 });
             } catch (error) {
-                // Respaldo en LocalStorage
                 inventarioGlobal.splice(index, 1);
                 localStorage.setItem('chulas_inventario', JSON.stringify(inventarioGlobal));
             }
@@ -302,7 +297,6 @@ k<!DOCTYPE html>
                 });
                 if (!response.ok) throw new Error("Fallo API");
             } catch (error) {
-                // Respaldo en LocalStorage si falla la API
                 inventarioGlobal.push({ nombre: nombre, stock: cantidad });
                 localStorage.setItem('chulas_inventario', JSON.stringify(inventarioGlobal));
             }
@@ -312,11 +306,7 @@ k<!DOCTYPE html>
             cargarInventario();
         }
 
-        // Cargar datos al iniciar la página
         cargarInventario();
-
-        // Sincronización automática: Refresca el inventario cada 3 segundos 
-        // para detectar si el comandero o la caja (punto_staff_77) descontaron stock
         setInterval(cargarInventario, 3000);
 
     </script>

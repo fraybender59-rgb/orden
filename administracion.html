@@ -106,7 +106,7 @@ function verificarClave() {
   }
 }
 
-// --- LOGICA PRINCIPAL (CONECTADA AL SERVIDOR FLASK) ---
+// --- LOGICA PRINCIPAL (CONECTADA AL SERVIDOR NODE.JS) ---
 let idSeleccionado = null;
 
 function iniciarApp() {
@@ -115,7 +115,6 @@ function iniciarApp() {
 }
 
 function renderAdmin() {
-  // Consumiendo la ruta /api/pedidos configurada en el backend
   fetch('/api/pedidos').then(r => r.json()).then(pedidos => {
     let htmlCaja = ""; let htmlHistorial = ""; let totalVentasCobradas = 0;
 
@@ -128,7 +127,7 @@ function renderAdmin() {
       
       let infoExtra = "";
       if (p.estado === 'Cobrado' || p.metodo_pago) { 
-        infoExtra = `<div style="color:#8bc34a; font-weight:bold; margin-top:10px; text-align:center;">✅ Pagado en ${p.metodo_pago || p.metodo}</div>`; 
+        infoExtra = `<div style="color:#8bc34a; font-weight:bold; margin-top:10px; text-align:center;">✅ Pagado en ${p.metodo_pago || p.metodo || 'Efectivo'}</div>`; 
         totalVentasCobradas += parseFloat(p.total); 
       } 
       else if (p.estado === 'Cancelado') { 
@@ -146,11 +145,12 @@ function renderAdmin() {
           </div>`;
       }
 
+      let clienteNombre = p.cliente || p.mesero || "Cliente General";
       let tarjetaHTML = `
         <div class="tarjeta-pedido ${estadoClase}">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="font-size:1.2rem; color:var(--info);">${p.cliente}</strong>
-            <span style="font-size:0.85rem; color:#aaa; background:#111; padding:3px 8px; border-radius:4px;">${p.fecha.split(' ')[1] || ''}</span>
+            <strong style="font-size:1.2rem; color:var(--info);">${clienteNombre} ${p.mesa ? '- ' + p.mesa : ''}</strong>
+            <span style="font-size:0.85rem; color:#aaa; background:#111; padding:3px 8px; border-radius:4px;">${(p.fecha || '').split(' ')[1] || p.fecha || ''}</span>
           </div>
           <hr style="border-color:#333; margin:10px 0;">
           <div style="font-size: 0.95rem;">${productosTexto}</div>
@@ -183,12 +183,14 @@ window.cobrar = function(id, metodo) {
   document.getElementById('modal-accion').style.display = 'flex';
 };
 
+// MEJORA: Adaptado para funcionar con app.put('/api/pedidos/:id') de Node.js
 function procesarCobro(id, metodo) {
-  // Conectando al endpoint de cobro de servidor.py
-  fetch('/api/pedidos/cobrar', { 
-    method: 'POST', 
+  let nuevoEstado = (metodo === 'Cancelado') ? 'Cancelado' : 'Cobrado';
+  
+  fetch(`/api/pedidos/${id}`, { 
+    method: 'PUT', 
     headers: { 'Content-Type': 'application/json' }, 
-    body: JSON.stringify({ id: id, metodo: metodo }) 
+    body: JSON.stringify({ estado: nuevoEstado, metodo_pago: metodo }) 
   })
   .then(() => { 
     document.getElementById('modal-accion').style.display = 'none'; 
