@@ -96,7 +96,7 @@
     <div class="header-menu">
         <button class="btn-volver" onclick="volverAMesas()">⬅ Mesas</button>
         <h2 id="titulo-mesa-actual" style="margin: 0; color: #fff;">Mesa X</h2>
-        <button class="btn-admin-accion" onclick="cambiarDeMesa()">🔄 Cambiar Mesa (Por Producto)</button>
+        <button class="btn-admin-accion" onclick="cambiarDeMesa()">🔄 Cambiar Mesa</button>
     </div>
     
     <div class="grid-menu" id="contenedor-menu">Cargando menú...</div>
@@ -109,13 +109,11 @@
     <div style="background: #222; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 10px; color: white;">
         <h2>Cuenta de <span id="carrito-titulo-mesa"></span></h2>
         
-        <!-- Productos ya enviados a cocina -->
         <div class="seccion-carrito" id="seccion-cocina">
             <h4>🔥 Ya en Cocina</h4>
             <div id="lista-cocina"></div>
         </div>
 
-        <!-- Productos nuevos por enviar -->
         <div class="seccion-carrito" id="seccion-pendientes">
             <h4>🛒 Por Enviar a Cocina</h4>
             <div id="lista-pendientes"></div>
@@ -126,25 +124,6 @@
         <button class="btn-accion-cuenta btn-mesa-abierta" onclick="enviarMesaAbierta()">🍽️ Mandar a Cocina y DEJAR MESA ABIERTA</button>
         <button class="btn-accion-cuenta btn-pedir-cuenta" onclick="enviarYPedirCuenta()">🧾 Mandar a Cocina y PEDIR CUENTA</button>
         <button class="btn-accion-cuenta" style="background: #f44336; color: white;" onclick="document.getElementById('modal-carrito').style.display='none'">Cerrar Ventana</button>
-    </div>
-</div>
-
-<!-- MODAL MOVER PRODUCTOS -->
-<div id="modal-mover" class="modal-ticket">
-    <div class="ticket-content" style="max-width: 400px; max-height: 85vh; overflow-y: auto; background: #222; color: white; border: 1px solid #00bcd4;">
-        <h3 style="color: #00bcd4; border-bottom: 1px solid #444; padding-bottom: 10px;">🔄 Mover Productos</h3>
-        
-        <div style="margin-bottom: 20px;">
-            <label style="color: #aaa; font-size: 0.9rem;">Mover a la Mesa # (1 al 15):</label>
-            <input type="number" id="destino-mover" min="1" max="15" class="input-cant" style="width: 100%; box-sizing: border-box; margin-top: 5px; font-size: 1.1rem; padding: 10px;">
-        </div>
-
-        <div id="lista-items-mover">
-            <!-- Se llena con JS con los productos para elegir -->
-        </div>
-
-        <button class="btn-mover-confirm" onclick="ejecutarMover()">Confirmar Transferencia</button>
-        <button class="btn-accion-cuenta" style="background: #f44336; color: white;" onclick="document.getElementById('modal-mover').style.display='none'">Cancelar</button>
     </div>
 </div>
 
@@ -160,7 +139,6 @@
         <div class="ticket-total">Total a Pagar: $<span id="ticket-total-val"></span></div>
         <p style="text-align: center; font-size: 0.8rem; margin-top: 10px; color: #555;">Sincronizado vía CONTROL_JEFE_99</p>
         
-        <!-- BOTONES AÑADIDOS -->
         <button class="btn-imprimir" style="background: #03a9f4; color: white;" onclick="enviarComprobanteActual()">📸 Subir Ticket de Transferencia</button>
         <button class="btn-imprimir" onclick="cerrarTicket()">Aceptar y Volver (Efectivo/Finalizar)</button>
     </div>
@@ -199,13 +177,12 @@ const configPorDefecto = [
 ];
 let MESEROS = JSON.parse(localStorage.getItem('chulas_meseros_config')) || configPorDefecto;
 
-// INICIALIZACIÓN DE MESAS: Agregamos variables para saber de quién es la mesa.
 let estadoMesas = {};
 for(let i=1; i<=15; i++) {
     estadoMesas[`Mesa ${i}`] = { 
         estado: 'Libre',
-        meseroId: null,      // Bloqueo de mesero ID
-        meseroNombre: null,  // Nombre para mostrar en pantalla
+        meseroId: null,
+        meseroNombre: null,
         cocina: [],
         pendientes: []
     };
@@ -214,7 +191,6 @@ for(let i=1; i<=15; i++) {
 let meseroActual = null;
 let mesaActual = null;
 
-// --- INICIALIZACIÓN DE VISTAS ---
 function cambiarVista(idVista) {
     document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
     document.getElementById(idVista).classList.add('activa');
@@ -230,7 +206,6 @@ function inicializar() {
     cargarMenuUI();
 }
 
-// --- LÓGICA DE MESEROS ---
 function loginMesero(id) {
     let m = MESEROS.find(x => x.id === id);
     let pinIntento = prompt(`Ingrese PIN para ${m.nombre}:`);
@@ -243,435 +218,224 @@ function loginMesero(id) {
     }
 }
 
+// Lógica reparada y añadida desde el corte:
 function cerrarSesion() {
     meseroActual = null;
     mesaActual = null;
     cambiarVista('vista-perfiles');
 }
 
-// --- LÓGICA DE MESAS ---
 function renderizarMesas() {
     let html = "";
     for(let i=1; i<=15; i++) {
-        let mNombre = `Mesa ${i}`;
-        let mData = estadoMesas[mNombre];
-        let claseExtra = mData.estado !== 'Libre' ? 'ocupada' : '';
-        
-        // Muestra de quién es la mesa si está ocupada
-        let infoMesero = mData.meseroNombre ? `<span class="etiqueta-mesero">Atiende: ${mData.meseroNombre}</span>` : '';
-
-        html += `<div class="btn-mesa ${claseExtra}" onclick="abrirMesa('${mNombre}')">
-                    <strong>${mNombre}</strong>
-                    <span>${mData.estado}</span>
-                    ${infoMesero}
+        let mesa = estadoMesas[`Mesa ${i}`];
+        let claseExtra = mesa.estado === 'Ocupada' ? 'ocupada' : '';
+        let nombreMesero = mesa.meseroNombre ? `<span class="etiqueta-mesero">Atiende: ${mesa.meseroNombre}</span>` : '';
+        html += `<div class="btn-mesa ${claseExtra}" onclick="abrirMesa('Mesa ${i}')">
+                    <strong>Mesa ${i}</strong>
+                    <span>${mesa.estado}</span>
+                    ${nombreMesero}
                  </div>`;
     }
     document.getElementById('contenedor-mesas').innerHTML = html;
 }
 
-function abrirMesa(nombreMesa) {
-    let mData = estadoMesas[nombreMesa];
-
-    // LÓGICA DE BLOQUEO DE MESA PARA EL MESERO QUE LA ABRIÓ
-    if (mData.estado !== 'Libre' && mData.meseroId !== meseroActual.id) {
-        let override = confirm(`Esta mesa fue abierta por ${mData.meseroNombre}. Solo él puede ingresar.\n¿Desea ingresar contraseña de JEFE para forzar el acceso?`);
-        if (override) {
-            solicitarPermisoJefe(() => {
-                entrarAMesa(nombreMesa);
-            });
-        }
-        return; // Si no es el jefe, aquí se corta y no entra.
+function abrirMesa(idMesa) {
+    let mesa = estadoMesas[idMesa];
+    if (mesa.estado === 'Ocupada' && mesa.meseroId !== meseroActual.id) {
+        alert(`Mesa atendida por ${mesa.meseroNombre}. Solo él puede modificarla.`);
+        return;
     }
-    
-    entrarAMesa(nombreMesa);
-}
 
-function entrarAMesa(nombreMesa) {
-    let mData = estadoMesas[nombreMesa];
-    // Si la mesa estaba libre, el mesero actual se adueña de ella
-    if (mData.estado === 'Libre') {
-        mData.meseroId = meseroActual.id;
-        mData.meseroNombre = meseroActual.nombre;
-    }
+    mesaActual = idMesa;
+    document.getElementById('titulo-mesa-actual').innerText = idMesa;
     
-    mesaActual = nombreMesa;
-    document.getElementById('titulo-mesa-actual').innerText = nombreMesa;
-    actualizarContador();
+    if (mesa.estado === 'Libre') {
+        mesa.meseroId = meseroActual.id;
+        mesa.meseroNombre = meseroActual.nombre;
+        mesa.estado = 'Ocupada';
+        renderizarMesas();
+    }
+
+    actualizarContadorCarrito();
     cambiarVista('vista-menu');
 }
 
 function volverAMesas() {
     mesaActual = null;
-    renderizarMesas();
     cambiarVista('vista-mesas');
 }
 
-// --- AUTORIZACIÓN JEFE ---
-function solicitarPermisoJefe(accionCallback) {
-    let pass = prompt("Acción Protegida. Ingrese contraseña de JEFE:");
-    if (pass === "IBARRITA") {
-        accionCallback();
-    } else if (pass !== null) {
-        alert("Contraseña incorrecta. Acceso denegado.");
-    }
-}
-
-// --- LÓGICA PARA TRANSFERIR PRODUCTOS (UNO POR UNO) ---
-function cambiarDeMesa() {
-    solicitarPermisoJefe(() => {
-        let m = estadoMesas[mesaActual];
-        if (m.cocina.length === 0 && m.pendientes.length === 0) {
-            return alert("La mesa está vacía, no hay productos para mover.");
-        }
-        
-        // Generar lista de lo que está en cocina
-        let html = "<h4 style='color:#ff5722; margin-bottom:5px;'>🔥 Productos en Cocina</h4>";
-        m.cocina.forEach((item, idx) => {
-            html += `
-            <div class="item-mover">
-                <label>${item.nombre} <br><small style="color:#aaa;">Disp: ${item.cantidad} | ${item.notas}</small></label>
-                <input type="number" id="mover-cocina-${idx}" class="input-mover" min="0" max="${item.cantidad}" value="0">
-            </div>`;
-        });
-
-        // Generar lista de lo que está pendiente
-        html += "<h4 style='color:#4caf50; margin-bottom:5px; margin-top:15px;'>🛒 Productos Nuevos (Sin enviar)</h4>";
-        m.pendientes.forEach((item, idx) => {
-            html += `
-            <div class="item-mover">
-                <label>${item.nombre} <br><small style="color:#aaa;">Disp: ${item.cantidad} | ${item.notas}</small></label>
-                <input type="number" id="mover-pend-${idx}" class="input-mover" min="0" max="${item.cantidad}" value="0">
-            </div>`;
-        });
-
-        document.getElementById('lista-items-mover').innerHTML = html;
-        document.getElementById('destino-mover').value = "";
-        document.getElementById('modal-mover').style.display = 'flex';
-    });
-}
-
-function ejecutarMover() {
-    let destinoInt = parseInt(document.getElementById('destino-mover').value);
-    if (isNaN(destinoInt) || destinoInt < 1 || destinoInt > 15) {
-        return alert("Ingrese un número de mesa destino válido (1 al 15).");
-    }
-    
-    let mesaDestino = `Mesa ${destinoInt}`;
-    if (mesaDestino === mesaActual) return alert("No puedes transferir productos a la misma mesa.");
-
-    let mOrigen = estadoMesas[mesaActual];
-    let mDestino = estadoMesas[mesaDestino];
-    let itemsMovidos = 0;
-
-    // Función que procesa los inputs y transfiere del origen al destino
-    function moverItems(tipo) {
-        let arrOrigen = mOrigen[tipo];
-        let arrDestino = mDestino[tipo];
-        
-        // Se itera al revés para poder borrar elementos sin romper el ciclo
-        for (let i = arrOrigen.length - 1; i >= 0; i--) {
-            let item = arrOrigen[i];
-            let cantMover = parseInt(document.getElementById(`mover-${tipo === 'cocina' ? 'cocina' : 'pend'}-${i}`).value) || 0;
-            
-            if (cantMover > 0 && cantMover <= item.cantidad) {
-                itemsMovidos++;
-                let itemClon = { ...item, cantidad: cantMover, subtotal: item.precio * cantMover };
-                
-                item.cantidad -= cantMover;
-                item.subtotal = item.cantidad * item.precio;
-                
-                // Sumar a la mesa destino (si ya existe el producto, solo suma cantidad)
-                let existente = arrDestino.find(x => x.nombre === itemClon.nombre && x.notas === itemClon.notas);
-                if (existente) {
-                    existente.cantidad += cantMover;
-                    existente.subtotal += itemClon.subtotal;
-                } else {
-                    arrDestino.push(itemClon);
-                }
-                
-                if (item.cantidad === 0) arrOrigen.splice(i, 1);
-            }
-        }
-    }
-
-    moverItems('cocina');
-    moverItems('pendientes');
-
-    if (itemsMovidos > 0) {
-        if (mDestino.estado === 'Libre') {
-            mDestino.estado = 'Ocupada';
-            mDestino.meseroId = meseroActual.id; // La mesa destino ahora pertenece a este mesero
-            mDestino.meseroNombre = meseroActual.nombre;
-        }
-
-        if (mOrigen.cocina.length === 0 && mOrigen.pendientes.length === 0) {
-            // Si la mesa se quedó sin nada, se libera completamente
-            mOrigen.estado = 'Libre';
-            mOrigen.meseroId = null;
-            mOrigen.meseroNombre = null;
-            alert(`Productos transferidos con éxito. La ${mesaActual} quedó vacía y fue liberada.`);
-            document.getElementById('modal-mover').style.display = 'none';
-            volverAMesas();
-        } else {
-            alert("Productos transferidos con éxito.");
-            document.getElementById('modal-mover').style.display = 'none';
-            actualizarContador();
-        }
-    } else {
-        alert("No seleccionaste ninguna cantidad para transferir.");
-    }
-}
-
-// --- LÓGICA DEL MENÚ Y CARRITO ---
 function cargarMenuUI() {
-    fetch('/api/menu').then(r => r.json()).catch(() => menuBase).then(data => {
-        let html = "";
-        for (let cat in data) {
-            data[cat].forEach((p, idx) => {
-                if(p.disponible === false) return;
-                let idFicticio = cat.replace(/\s+/g, '_') + '_' + idx;
-                html += `
-                <div class="card-prod">
-                    <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}" onerror="this.style.display='none'">
-                    <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
-                    <p class="precio">$${p.precio.toFixed(2)}</p>
-                    <div class="controles">
-                        <input type="number" min="1" value="1" id="cant-${idFicticio}" class="input-cant">
-                        <input type="text" placeholder="Notas (Ej. Sin cebolla)" id="nota-${idFicticio}" class="input-nota">
-                    </div>
-                    <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar</button>
-                </div>`;
-            });
-        }
-        document.getElementById('contenedor-menu').innerHTML = html;
-    });
-}
-
-function addCarrito(nombre, precio, idElem) {
-    let cant = parseInt(document.getElementById(`cant-${idElem}`).value, 10) || 1;
-    let notas = document.getElementById(`nota-${idElem}`).value;
-    
-    let pendientes = estadoMesas[mesaActual].pendientes;
-    let itemExistente = pendientes.find(i => i.nombre === nombre && i.notas === notas);
-    
-    if (itemExistente) {
-        itemExistente.cantidad += cant;
-        itemExistente.subtotal = itemExistente.cantidad * itemExistente.precio;
-    } else {
-        pendientes.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
+    let html = "";
+    for (let categoria in menuBase) {
+        menuBase[categoria].forEach((p, idx) => {
+            let idUnico = categoria.substring(0,3) + idx;
+            html += `
+            <div class="card-prod">
+                <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
+                <h3 style="margin: 10px 0 0 0; font-size:1rem;">${p.nombre}</h3>
+                <p class="precio">$${p.precio}</p>
+                <div class="controles">
+                    <input type="number" min="1" value="1" id="cant-${idUnico}" class="input-cant">
+                    <input type="text" placeholder="Notas..." id="nota-${idUnico}" class="input-nota">
+                </div>
+                <button class="btn-add" onclick="agregarProducto('${p.nombre}', ${p.precio}, '${idUnico}')">Agregar</button>
+            </div>`;
+        });
     }
-    
-    estadoMesas[mesaActual].estado = 'Ocupada';
-    actualizarContador();
-    
-    document.getElementById(`cant-${idElem}`).value = 1;
-    document.getElementById(`nota-${idElem}`).value = '';
+    document.getElementById('contenedor-menu').innerHTML = html;
 }
 
-function actualizarContador() {
+function agregarProducto(nombre, precio, idUnico) {
+    let cant = parseInt(document.getElementById(`cant-${idUnico}`).value) || 1;
+    let nota = document.getElementById(`nota-${idUnico}`).value || '';
+    
+    estadoMesas[mesaActual].pendientes.push({
+        nombre: nombre,
+        precio: precio,
+        cantidad: cant,
+        subtotal: precio * cant,
+        notas: nota
+    });
+    
+    document.getElementById(`cant-${idUnico}`).value = 1;
+    document.getElementById(`nota-${idUnico}`).value = '';
+    actualizarContadorCarrito();
+    alert(`Añadido: ${cant}x ${nombre}`);
+}
+
+function actualizarContadorCarrito() {
     if(!mesaActual) return;
-    let m = estadoMesas[mesaActual];
-    let totalArticulos = m.pendientes.reduce((sum, item) => sum + item.cantidad, 0) + 
-                         m.cocina.reduce((sum, item) => sum + item.cantidad, 0);
-    document.getElementById('contador-items').innerText = totalArticulos;
+    let totalItems = estadoMesas[mesaActual].pendientes.reduce((acc, p) => acc + p.cantidad, 0);
+    document.getElementById('contador-items').innerText = totalItems;
 }
 
 function abrirCarrito() {
-    let m = estadoMesas[mesaActual];
-    if (m.pendientes.length === 0 && m.cocina.length === 0) return alert("La mesa no tiene consumos aún.");
-    
+    if(!mesaActual) return;
+    let mesa = estadoMesas[mesaActual];
     document.getElementById('carrito-titulo-mesa').innerText = mesaActual;
-    
+
     let htmlCocina = "";
-    m.cocina.forEach((i, idx) => {
+    let totalCocina = 0;
+    mesa.cocina.forEach((p) => {
         htmlCocina += `<div class="item-carrito">
-            <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
-            <div>$${i.subtotal.toFixed(2)} 
-                <button class="btn-eliminar btn-eliminar-admin" onclick="quitarItemCocina(${idx})">🗑️</button>
+            <div><strong>${p.cantidad}x ${p.nombre}</strong> <small style="color:#aaa;">${p.notas}</small></div>
+            <div>$${p.subtotal}</div>
+        </div>`;
+        totalCocina += p.subtotal;
+    });
+    document.getElementById('lista-cocina').innerHTML = htmlCocina || "<p style='color:#777;'>Nada en cocina aún.</p>";
+
+    let htmlPend = "";
+    let totalPend = 0;
+    mesa.pendientes.forEach((p, index) => {
+        htmlPend += `<div class="item-carrito">
+            <div><strong>${p.cantidad}x ${p.nombre}</strong> <small style="color:#aaa;">${p.notas}</small></div>
+            <div>
+                <span style="margin-right:10px;">$${p.subtotal}</span>
+                <button class="btn-eliminar" onclick="eliminarPendiente(${index})">X</button>
             </div>
         </div>`;
+        totalPend += p.subtotal;
     });
-    document.getElementById('lista-cocina').innerHTML = htmlCocina || "<p style='color:#666; font-size:0.9rem;'>No hay productos en cocina.</p>";
+    document.getElementById('lista-pendientes').innerHTML = htmlPend || "<p style='color:#777;'>Sin productos nuevos.</p>";
 
-    let htmlPendientes = "";
-    m.pendientes.forEach((i, idx) => {
-        htmlPendientes += `<div class="item-carrito">
-            <div>${i.cantidad}x ${i.nombre} <br><small style="color:#aaa;">${i.notas}</small></div>
-            <div>$${i.subtotal.toFixed(2)} 
-                <button class="btn-eliminar" onclick="quitarItemPendiente(${idx})">X</button>
-            </div>
-        </div>`;
-    });
-    document.getElementById('lista-pendientes').innerHTML = htmlPendientes || "<p style='color:#666; font-size:0.9rem;'>No hay productos nuevos.</p>";
-
-    let total = m.cocina.reduce((sum, i) => sum + i.subtotal, 0) + m.pendientes.reduce((sum, i) => sum + i.subtotal, 0);
-    document.getElementById('total-carrito').innerText = total.toFixed(2);
-    
-    document.getElementById('modal-carrito').style.display = 'flex';
+    document.getElementById('total-carrito').innerText = (totalCocina + totalPend).toFixed(2);
+    document.getElementById('modal-carrito').style.display = 'block';
 }
 
-function quitarItemPendiente(idx) {
-    estadoMesas[mesaActual].pendientes.splice(idx, 1);
-    actualizarContador();
+function eliminarPendiente(index) {
+    estadoMesas[mesaActual].pendientes.splice(index, 1);
     abrirCarrito();
+    actualizarContadorCarrito();
 }
 
-function quitarItemCocina(idx) {
-    solicitarPermisoJefe(() => {
-        estadoMesas[mesaActual].cocina.splice(idx, 1);
-        actualizarContador();
-        abrirCarrito();
-    });
-}
-
-// --- FUNCIÓN DE INVENTARIO PARA PUNTO STAFF (CORREGIDA) ---
-async function descontarDeAlmacen(carritoPedido) {
-    // 1. PRIMERO ACTUALIZAMOS EL LOCALSTORAGE PARA ASEGURARNOS QUE FUNCIONE OFFLINE
-    let inventario = JSON.parse(localStorage.getItem('chulas_inventario')) || [];
-    let inventarioActualizado = false;
-
-    carritoPedido.forEach(itemCarrito => {
-        let p = inventario.find(p => p.nombre.toLowerCase() === itemCarrito.nombre.toLowerCase());
-        if(p) { 
-            p.stock -= itemCarrito.cantidad; 
-            if(p.stock < 0) p.stock = 0; // Prevenir números negativos
-            inventarioActualizado = true;
-        }
-    });
-
-    if (inventarioActualizado) {
-        localStorage.setItem('chulas_inventario', JSON.stringify(inventario));
-        // Despacha un evento para que otras pestañas (como la de inventario) se enteren al instante
-        window.dispatchEvent(new Event('storage'));
-    }
-
-    // 2. LUEGO INTENTAMOS MANDARLO A VERCEL (Si falla, no pasa nada porque ya lo restamos arriba)
-    try {
-        let response = await fetch('/api/inventario/restar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: carritoPedido })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`API Vercel devolvió código ${response.status}`);
-        }
-    } catch (e) {
-        console.warn("Modo local o API no disponible: Inventario actualizado únicamente en localStorage.");
-    }
-}
-
-// --- ACCIONES DE ENVÍO ---
 function enviarMesaAbierta() {
-    let m = estadoMesas[mesaActual];
-    if(m.pendientes.length === 0) {
-        alert("No hay productos nuevos para mandar a cocina.");
-        return;
-    }
-    
-    // DESCONTAR DEL ALMACÉN LO QUE SE MANDA A COCINA
-    descontarDeAlmacen(m.pendientes);
-
-    m.cocina = m.cocina.concat(m.pendientes);
-    m.pendientes = [];
-    m.estado = 'Ocupada';
-    
-    alert("¡Comanda enviada a cocina! La mesa sigue abierta.");
-    document.getElementById('modal-carrito').style.display = 'none';
-    volverAMesas();
+    enviarPedidoBackend('Abierta');
 }
 
 function enviarYPedirCuenta() {
-    let m = estadoMesas[mesaActual];
-    
-    if(m.pendientes.length > 0) {
-        // DESCONTAR DEL ALMACÉN LO QUE SE MANDA A COCINA ANTES DE CERRAR
-        descontarDeAlmacen(m.pendientes);
-        m.cocina = m.cocina.concat(m.pendientes);
-        m.pendientes = [];
-    }
-    
-    m.estado = 'Pidiendo Cuenta';
-    
-    let totalGeneral = m.cocina.reduce((sum, i) => sum + i.subtotal, 0);
-    let pedidoFinal = {
-        cliente: mesaActual, 
-        mesero: meseroActual.nombre,
-        control_sincronizacion: 'CONTROL_JEFE_99',
-        total: totalGeneral, 
-        items: m.cocina, 
-        estado: 'Pendiente Pago', 
-        fecha: new Date().toLocaleTimeString(), 
-        metodo: 'Local'
-    };
-
-    fetch('/api/pedidos', { 
-        method: 'POST', 
-        headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify(pedidoFinal) 
-    }).catch(err => console.error("Error offline:", err));
-
-    mostrarTicket(pedidoFinal);
+    enviarPedidoBackend('Pendiente Cobro');
+    mostrarTicket();
 }
 
-function mostrarTicket(pedido) {
+function enviarPedidoBackend(estadoCuenta) {
+    let mesa = estadoMesas[mesaActual];
+    if(mesa.pendientes.length === 0 && mesa.cocina.length === 0) {
+        alert("La cuenta está vacía.");
+        return;
+    }
+
+    mesa.cocina = mesa.cocina.concat(mesa.pendientes);
+    mesa.pendientes = [];
+    actualizarContadorCarrito();
     document.getElementById('modal-carrito').style.display = 'none';
-    
-    document.getElementById('ticket-mesa').innerText = pedido.cliente;
-    document.getElementById('ticket-mesero').innerText = pedido.mesero;
-    document.getElementById('ticket-total-val').innerText = pedido.total.toFixed(2);
-    
-    let itemsHtml = "";
-    pedido.items.forEach(i => {
-        itemsHtml += `<div class="ticket-item">
-            <span>${i.cantidad}x ${i.nombre} <br><small style="color: #666;">${i.notas}</small></span>
-            <span>$${i.subtotal.toFixed(2)}</span>
-        </div>`;
+
+    let totalCuenta = mesa.cocina.reduce((acc, p) => acc + p.subtotal, 0);
+
+    let pedido = {
+        mesa: mesaActual,
+        mesero: meseroActual.nombre,
+        total: totalCuenta,
+        items: mesa.cocina,
+        estado: estadoCuenta,
+        origen: 'punto_staff_77'
+    };
+
+    fetch('/api/pedidos', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(pedido)
+    }).then(res => {
+        if(!res.ok) throw new Error("Error en servidor");
+    }).catch(err => {
+        console.warn("Fallo API, guardando en localStorage", err);
+        let pedidosCaja = JSON.parse(localStorage.getItem('pedidos_caja')) || {};
+        pedidosCaja[mesaActual] = pedido;
+        localStorage.setItem('pedidos_caja', JSON.stringify(pedidosCaja));
     });
+
+    alert(`Enviado a Cocina / Control Maestro como: ${estadoCuenta}`);
+    if(estadoCuenta === 'Abierta') {
+        volverAMesas();
+    }
+}
+
+function mostrarTicket() {
+    let mesa = estadoMesas[mesaActual];
+    document.getElementById('ticket-mesa').innerText = mesaActual;
+    document.getElementById('ticket-mesero').innerText = meseroActual.nombre;
     
-    document.getElementById('ticket-items').innerHTML = itemsHtml;
+    let htmlItems = "";
+    let total = 0;
+    mesa.cocina.forEach(p => {
+        htmlItems += `<div class="ticket-item">
+            <span>${p.cantidad}x ${p.nombre}</span>
+            <span>$${p.subtotal}</span>
+        </div>`;
+        total += p.subtotal;
+    });
+    document.getElementById('ticket-items').innerHTML = htmlItems;
+    document.getElementById('ticket-total-val').innerText = total.toFixed(2);
     document.getElementById('modal-ticket').style.display = 'flex';
 }
 
 function cerrarTicket() {
-    // Al cerrar la cuenta, la mesa se libera y se quita el dueño (mesero)
-    estadoMesas[mesaActual] = { estado: 'Libre', meseroId: null, meseroNombre: null, cocina: [], pendientes: [] };
     document.getElementById('modal-ticket').style.display = 'none';
+    estadoMesas[mesaActual] = {
+        estado: 'Libre', meseroId: null, meseroNombre: null, cocina: [], pendientes: []
+    };
+    renderizarMesas();
     volverAMesas();
 }
 
-// --- FUNCIÓN DE COMPROBANTES DE TRANSFERENCIA ---
-function subirComprobante(nombreMesa, totalMesa) {
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.capture = 'environment';
-    
-    input.onchange = e => { 
-        let file = e.target.files[0];
-        if (!file) return; 
-        
-        let reader = new FileReader();
-        reader.onload = function(evento) {
-            let comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
-            comprobantes.push({
-                mesa: nombreMesa,
-                monto: parseFloat(totalMesa),
-                fecha: new Date().toLocaleTimeString(),
-                imagenBase64: evento.target.result 
-            });
-            localStorage.setItem('comprobantes_transferencia', JSON.stringify(comprobantes));
-            alert("¡Comprobante guardado con éxito! El jefe ya lo puede ver en su panel.");
-        }
-        reader.readAsDataURL(file);
-    }
-    input.click();
+function enviarComprobanteActual() {
+    alert("Sube el comprobante desde la aplicación del cliente o notifica a caja.");
 }
 
-function enviarComprobanteActual() {
-    let mesaStr = document.getElementById('ticket-mesa').innerText;
-    let totalStr = document.getElementById('ticket-total-val').innerText;
-    subirComprobante(mesaStr, parseFloat(totalStr));
+function cambiarDeMesa() {
+    alert("Por el momento, si necesitas mover la cuenta de mesa, contacta al Control Jefe 99.");
 }
 
 window.onload = inicializar;
