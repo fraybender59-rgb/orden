@@ -1,141 +1,151 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menú Digital - Chulas Burgers</title>
+<meta charset="UTF-8"> <!--[cite: 12] -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--[cite: 12] -->
+<title>Menú Digital - Chulas Burgers</title> <!--[cite: 12] -->
 <style>
-  body { background-color: #121216; color: #f5f5f7; font-family: sans-serif; margin: 0; padding: 15px; }
-  h1 { text-align: center; color: #ffb74d; }
-  .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 80px; }
-  .card-prod { background: #1e1e24; border-radius: 8px; padding-bottom: 15px; text-align: center; border: 1px solid #333; }
+  body { background-color: #121216; color: #f5f5f7; font-family: sans-serif; margin: 0; padding: 15px; } /*[cite: 12] */
+  h1 { text-align: center; color: #ffb74d; } /*[cite: 12] */
+  .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 80px; } /*[cite: 12] */
+  .card-prod { background: #1e1e24; border-radius: 8px; padding-bottom: 15px; text-align: center; border: 1px solid #333; } /*[cite: 12] */
   
-  /* ESTANDARIZACIÓN DE IMÁGENES: PREVIENE PARPADEO Y TAMAÑOS DESIGUALES */
-  .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; }
+  /* ESTANDARIZACIÓN DE IMÁGENES: PREVIENE PARPADEO Y TAMAÑOS DESIGUALES */ /*[cite: 12] */
+  .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; } /*[cite: 12] */
   
-  .precio { color: #ff9800; font-size: 1.2rem; font-weight: bold; margin: 10px 0; }
-  .controles { display: flex; gap: 5px; padding: 0 10px; margin-bottom: 10px; }
-  .input-cant { width: 50px; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; text-align: center; }
-  .input-nota { flex-grow: 1; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; }
-  .btn-add { background: #8bc34a; color: #111; border: none; padding: 10px; width: 90%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+  .precio { color: #ff9800; font-size: 1.2rem; font-weight: bold; margin: 10px 0; } /*[cite: 12] */
+  .controles { display: flex; gap: 5px; padding: 0 10px; margin-bottom: 10px; } /*[cite: 12] */
+  .input-cant { width: 50px; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; text-align: center; } /*[cite: 12] */
+  .input-nota { flex-grow: 1; padding: 8px; background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; } /*[cite: 12] */
+  .btn-add { background: #8bc34a; color: #111; border: none; padding: 10px; width: 90%; border-radius: 5px; font-weight: bold; cursor: pointer; } /*[cite: 12] */
   
-  .flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #03a9f4; color: #fff; padding: 15px 20px; border-radius: 30px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+  .flotante-carrito { position: fixed; bottom: 20px; right: 20px; background: #03a9f4; color: #fff; padding: 15px 20px; border-radius: 30px; border: none; font-weight: bold; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5); } /*[cite: 12] */
   
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-  .modal-content { background: #2a2a35; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid #ff9800; max-height: 90vh; overflow-y: auto; text-align: center;}
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; } /*[cite: 12] */
+  .modal-content { background: #2a2a35; padding: 20px; border-radius: 10px; width: 90%; max-width: 400px; border: 1px solid #ff9800; max-height: 90vh; overflow-y: auto; text-align: center;} /*[cite: 12] */
   
-  .btn-modal { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 1rem; }
-  .btn-confirm { background: #8bc34a; color: #111; }
-  .btn-close { background: #f44336; color: #fff; }
-  .btn-wa { background: #25D366; color: #fff; }
+  .btn-modal { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; font-size: 1rem; } /*[cite: 12] */
+  .btn-confirm { background: #8bc34a; color: #111; } /*[cite: 12] */
+  .btn-close { background: #f44336; color: #fff; } /*[cite: 12] */
+  .btn-wa { background: #25D366; color: #fff; } /*[cite: 12] */
   
-  .img-kirby { width: 100px; height: 100px; object-fit: contain; margin: 0 auto 10px; display: block; }
-  .transfer-box { border: 2px dashed #ff9800; padding: 10px; margin: 15px 0; border-radius: 8px; background: #111; }
-  .input-file { margin-top: 10px; color: #fff; }
+  .img-kirby { width: 100px; height: 100px; object-fit: contain; margin: 0 auto 10px; display: block; } /*[cite: 12] */
+  .transfer-box { border: 2px dashed #ff9800; padding: 10px; margin: 15px 0; border-radius: 8px; background: #111; } /*[cite: 12] */
+  .input-file { margin-top: 10px; color: #fff; } /*[cite: 12] */
 </style>
 </head>
 <body>
 
-<h1>🍔 Menú Chulas Burgers</h1>
-<div class="grid-menu" id="contenedor-menu">Cargando menú...</div>
+<h1>🍔 Menú Chulas Burgers</h1> <!--[cite: 12] -->
+<div class="grid-menu" id="contenedor-menu">Cargando menú...</div> <!--[cite: 12] -->
 
-<button class="flotante-carrito" onclick="abrirCarrito()">🛒 Ver Pedido (<span id="contador-items">0</span>)</button>
+<button class="flotante-carrito" onclick="abrirCarrito()">🛒 Ver Pedido (<span id="contador-items">0</span>)</button> <!--[cite: 12] -->
 
-<!-- Modal Carrito (Al ingresar el pedido) -->
-<div id="modal-carrito" class="modal-overlay">
-  <div class="modal-content">
-    <!-- IMAGEN KIRBY 1 AQUÍ -->
-    <img src="imagenes/Kirby1.jpg" alt="Kirby" class="img-kirby">
-    <h2 style="margin-top:0;">🛒 Tu Pedido</h2>
-    <div id="lista-carrito" style="text-align: left; margin-bottom: 15px;"></div>
-    <h3 style="color:#8bc34a; text-align:right;">Total: $<span id="total-carrito">0.00</span></h3>
+<!-- Modal Carrito (Al ingresar el pedido) --> <!--[cite: 12] -->
+<div id="modal-carrito" class="modal-overlay"> <!--[cite: 12] -->
+  <div class="modal-content"> <!--[cite: 12] -->
+    <!-- IMAGEN KIRBY 1 AQUÍ --> <!--[cite: 12] -->
+    <img src="imagenes/Kirby1.jpg" alt="Kirby" class="img-kirby"> <!--[cite: 12] -->
+    <h2 style="margin-top:0;">🛒 Tu Pedido</h2> <!--[cite: 12] -->
+    <div id="lista-carrito" style="text-align: left; margin-bottom: 15px;"></div> <!--[cite: 12] -->
+    <h3 style="color:#8bc34a; text-align:right;">Total: $<span id="total-carrito">0.00</span></h3> <!--[cite: 12] -->
     
-    <div class="transfer-box">
-      <p style="margin:5px 0; color:#ffb74d;">💳 <b>Pagos por Transferencia</b></p>
-      <p style="margin:5px 0; font-size:0.9rem;">Banco: BBVA<br>Tarjeta: <b>5678 9012 3456</b></p>
-      <input type="file" id="comprobante" class="input-file" accept="image/*">
-    </div>
+    <div class="transfer-box"> <!--[cite: 12] -->
+      <p style="margin:5px 0; color:#ffb74d;">💳 <b>Pagos por Transferencia</b></p> <!--[cite: 12] -->
+      <p style="margin:5px 0; font-size:0.9rem;">Banco: BBVA<br>Tarjeta: <b>5678 9012 3456</b></p> <!--[cite: 12] -->
+      <input type="file" id="comprobante" class="input-file" accept="image/*"> <!--[cite: 12] -->
+    </div> <!--[cite: 12] -->
 
-    <!-- SOLO PIDE NOMBRE -->
-    <div style="text-align: left; margin-bottom: 15px;">
-      <label style="font-size: 0.9rem; color:#ccc;">Ingresa tu Nombre:</label>
-      <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez" style="width: 93%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white; margin-top:5px;">
-    </div>
+    <!-- SOLO PIDE NOMBRE --> <!--[cite: 12] -->
+    <div style="text-align: left; margin-bottom: 15px;"> <!--[cite: 12] -->
+      <label style="font-size: 0.9rem; color:#ccc;">Ingresa tu Nombre:</label> <!--[cite: 12] -->
+      <input type="text" id="nombre-cliente" placeholder="Ej. Juan Pérez" style="width: 93%; padding: 10px; border-radius: 5px; border: 1px solid #444; background: #111; color: white; margin-top:5px;"> <!--[cite: 12] -->
+    </div> <!--[cite: 12] -->
 
-    <button class="btn-modal btn-confirm" onclick="enviarPedido()">🚀 Confirmar y Finalizar Pedido</button>
-    <button class="btn-modal btn-close" onclick="document.getElementById('modal-carrito').style.display='none'">Regresar al Menú</button>
-  </div>
-</div>
+    <button class="btn-modal btn-confirm" onclick="enviarPedido()">🚀 Confirmar y Finalizar Pedido</button> <!--[cite: 12] -->
+    <button class="btn-modal btn-close" onclick="document.getElementById('modal-carrito').style.display='none'">Regresar al Menú</button> <!--[cite: 12] -->
+  </div> <!--[cite: 12] -->
+</div> <!--[cite: 12] -->
 
-<!-- Modal Éxito (Confirmar tu pedido) -->
-<div id="modal-exito" class="modal-overlay">
-  <div class="modal-content">
-    <!-- IMAGEN KIRBY 3 AQUÍ -->
-    <img src="imagenes/kirby3.webp" alt="Kirby Celebrando" class="img-kirby">
-    <h2>¡Pedido Generado con Éxito! 🎉</h2>
-    <p style="font-size: 0.9rem; color: #ccc;">Tu orden ya está en nuestro sistema. Para que cocina comience a prepararlo, <b>necesitamos confirmar tu pago</b>.</p>
+<!-- Modal Éxito (Confirmar tu pedido) --> <!--[cite: 12] -->
+<div id="modal-exito" class="modal-overlay"> <!--[cite: 12] -->
+  <div class="modal-content"> <!--[cite: 12] -->
+    <!-- IMAGEN KIRBY 3 AQUÍ --> <!--[cite: 12] -->
+    <img src="imagenes/kirby3.webp" alt="Kirby Celebrando" class="img-kirby"> <!--[cite: 12] -->
+    <h2>¡Pedido Generado con Éxito! 🎉</h2> <!--[cite: 12] -->
+    <p style="font-size: 0.9rem; color: #ccc;">Tu orden ya está en nuestro sistema. Para que cocina comience a prepararlo, <b>necesitamos confirmar tu pago</b>.</p> <!--[cite: 12] -->
     
-    <div style="background: #111; padding: 10px; border-radius: 5px; font-size: 0.85rem; text-align: left; margin-bottom: 15px;">
-      <p><b>Paso 1:</b> Realiza la transferencia.<br><b>Paso 2:</b> Guarda tu comprobante.<br><b>Paso 3:</b> Envíalo vía WhatsApp.</p>
-    </div>
+    <div style="background: #111; padding: 10px; border-radius: 5px; font-size: 0.85rem; text-align: left; margin-bottom: 15px;"> <!--[cite: 12] -->
+      <p><b>Paso 1:</b> Realiza la transferencia.<br><b>Paso 2:</b> Guarda tu comprobante.<br><b>Paso 3:</b> Envíalo vía WhatsApp.</p> <!--[cite: 12] -->
+    </div> <!--[cite: 12] -->
 
-    <!-- BOTON WHATSAPP CON NUMERO SOLICITADO -->
-    <button class="btn-modal btn-wa" onclick="abrirWhatsApp()">📱 Enviar Comprobante por WhatsApp</button>
-    <button class="btn-modal btn-close" onclick="cerrarExito()">Cerrar esta ventana</button>
-  </div>
-</div>
+    <!-- BOTON WHATSAPP CON NUMERO SOLICITADO --> <!--[cite: 12] -->
+    <button class="btn-modal btn-wa" onclick="abrirWhatsApp()">📱 Enviar Comprobante por WhatsApp</button> <!--[cite: 12] -->
+    <button class="btn-modal btn-close" onclick="cerrarExito()">Cerrar esta ventana</button> <!--[cite: 12] -->
+  </div> <!--[cite: 12] -->
+</div> <!--[cite: 12] -->
 
 <script>
-// Base de datos local provisional por si falla el API, con los nombres y precios exactos requeridos.
-const menuBase = {
-  "Hamburguesas": [
-    { nombre: "Hamburguesa Sencilla", precio: 60, imagen: "clasica.jpg" },
-    { nombre: "Hamburguesa Doble", precio: 80, imagen: "doble.jpeg" }
-  ],
-  "Hot Dogs": [
-    { nombre: "Hot Dog", precio: 30, imagen: "hot.jpeg" },
-    { nombre: "Orden de Hot Dogs", precio: 75, imagen: "Ordenhot.jpg" }
-  ],
-  "Especialidades": [
-    { nombre: "Enchiladas", precio: 75, imagen: "enchiladas.jpeg" },
-    { nombre: "Chilaquiles", precio: 65, imagen: "chilaquiles.jpg" },
-    { nombre: "Club Sandwich", precio: 85, imagen: "club.jpg" },
-    { nombre: "Sincronizadas Mexa", precio: 85, imagen: "sincromexa.jpeg" },
-    { nombre: "Crepa Pizza", precio: 90, imagen: "sincrop.webp" }
-  ],
-  "Bebidas": [
-    { nombre: "Refrescos Varios", precio: 25, imagen: "refrescosvarios.jpeg" },
-    { nombre: "Coca Cola", precio: 25, imagen: "coca cola.jpeg" }
-  ]
-};
+// Base de datos local provisional por si falla el API, con los nombres y precios exactos requeridos.[cite: 12]
+const menuBase = { //[cite: 12]
+  "Hamburguesas": [ //[cite: 12]
+    { nombre: "Hamburguesa Sencilla", precio: 60, imagen: "clasica.jpg" }, //[cite: 12]
+    { nombre: "Hamburguesa Doble", precio: 80, imagen: "doble.jpeg" } //[cite: 12]
+  ], //[cite: 12]
+  "Hot Dogs": [ //[cite: 12]
+    { nombre: "Hot Dog", precio: 30, imagen: "hot.jpeg" }, //[cite: 12]
+    { nombre: "Orden de Hot Dogs", precio: 75, imagen: "Ordenhot.jpg" } //[cite: 12]
+  ], //[cite: 12]
+  "Especialidades": [ //[cite: 12]
+    { nombre: "Enchiladas", precio: 75, imagen: "enchiladas.jpeg" }, //[cite: 12]
+    { nombre: "Chilaquiles", precio: 65, imagen: "chilaquiles.jpg" }, //[cite: 12]
+    { nombre: "Club Sandwich", precio: 85, imagen: "club.jpg" }, //[cite: 12]
+    { nombre: "Sincronizadas Mexa", precio: 85, imagen: "sincromexa.jpeg" }, //[cite: 12]
+    { nombre: "Crepa Pizza", precio: 90, imagen: "sincrop.webp" } //[cite: 12]
+  ], //[cite: 12]
+  "Bebidas": [ //[cite: 12]
+    { nombre: "Refrescos Varios", precio: 25, imagen: "refrescosvarios.jpeg" }, //[cite: 12]
+    { nombre: "Coca Cola", precio: 25, imagen: "coca cola.jpeg" } //[cite: 12]
+  ] //[cite: 12]
+}; //[cite: 12]
 
-let carrito = [];
-let ultimoPedido = "";
-let nombreClienteGuardado = "";
+let carrito = []; //[cite: 12]
+let ultimoPedido = ""; //[cite: 12]
+let nombreClienteGuardado = ""; //[cite: 12]
 
-function cargarMenu() {
-  fetch('/api/menu')
-    .then(r => {
-      if (!r.ok) throw new Error("Respuesta no OK");
-      return r.json();
-    })
-    .then(data => {
-      renderizarMenu(data);
-    })
-    .catch(err => {
-      console.warn("Cargando catálogo base...", err);
-      renderizarMenu(menuBase);
+// --- FUNCIÓN PARA CONVERTIR IMÁGENES A BASE64 ---
+function convertirABase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
     });
 }
 
-function renderizarMenu(data) {
-  let html = "";
-  for (let cat in data) {
-    data[cat].forEach((p, idx) => {
-      if (p.disponible === false) return; // Ocultar bloqueados
+function cargarMenu() { //[cite: 12]
+  fetch('/api/menu') //[cite: 12]
+    .then(r => { //[cite: 12]
+      if (!r.ok) throw new Error("Respuesta no OK"); //[cite: 12]
+      return r.json(); //[cite: 12]
+    }) //[cite: 12]
+    .then(data => { //[cite: 12]
+      renderizarMenu(data); //[cite: 12]
+    }) //[cite: 12]
+    .catch(err => { //[cite: 12]
+      console.warn("Cargando catálogo base...", err); //[cite: 12]
+      renderizarMenu(menuBase); //[cite: 12]
+    }); //[cite: 12]
+} //[cite: 12]
+
+function renderizarMenu(data) { //[cite: 12]
+  let html = ""; //[cite: 12]
+  for (let cat in data) { //[cite: 12]
+    data[cat].forEach((p, idx) => { //[cite: 12]
+      if (p.disponible === false) return; // Ocultar bloqueados[cite: 12]
       
-      // ID único (corrige conflicto entre Hamburguesas y Hot Dogs: Ham0 vs Hot0)
-      let idFicticio = cat.substring(0, 3).replace(/\s/g, '') + idx; 
+      // ID único (corrige conflicto entre Hamburguesas y Hot Dogs: Ham0 vs Hot0)[cite: 12]
+      let idFicticio = cat.substring(0, 3).replace(/\s/g, '') + idx; //[cite: 12]
       
       html += `
         <div class="card-prod">
@@ -148,29 +158,29 @@ function renderizarMenu(data) {
           </div>
           <button class="btn-add" onclick="addCarrito('${p.nombre}', ${p.precio}, '${idFicticio}')">Agregar a la orden</button>
         </div>
-      `;
-    });
-  }
-  document.getElementById('contenedor-menu').innerHTML = html || "<p style='grid-column:1/-1;text-align:center;'>No hay productos disponibles.</p>";
-}
+      `; //[cite: 12]
+    }); //[cite: 12]
+  } //[cite: 12]
+  document.getElementById('contenedor-menu').innerHTML = html || "<p style='grid-column:1/-1;text-align:center;'>No hay productos disponibles.</p>"; //[cite: 12]
+} //[cite: 12]
 
-function addCarrito(nombre, precio, idElem) {
-  let cantElem = document.getElementById(`cant-${idElem}`);
-  let notaElem = document.getElementById(`nota-${idElem}`);
-  let cant = parseInt(cantElem ? cantElem.value : 1) || 1;
-  let notas = notaElem ? notaElem.value : '';
+function addCarrito(nombre, precio, idElem) { //[cite: 12]
+  let cantElem = document.getElementById(`cant-${idElem}`); //[cite: 12]
+  let notaElem = document.getElementById(`nota-${idElem}`); //[cite: 12]
+  let cant = parseInt(cantElem ? cantElem.value : 1) || 1; //[cite: 12]
+  let notas = notaElem ? notaElem.value : ''; //[cite: 12]
   
-  carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas });
-  document.getElementById('contador-items').innerText = carrito.length;
-  if (cantElem) cantElem.value = 1;
-  if (notaElem) notaElem.value = '';
-  alert(`${cant}x ${nombre} agregado al pedido.`);
-}
+  carrito.push({ nombre, precio, cantidad: cant, subtotal: precio * cant, notas }); //[cite: 12]
+  document.getElementById('contador-items').innerText = carrito.length; //[cite: 12]
+  if (cantElem) cantElem.value = 1; //[cite: 12]
+  if (notaElem) notaElem.value = ''; //[cite: 12]
+  alert(`${cant}x ${nombre} agregado al pedido.`); //[cite: 12]
+} //[cite: 12]
 
-function abrirCarrito() {
-  if (carrito.length === 0) return alert("El carrito está vacío.");
-  let html = ""; let total = 0;
-  carrito.forEach((i, idx) => {
+function abrirCarrito() { //[cite: 12]
+  if (carrito.length === 0) return alert("El carrito está vacío."); //[cite: 12]
+  let html = ""; let total = 0; //[cite: 12]
+  carrito.forEach((i, idx) => { //[cite: 12]
     html += `<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444; padding:8px 0;">
       <div>
         <strong>${i.cantidad}x ${i.nombre}</strong>
@@ -180,74 +190,104 @@ function abrirCarrito() {
         <span style="margin-right:10px;">$${i.subtotal.toFixed(2)}</span>
         <button onclick="quitarItem(${idx})" style="background:#f44336;color:white;border:none;border-radius:3px;padding:3px 8px;cursor:pointer;">X</button>
       </div>
-    </div>`;
-    total += i.subtotal;
-  });
-  document.getElementById('lista-carrito').innerHTML = html;
-  document.getElementById('total-carrito').innerText = total.toFixed(2);
-  document.getElementById('modal-carrito').style.display = 'flex';
-}
+    </div>`; //[cite: 12]
+    total += i.subtotal; //[cite: 12]
+  }); //[cite: 12]
+  document.getElementById('lista-carrito').innerHTML = html; //[cite: 12]
+  document.getElementById('total-carrito').innerText = total.toFixed(2); //[cite: 12]
+  document.getElementById('modal-carrito').style.display = 'flex'; //[cite: 12]
+} //[cite: 12]
 
-function quitarItem(idx) { 
-  carrito.splice(idx, 1); 
-  document.getElementById('contador-items').innerText = carrito.length; 
-  if (carrito.length === 0) {
-    document.getElementById('modal-carrito').style.display = 'none';
-  } else {
-    abrirCarrito(); 
-  }
-}
+function quitarItem(idx) { //[cite: 12]
+  carrito.splice(idx, 1); //[cite: 12]
+  document.getElementById('contador-items').innerText = carrito.length; //[cite: 12]
+  if (carrito.length === 0) { //[cite: 12]
+    document.getElementById('modal-carrito').style.display = 'none'; //[cite: 12]
+  } else { //[cite: 12]
+    abrirCarrito(); //[cite: 12]
+  } //[cite: 12]
+} //[cite: 12]
 
-function enviarPedido() {
-  let nombre = document.getElementById('nombre-cliente').value.trim();
-  if (!nombre) return alert("Por favor, ingresa tu nombre.");
+// --- FUNCIÓN ASÍNCRONA ACTUALIZADA PARA ENVIAR IMAGEN Y PEDIDO ---
+async function enviarPedido() {
+  let nombre = document.getElementById('nombre-cliente').value.trim(); //[cite: 12]
+  if (!nombre) return alert("Por favor, ingresa tu nombre."); //[cite: 12]
   
-  nombreClienteGuardado = nombre;
-  let total = carrito.reduce((sum, i) => sum + i.subtotal, 0);
+  nombreClienteGuardado = nombre; //[cite: 12]
+  let total = carrito.reduce((sum, i) => sum + i.subtotal, 0); //[cite: 12]
+  
+  // 1. PROCESAR Y ENVIAR LA IMAGEN PRIMERO
+  const inputArchivo = document.getElementById('comprobante'); //[cite: 12]
+  let imagenBase64 = '';
+
+  if (inputArchivo && inputArchivo.files && inputArchivo.files[0]) {
+      const archivo = inputArchivo.files[0];
+      imagenBase64 = await convertirABase64(archivo);
+  }
+
+  if (imagenBase64 !== '') {
+      const datosComprobante = {
+          cliente: nombre,
+          monto: total,
+          imagenBase64: imagenBase64
+      };
+      
+      try {
+          await fetch('/api/comprobantes', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(datosComprobante)
+          });
+      } catch (error) {
+          console.error("Error al enviar el comprobante:", error);
+      }
+  }
+
+  // 2. ENVIAR EL PEDIDO NORMALMENTE
   let pedido = {
-    cliente: nombre, 
-    total: total, 
-    items: carrito, 
-    estado: 'Pendiente', 
-    fecha: new Date().toLocaleTimeString(), 
-    metodo: 'Transferencia',
-    origen: 'Online'
+    cliente: nombre, //[cite: 12]
+    total: total, //[cite: 12]
+    items: carrito, //[cite: 12]
+    estado: 'Pendiente', //[cite: 12]
+    fecha: new Date().toLocaleTimeString(), //[cite: 12]
+    metodo: 'Transferencia', //[cite: 12]
+    origen: 'Online' //[cite: 12]
   };
 
-  // ENVIAR AL BACKEND SERVIDOR (NO QUEDA SOLO EN EL NAVEGADOR)
-  fetch('/api/pedidos', { 
-    method: 'POST', 
-    headers: {'Content-Type': 'application/json'}, 
-    body: JSON.stringify(pedido) 
-  })
-  .then(res => {
-    if (!res.ok) throw new Error("Error en el servidor al guardar el pedido");
-    return res.json();
-  })
-  .catch(err => {
-    console.error("Error al transmitir al servidor backend:", err);
-  })
-  .finally(() => {
-    ultimoPedido = carrito.map(i => `${i.cantidad}x ${i.nombre}${i.notas ? ' ('+i.notas+')' : ''}`).join(", ");
-    carrito = [];
-    document.getElementById('contador-items').innerText = "0";
-    document.getElementById('modal-carrito').style.display = 'none';
-    document.getElementById('modal-exito').style.display = 'flex';
-  });
+  // ENVIAR AL BACKEND SERVIDOR (NO QUEDA SOLO EN EL NAVEGADOR)[cite: 12]
+  fetch('/api/pedidos', { //[cite: 12]
+    method: 'POST', //[cite: 12]
+    headers: {'Content-Type': 'application/json'}, //[cite: 12]
+    body: JSON.stringify(pedido) //[cite: 12]
+  }) //[cite: 12]
+  .then(res => { //[cite: 12]
+    if (!res.ok) throw new Error("Error en el servidor al guardar el pedido"); //[cite: 12]
+    return res.json(); //[cite: 12]
+  }) //[cite: 12]
+  .catch(err => { //[cite: 12]
+    console.error("Error al transmitir al servidor backend:", err); //[cite: 12]
+  }) //[cite: 12]
+  .finally(() => { //[cite: 12]
+    ultimoPedido = carrito.map(i => `${i.cantidad}x ${i.nombre}${i.notas ? ' ('+i.notas+')' : ''}`).join(", "); //[cite: 12]
+    carrito = []; //[cite: 12]
+    document.getElementById('contador-items').innerText = "0"; //[cite: 12]
+    document.getElementById('modal-carrito').style.display = 'none'; //[cite: 12]
+    document.getElementById('modal-exito').style.display = 'flex'; //[cite: 12]
+  }); //[cite: 12]
 }
 
-function abrirWhatsApp() {
-  let txt = encodeURIComponent(`Hola, acabo de realizar un pedido a nombre de *${nombreClienteGuardado || document.getElementById('nombre-cliente').value}*.\n\nMi orden es:\n${ultimoPedido}\n\nAdjunto mi comprobante de pago.`);
-  window.open(`https://wa.me/52795696184?text=${txt}`, '_blank');
-}
+function abrirWhatsApp() { //[cite: 12]
+  let txt = encodeURIComponent(`Hola, acabo de realizar un pedido a nombre de *${nombreClienteGuardado || document.getElementById('nombre-cliente').value}*.\n\nMi orden es:\n${ultimoPedido}\n\nAdjunto mi comprobante de pago.`); //[cite: 12]
+  window.open(`https://wa.me/52795696184?text=${txt}`, '_blank'); //[cite: 12]
+} //[cite: 12]
 
-function cerrarExito() {
-  document.getElementById('modal-exito').style.display = 'none';
-  document.getElementById('nombre-cliente').value = '';
-}
+function cerrarExito() { //[cite: 12]
+  document.getElementById('modal-exito').style.display = 'none'; //[cite: 12]
+  document.getElementById('nombre-cliente').value = ''; //[cite: 12]
+} //[cite: 12]
 
-// Iniciar la carga del menú al abrir la página
-cargarMenu();
+// Iniciar la carga del menú al abrir la página[cite: 12]
+cargarMenu(); //[cite: 12]
 </script>
 </body>
 </html>

@@ -1976,5 +1976,152 @@
         "metodo_pago": "Efectivo",
         "hora_cobro": "15:11:24",
         "estado": "Cobrado"
+    },
+    {
+        "id": "d6ecdbfa",
+        "cliente": "LOPEZ",
+        "telefono": "",
+        "fecha": "2026-08-05 17:29:51",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            }
+        ],
+        "total": 90,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "17:30:01",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "e1a4a616",
+        "cliente": "LOS",
+        "telefono": "",
+        "fecha": "2026-08-05 17:31:23",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 10,
+                "subtotal": 300,
+                "notas": ""
+            }
+        ],
+        "total": 300,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "17:31:41",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "286edcd6",
+        "cliente": "ERES",
+        "telefono": "",
+        "fecha": "2026-08-05 17:37:30",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 120,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "17:56:55",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "0ac6d445",
+        "cliente": "Mesa 10",
+        "telefono": "",
+        "fecha": "2026-08-05 17:37:53",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 120,
+        "origen": "comandero",
+        "metodo_pago": "Efectivo",
+        "hora_cobro": "17:56:58",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "e8db4e25",
+        "cliente": "PEREZ",
+        "telefono": "",
+        "fecha": "2026-08-05 17:57:18",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 3,
+                "subtotal": 90,
+                "notas": ""
+            }
+        ],
+        "total": 90,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "17:57:59",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "b29807e4",
+        "cliente": "DON CHUUI",
+        "telefono": "",
+        "fecha": "2026-08-05 18:04:44",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 5,
+                "subtotal": 150,
+                "notas": ""
+            },
+            {
+                "nombre": "Orden de Hot Dogs",
+                "precio": 75,
+                "cantidad": 5,
+                "subtotal": 375,
+                "notas": ""
+            }
+        ],
+        "total": 525,
+        "origen": "Online",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "18:05:38",
+        "estado": "Cobrado"
+    },
+    {
+        "id": "7716e817",
+        "cliente": "Mesa 2",
+        "telefono": "",
+        "fecha": "2026-08-05 18:03:47",
+        "items": [
+            {
+                "nombre": "Hot Dog",
+                "precio": 30,
+                "cantidad": 4,
+                "subtotal": 120,
+                "notas": ""
+            }
+        ],
+        "total": 120,
+        "origen": "comandero",
+        "metodo_pago": "Transferencia",
+        "hora_cobro": "18:05:44",
+        "estado": "Cobrado"
     }
 ]
