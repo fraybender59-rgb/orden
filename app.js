@@ -1,76 +1,85 @@
 const express = require('express');
-const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
-
 const app = express();
 
-// Configuración de Middlewares
-app.use(cors());
-app.use(express.json({ limit: '50mb' }));
+// Middlewares
+app.use(express.json({ limit: '10mb' })); // Límite ampliado para permitir imágenes en Base64
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public'))); // Asegúrate de tener tus HTML en una carpeta 'public'
 
-// Middleware para servir archivos estáticos (HTML e Imágenes)
-app.use(express.static(__dirname));
+const ARCHIVO_PEDIDOS = path.join(__dirname, 'pedidos.json');
 
-// --- BASE DE DATOS EN MEMORIA ---
-const menuProductos = {
-  "Hamburguesas": [
-    { nombre: "Clásica", precio: 60, imagen: "clasica.jpg", disponible: true },
-    { nombre: "Doble", precio: 80, imagen: "doble.jpeg", disponible: true }
-  ],
-  "Hot Dogs": [
-    { nombre: "Hot Dog", precio: 30, imagen: "hot.jpg", disponible: true },
-    { nombre: "Orden de Hot Dogs", precio: 75, imagen: "Ordenhot.jpg", disponible: true }
-  ]
+// Función para leer pedidos
+const leerPedidos = () => {
+    try {
+        if (!fs.existsSync(ARCHIVO_PEDIDOS)) return [];
+        const data = fs.readFileSync(ARCHIVO_PEDIDOS, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error al leer pedidos:', error);
+        return [];
+    }
 };
 
-let pedidosActivos = [];
+// Función para guardar pedidos
+const guardarPedidos = (pedidos) => {
+    try {
+        fs.writeFileSync(ARCHIVO_PEDIDOS, JSON.stringify(pedidos, null, 2));
+    } catch (error) {
+        console.error('Error al guardar pedidos:', error);
+    }
+};
 
 // --- RUTAS DE LA API ---
 
-// Obtener el menú completo
-app.get('/api/menu', (req, res) => {
-  res.json(menuProductos);
-});
-
 // Obtener todos los pedidos
 app.get('/api/pedidos', (req, res) => {
-  res.json(pedidosActivos);
+    const pedidos = leerPedidos();
+    res.json(pedidos);
 });
 
-// Crear un nuevo pedido (Ejemplo de lógica para el comandero)
+// Crear un nuevo pedido
 app.post('/api/pedidos', (req, res) => {
-  const nuevoPedido = {
-    id: Date.now(),
-    items: req.body.items || [],
-    total: req.body.total || 0,
-    estado: 'pendiente',
-    fecha: new Date().toISOString()
-  };
-  pedidosActivos.push(nuevoPedido);
-  res.status(201).json({ mensaje: 'Pedido registrado con éxito', pedido: nuevoPedido });
+    const pedidos = leerPedidos();
+    const nuevoPedido = {
+        id: Date.now().toString(), // Genera un ID único basado en la fecha
+        cliente: req.body.cliente || 'Sin Nombre',
+        productos: req.body.productos || [],
+        total: req.body.total || 0,
+        estado: 'Pendiente',
+        fecha: new Date().toISOString()
+    };
+    
+    pedidos.push(nuevoPedido);
+    guardarPedidos(pedidos);
+    res.status(201).json({ status: 'success', pedido: nuevoPedido });
 });
 
-// Actualizar estado del pedido (Ejemplo para administración)
-app.put('/api/pedidos/:id', (req, res) => {
-  const idPedido = parseInt(req.params.id);
-  const index = pedidosActivos.findIndex(p => p.id === idPedido);
-  
-  if (index !== -1) {
-    pedidosActivos[index].estado = req.body.estado;
-    res.json({ mensaje: 'Pedido actualizado', pedido: pedidosActivos[index] });
-  } else {
-    res.status(404).json({ error: 'Pedido no encontrado' });
-  }
+// Actualizar un pedido (Cobro, Estado, Comprobante y Origen)
+app.patch('/api/pedidos/:id', (req, res) => {
+    const pedidos = leerPedidos();
+    const pedidoId = req.params.id;
+    const index = pedidos.findIndex(p => String(p.id) === String(pedidoId));
+
+    if (index !== -1) {
+        // Actualiza los campos si vienen en la petición
+        if (req.body.estado) pedidos[index].estado = req.body.estado;
+        if (req.body.metodo) pedidos[index].metodo = req.body.metodo;
+        if (req.body.origen) pedidos[index].origen = req.body.origen;
+        if (req.body.comprobante_base64) pedidos[index].comprobante_base64 = req.body.comprobante_base64;
+
+        guardarPedidos(pedidos);
+        res.json({ status: 'success', pedido: pedidos[index] });
+    } else {
+        res.status(404).json({ status: 'error', message: 'Pedido no encontrado' });
+    }
 });
 
-// --- EXPORTACIÓN PARA VERCEL ---
-// Es vital exportar la app en lugar de solo dejarla escuchando, para evitar el error 404 en rutas dinámicas.
+// Iniciar Servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor de #hamburguesas corriendo en el puerto ${PORT}`);
+});
+
 module.exports = app;
-
-// Solo inicia el servidor localmente si lo corres desde tu terminal (ej: node app.js)
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Servidor del proyecto #hamburguesas activo en http://localhost:${PORT}`);
-  });
-}

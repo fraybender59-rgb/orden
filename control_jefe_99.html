@@ -210,13 +210,20 @@
 
                             let esStaff = false;
                             let clienteStr = p.cliente ? String(p.cliente).trim().toLowerCase() : '';
+                            let origenStr = p.origen ? String(p.origen).trim().toLowerCase() : '';
 
-                            if (p.origen === 'staff' || p.origen === 'punto_staff_77' || p.origen === 'caja') esStaff = true;
-                            else if (p.origen === 'online') esStaff = false;
-                            else if (clienteStr !== '' && !isNaN(clienteStr)) esStaff = true;
-                            else if (clienteStr.includes('mesa') || clienteStr.includes('barra')) esStaff = true;
-                            else if (p.mesa) esStaff = true;
-                            else if (p.mesero && p.mesero.trim() !== '' && p.mesero.toLowerCase() !== 'online' && p.mesero.toLowerCase() !== 'cliente') esStaff = true;
+                            // Lógica mejorada para captar con seguridad Comandero vs Staff
+                            if (origenStr === 'online' || origenStr === 'comandero') {
+                                esStaff = false;
+                            } else if (origenStr === 'staff' || origenStr === 'punto_staff_77' || origenStr === 'caja') {
+                                esStaff = true;
+                            } else {
+                                if (clienteStr !== '' && !isNaN(clienteStr)) esStaff = true;
+                                else if (clienteStr.includes('mesa') || clienteStr.includes('barra')) esStaff = true;
+                                else if (p.mesa) esStaff = true;
+                                else if (p.mesero && p.mesero.trim() !== '' && p.mesero.toLowerCase() !== 'online' && p.mesero.toLowerCase() !== 'cliente') esStaff = true;
+                                else esStaff = false;
+                            }
 
                             if (esStaff) pedidosCaja.push(p);
                             else pedidosOnline.push(p);
@@ -231,6 +238,11 @@
                 cargarDesdeLocalStorage();
             }
             actualizarGranTotal();
+
+            // Si el modal de comprobantes está abierto, se actualiza automáticamente
+            if (document.getElementById('modal-comprobantes').style.display === 'flex') {
+                abrirModalComprobantes(true);
+            }
         }
 
         function cargarDesdeLocalStorage() {
@@ -291,6 +303,7 @@
                     let safeCliente = (p.cliente || 'Cliente').replace(/'/g, "\\'");
                     let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
                     let descHtml = p.descuento_aplicado ? `<span style="color:#e91e63; font-size:0.85rem; display:block; margin-top:2px;">🏷️ Descuento: -$${parseFloat(p.descuento_aplicado).toFixed(2)}</span>` : '';
+                    let imgComprobante = (p.comprobante || p.imagenBase64 || p.imagen || p.foto) ? `<div style="text-align:center; margin: 10px 0;"><a href="${p.comprobante || p.imagenBase64 || p.imagen || p.foto}" target="_blank" style="background:#e91e63; color:white; padding:6px 12px; border-radius:5px; text-decoration:none; font-size:0.85rem; font-weight:bold; display:inline-block;">📸 Ver Comprobante Enviado</a></div>` : '';
 
                     htmlOnline += `
                         <div class="tarjeta-cuenta tarjeta-online">
@@ -300,6 +313,7 @@
                                 <span class="mesero-tag">👤 ${p.mesero || 'Online'}</span>
                             </div>
                             <ul class="lista-items">${itemsHtml}</ul>
+                            ${imgComprobante}
                             <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)} ${descHtml}</div>
                             <div class="grid-botones-cobro">
                                 <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta('${idVal}', 'Efectivo', 'online', '${safeCliente}')">💵 EFECTIVO</button>
@@ -321,6 +335,7 @@
                 let safeMesa = String(tituloMesa).replace(/'/g, "\\'");
                 let itemsHtml = p.items.map(it => `<li><strong>${it.cantidad}x</strong> ${it.nombre} ($${((it.precio || it.subtotal/it.cantidad || 0) * it.cantidad).toFixed(2)})${it.notas ? `<span class="item-nota">⚠️ Nota: ${it.notas}</span>` : ''}</li>`).join('');
                 let descHtml = p.descuento_aplicado ? `<span style="color:#e91e63; font-size:0.85rem; display:block; margin-top:2px;">🏷️ Descuento: -$${parseFloat(p.descuento_aplicado).toFixed(2)}</span>` : '';
+                let imgComprobante = (p.comprobante || p.imagenBase64 || p.imagen || p.foto) ? `<div style="text-align:center; margin: 10px 0;"><a href="${p.comprobante || p.imagenBase64 || p.imagen || p.foto}" target="_blank" style="background:#e91e63; color:white; padding:6px 12px; border-radius:5px; text-decoration:none; font-size:0.85rem; font-weight:bold; display:inline-block;">📸 Ver Comprobante Enviado</a></div>` : '';
 
                 htmlCaja += `
                     <div class="tarjeta-cuenta">
@@ -329,6 +344,7 @@
                             <span class="mesero-tag">👤 ${p.mesero || 'Staff'}</span>
                         </div>
                         <ul class="lista-items">${itemsHtml}</ul>
+                        ${imgComprobante}
                         <div class="total-tarjeta">TOTAL: $${parseFloat(p.total || 0).toFixed(2)} ${descHtml}</div>
                         <div class="grid-botones-cobro">
                             <button class="btn-cobro btn-efectivo" onclick="cobrarCuenta('${idVal}', 'Efectivo', 'caja', '${safeMesa}')">💵 EFECTIVO</button>
@@ -477,33 +493,40 @@
             cargarEstadoInicial();
         }
 
-        async function abrirModalComprobantes() {
+        async function abrirModalComprobantes(modoSilencioso = false) {
             // LÓGICA DE PURGA A 30 DÍAS
             let compLocales = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
             const limite30Dias = 30 * 24 * 60 * 60 * 1000;
             const hoy = Date.now();
+            let modificado = false;
             
             let comprobantesFiltrados = compLocales.filter(c => {
-                if (!c.fechaRegistro) return true; 
-                return (hoy - c.fechaRegistro) <= limite30Dias; // Se queda si es menor o igual a 30 días
+                // Si la imagen entró sin fecha, se la registramos hoy
+                if (!c.fechaRegistro) {
+                    c.fechaRegistro = hoy;
+                    modificado = true;
+                    return true;
+                }
+                // Si la fecha superó los 30 días, se borra automáticamente
+                if ((hoy - c.fechaRegistro) > limite30Dias) {
+                    modificado = true;
+                    return false; 
+                }
+                return true; 
             });
 
-            // Si detectamos que borramos imágenes viejas, guardamos la base de datos limpia
-            if (comprobantesFiltrados.length !== compLocales.length) {
+            if (modificado) {
                 localStorage.setItem('comprobantes_transferencia', JSON.stringify(comprobantesFiltrados));
             }
 
             let comprobantesFinal = comprobantesFiltrados;
 
-            // Intentar recuperar de la API por si acaso 
             try {
                 const res = await fetch('/api/comprobantes');
                 if (res.ok) {
                     comprobantesFinal = await res.json();
                 } 
-            } catch (e) {
-                // Se mantiene la base filtrada de 30 días si no hay API
-            }
+            } catch (e) { }
 
             const galeria = document.getElementById('galeria-comprobantes');
             
@@ -530,7 +553,11 @@
                     `;
                 }).join('');
             }
-            document.getElementById('modal-comprobantes').style.display = 'flex';
+            
+            // Solo muestra la pantalla forzadamente si fue un clic manual
+            if (modoSilencioso !== true) {
+                document.getElementById('modal-comprobantes').style.display = 'flex';
+            }
         }
 
         function cerrarModalComprobantes() { document.getElementById('modal-comprobantes').style.display = 'none'; }
@@ -546,7 +573,7 @@
                 comprobantes.splice(indexLocal, 1);
                 localStorage.setItem('comprobantes_transferencia', JSON.stringify(comprobantes));
             }
-            abrirModalComprobantes();
+            abrirModalComprobantes(false); // Refresca manual
         }
 
         function obtenerMeserosConfig() {
@@ -616,7 +643,9 @@
                 
                 localStorage.setItem('historial_cortes_dias', JSON.stringify(historial));
                 localStorage.setItem('cuentas_cobradas', JSON.stringify([])); 
-                localStorage.removeItem('comprobantes_transferencia');
+                
+                // Las transferencias ya se controlan por 30 días, no se borran al cerrar caja
+                // localStorage.removeItem('comprobantes_transferencia'); 
                 localStorage.removeItem('descuentos_aplicados');
                 
                 cargarEstadoInicial();

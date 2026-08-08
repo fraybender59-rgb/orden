@@ -79,6 +79,22 @@
 </div> 
 
 <script>
+// Limpieza automática de comprobantes con más de 30 días en localStorage
+function limpiarComprobantesAntiguos() {
+    let comprobantesLocal = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+    const treintaDiasEnMs = 30 * 24 * 60 * 60 * 1000;
+    const ahora = Date.now();
+    
+    let filtrados = comprobantesLocal.filter(comp => {
+        // Mantiene solo los que tienen menos de 30 días de antigüedad
+        return (ahora - comp.fechaRegistro) < treintaDiasEnMs;
+    });
+    
+    localStorage.setItem('comprobantes_transferencia', JSON.stringify(filtrados));
+}
+// Ejecutar limpieza al cargar la página
+limpiarComprobantesAntiguos();
+
 const menuBase = { 
   "Hamburguesas": [ 
     { nombre: "Hamburguesa Sencilla", precio: 60, imagen: "clasica.jpg" }, 
@@ -137,7 +153,6 @@ function renderizarMenu(data) {
       
       let idFicticio = cat.substring(0, 3).replace(/\s/g, '') + idx; 
       
-      // Se agregó fallback de onerror para la imagen
       html += `
         <div class="card-prod">
           <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/250x160?text=Sin+Imagen'">
@@ -205,7 +220,7 @@ async function enviarPedido() {
   
   nombreClienteGuardado = nombre; 
   let total = carrito.reduce((sum, i) => sum + i.subtotal, 0); 
-  const idUnico = Date.now(); // Identificador único para enlazar todo
+  const idUnico = Date.now(); 
   
   const inputArchivo = document.getElementById('comprobante'); 
   let imagenBase64 = '';
@@ -222,11 +237,10 @@ async function enviarPedido() {
           cliente: nombre,
           monto: total,
           imagenBase64: imagenBase64,
-          fechaRegistro: Date.now(), // Para borrado a 30 días
+          fechaRegistro: Date.now(), 
           fecha: new Date().toLocaleDateString()
       };
       
-      // Respaldo en LocalStorage para que el control lo vea sin internet/backend
       let compLocal = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
       compLocal.push(datosComprobante);
       localStorage.setItem('comprobantes_transferencia', JSON.stringify(compLocal));
@@ -254,12 +268,11 @@ async function enviarPedido() {
     origen: 'Online' 
   };
 
-  // Respaldo vital en LocalStorage para que se refleje en control_jefe_99
   let pedidosLocal = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
   pedidosLocal.push(pedido);
   localStorage.setItem('pedidos_activos', JSON.stringify(pedidosLocal));
 
-  // Intentar mandarlo al Backend
+  // Intentar mandarlo al Backend (Aquí se mantiene intacta tu conexión a almacén)
   fetch('/api/pedidos', { 
     method: 'POST', 
     headers: {'Content-Type': 'application/json'}, 
