@@ -119,7 +119,6 @@
         </div>
     </div>
 
-    <!-- Modales permanecen intactos -->
     <div id="modal-historial" class="modal">
         <div class="modal-contenido" style="max-height: 80vh; overflow-y: auto;">
             <h2>📂 Cuentas Cobradas de Hoy</h2>
@@ -161,7 +160,7 @@
     <div id="modal-comprobantes" class="modal">
         <div class="modal-contenido" style="max-height: 85vh; overflow-y: auto; max-width: 800px;">
             <h2 style="color: #e91e63;">📸 Galería de Transferencias</h2>
-            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Comprobantes recibidos desde la red o guardados localmente.</p>
+            <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px; text-align: center;">Comprobantes guardados (Autoborrado a los 30 días).</p>
             
             <div id="galeria-comprobantes" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;"></div>
             
@@ -182,11 +181,8 @@
             if (pwd === 'IBARRITA') {
                 document.getElementById('pantalla-login').style.display = 'none';
                 
-                // 🚀 AQUÍ ESTÁ LA MEJORA DE VERCEL (Parte 1): 
-                // Carga los datos inmediatamente al entrar
                 cargarEstadoInicial();
                 
-                // 🚀 Y aquí se activa el ciclo automático de 3 segundos que pediste
                 if(!intervaloActualizacion) {
                     intervaloActualizacion = setInterval(cargarEstadoInicial, 3000); 
                 }
@@ -202,8 +198,6 @@
             ultimosPedidosCargados = [];
 
             try {
-                // 🚀 AQUÍ ESTÁ LA MEJORA DE VERCEL (Parte 2): 
-                // Esta línea hace exactamente el fetch('/api/pedidos') conectándose a app.js
                 const res = await fetch('/api/pedidos'); 
                 
                 if (res.ok) {
@@ -234,8 +228,6 @@
                     cargarDesdeLocalStorage();
                 }
             } catch (e) {
-                // Si por alguna razón el servidor de Vercel falla o no hay internet, 
-                // tu sistema es inteligente y busca en localStorage localmente.
                 cargarDesdeLocalStorage();
             }
             actualizarGranTotal();
@@ -486,24 +478,39 @@
         }
 
         async function abrirModalComprobantes() {
-            let comprobantes = [];
+            // LÓGICA DE PURGA A 30 DÍAS
+            let compLocales = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+            const limite30Dias = 30 * 24 * 60 * 60 * 1000;
+            const hoy = Date.now();
+            
+            let comprobantesFiltrados = compLocales.filter(c => {
+                if (!c.fechaRegistro) return true; 
+                return (hoy - c.fechaRegistro) <= limite30Dias; // Se queda si es menor o igual a 30 días
+            });
+
+            // Si detectamos que borramos imágenes viejas, guardamos la base de datos limpia
+            if (comprobantesFiltrados.length !== compLocales.length) {
+                localStorage.setItem('comprobantes_transferencia', JSON.stringify(comprobantesFiltrados));
+            }
+
+            let comprobantesFinal = comprobantesFiltrados;
+
+            // Intentar recuperar de la API por si acaso 
             try {
                 const res = await fetch('/api/comprobantes');
                 if (res.ok) {
-                    comprobantes = await res.json();
-                } else {
-                    comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
-                }
+                    comprobantesFinal = await res.json();
+                } 
             } catch (e) {
-                comprobantes = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+                // Se mantiene la base filtrada de 30 días si no hay API
             }
 
             const galeria = document.getElementById('galeria-comprobantes');
             
-            if (!comprobantes || !Array.isArray(comprobantes) || comprobantes.length === 0) {
+            if (!comprobantesFinal || !Array.isArray(comprobantesFinal) || comprobantesFinal.length === 0) {
                 galeria.innerHTML = '<p style="color:#aaa; width:100%; text-align:center; padding: 20px;">📷 No hay comprobantes guardados aún.</p>';
             } else {
-                galeria.innerHTML = comprobantes.map((c, i) => {
+                galeria.innerHTML = comprobantesFinal.map((c, i) => {
                     let imgUrl = typeof c === 'string' ? c : (c.imagenBase64 || c.url || c.ruta || c.imagen || c.foto || c.comprobante || c.data || '');
                     let cliente = c.mesa || c.cliente || c.nombre || 'Mesa / Cliente';
                     let monto = parseFloat(c.monto || c.total || 0).toFixed(2);

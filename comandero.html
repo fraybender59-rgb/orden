@@ -10,7 +10,7 @@
   .grid-menu { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-bottom: 80px; } 
   .card-prod { background: #1e1e24; border-radius: 8px; padding-bottom: 15px; text-align: center; border: 1px solid #333; } 
   
-  .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; } 
+  .img-prod { width: 100%; height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; display: block; background: #2a2a35; } 
   
   .precio { color: #ff9800; font-size: 1.2rem; font-weight: bold; margin: 10px 0; } 
   .controles { display: flex; gap: 5px; padding: 0 10px; margin-bottom: 10px; } 
@@ -42,7 +42,7 @@
 
 <div id="modal-carrito" class="modal-overlay"> 
   <div class="modal-content"> 
-    <img src="imagenes/Kirby1.jpg" alt="Kirby" class="img-kirby"> 
+    <img src="imagenes/Kirby1.jpg" alt="Kirby" class="img-kirby" onerror="this.src='https://via.placeholder.com/100?text=Logo'"> 
     <h2 style="margin-top:0;">🛒 Tu Pedido</h2> 
     <div id="lista-carrito" style="text-align: left; margin-bottom: 15px;"></div> 
     <h3 style="color:#8bc34a; text-align:right;">Total: $<span id="total-carrito">0.00</span></h3> 
@@ -65,7 +65,7 @@
 
 <div id="modal-exito" class="modal-overlay"> 
   <div class="modal-content"> 
-    <img src="imagenes/kirby3.webp" alt="Kirby Celebrando" class="img-kirby"> 
+    <img src="imagenes/kirby3.webp" alt="Kirby Celebrando" class="img-kirby" onerror="this.src='https://via.placeholder.com/100?text=Exito'"> 
     <h2>¡Pedido Generado con Éxito! 🎉</h2> 
     <p style="font-size: 0.9rem; color: #ccc;">Tu orden ya está en nuestro sistema. Para que cocina comience a prepararlo, <b>necesitamos confirmar tu pago</b>.</p> 
     
@@ -137,9 +137,10 @@ function renderizarMenu(data) {
       
       let idFicticio = cat.substring(0, 3).replace(/\s/g, '') + idx; 
       
+      // Se agregó fallback de onerror para la imagen
       html += `
         <div class="card-prod">
-          <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}">
+          <img src="imagenes/${p.imagen}" class="img-prod" alt="${p.nombre}" onerror="this.src='https://via.placeholder.com/250x160?text=Sin+Imagen'">
           <h3 style="margin: 10px 0 0 0;">${p.nombre}</h3>
           <p class="precio">$${p.precio.toFixed(2)}</p>
           <div class="controles">
@@ -204,6 +205,7 @@ async function enviarPedido() {
   
   nombreClienteGuardado = nombre; 
   let total = carrito.reduce((sum, i) => sum + i.subtotal, 0); 
+  const idUnico = Date.now(); // Identificador único para enlazar todo
   
   const inputArchivo = document.getElementById('comprobante'); 
   let imagenBase64 = '';
@@ -213,12 +215,21 @@ async function enviarPedido() {
       imagenBase64 = await convertirABase64(archivo);
   }
 
+  // GUARDAR COMPROBANTE
   if (imagenBase64 !== '') {
       const datosComprobante = {
+          id: idUnico,
           cliente: nombre,
           monto: total,
-          imagenBase64: imagenBase64
+          imagenBase64: imagenBase64,
+          fechaRegistro: Date.now(), // Para borrado a 30 días
+          fecha: new Date().toLocaleDateString()
       };
+      
+      // Respaldo en LocalStorage para que el control lo vea sin internet/backend
+      let compLocal = JSON.parse(localStorage.getItem('comprobantes_transferencia')) || [];
+      compLocal.push(datosComprobante);
+      localStorage.setItem('comprobantes_transferencia', JSON.stringify(compLocal));
       
       try {
           await fetch('/api/comprobantes', {
@@ -227,11 +238,13 @@ async function enviarPedido() {
               body: JSON.stringify(datosComprobante)
           });
       } catch (error) {
-          console.error("Error al enviar el comprobante:", error);
+          console.warn("API de comprobantes no respondió, guardado local exitoso.");
       }
   }
 
+  // CREAR Y GUARDAR EL PEDIDO
   let pedido = {
+    id: idUnico,
     cliente: nombre, 
     total: total, 
     items: carrito, 
@@ -241,17 +254,23 @@ async function enviarPedido() {
     origen: 'Online' 
   };
 
+  // Respaldo vital en LocalStorage para que se refleje en control_jefe_99
+  let pedidosLocal = JSON.parse(localStorage.getItem('pedidos_activos')) || [];
+  pedidosLocal.push(pedido);
+  localStorage.setItem('pedidos_activos', JSON.stringify(pedidosLocal));
+
+  // Intentar mandarlo al Backend
   fetch('/api/pedidos', { 
     method: 'POST', 
     headers: {'Content-Type': 'application/json'}, 
     body: JSON.stringify(pedido) 
   }) 
   .then(res => { 
-    if (!res.ok) throw new Error("Error en el servidor al guardar el pedido"); 
+    if (!res.ok) throw new Error("Error en servidor backend"); 
     return res.json(); 
   }) 
   .catch(err => { 
-    console.error("Error al transmitir al servidor backend:", err); 
+    console.warn("Modo local activo. El pedido se guardó para revisión del jefe."); 
   }) 
   .finally(() => { 
     ultimoPedido = carrito.map(i => `${i.cantidad}x ${i.nombre}${i.notas ? ' ('+i.notas+')' : ''}`).join(", "); 
